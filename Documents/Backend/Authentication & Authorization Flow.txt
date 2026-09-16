@@ -1,0 +1,694 @@
+# 🔐 MediMind — Authentication & Authorization Flow
+
+Now we define **how login, JWT, roles, and permissions work across all services**.
+
+This is the next architecture layer before implementation.
+
+---
+
+## 1. Identity Structure
+
+MediMind has **5 system roles**:
+
+```text id="5u9z2d"
+CHAIRMAN
+HOSPITAL_ADMIN
+DEPARTMENT_HEAD
+DOCTOR
+FAMILY
+```
+
+The important distinction is:
+
+```text id="q2g7x1"
+Account Identity
+      ↓
+User in Auth Service
+      ↓
+reference_id
+      ↓
+Role-specific profile
+```
+
+For example:
+
+```text id="y6v2a9"
+Auth User
+   │
+   ├── role = FAMILY
+   └── reference_id → Family Account
+```
+
+Doctor:
+
+```text id="g2e1kc"
+Auth User
+   │
+   ├── role = DOCTOR
+   └── reference_id → Doctor Profile
+```
+
+---
+
+# 2. Login Flow
+
+All users use the same login endpoint:
+
+```http
+POST /api/auth/login
+```
+
+### Flow
+
+```text id="0z8y7h"
+User
+ ↓
+React Login Page
+ ↓
+API Gateway
+ ↓
+Auth Service
+ ↓
+Find user by email
+ ↓
+Verify password
+ ↓
+Check account status
+ ↓
+Generate JWT
+ ↓
+Return JWT + basic user information
+ ↓
+React stores authentication state
+```
+
+---
+
+# 3. JWT Structure
+
+The JWT should contain **identity information**, not medical information.
+
+Example:
+
+```json id="z7m9q4"
+{
+  "userId": "67abc123",
+  "role": "DOCTOR",
+  "referenceId": "67def456"
+}
+```
+
+Where:
+
+| Field         | Meaning                         |
+| ------------- | ------------------------------- |
+| `userId`      | Auth Service user ID            |
+| `role`        | System role                     |
+| `referenceId` | ID of the role-specific profile |
+
+For a family:
+
+```json id="0nqf9j"
+{
+  "userId": "...",
+  "role": "FAMILY",
+  "referenceId": "familyId"
+}
+```
+
+For a doctor:
+
+```json id="zj6w2f"
+{
+  "userId": "...",
+  "role": "DOCTOR",
+  "referenceId": "doctorId"
+}
+```
+
+---
+
+# 4. JWT Verification
+
+The **API Gateway** verifies the JWT.
+
+```text id="y6r5hs"
+Request
+   │
+   ▼
+API Gateway
+   │
+   ├── No JWT ───────────────► 401 Unauthorized
+   │
+   └── JWT present
+          │
+          ▼
+      Verify token
+          │
+       ┌──┴──┐
+      Valid Invalid
+       │      │
+       ▼      ▼
+    Continue  401
+```
+
+The Gateway then forwards authenticated identity information to the target service.
+
+---
+
+# 5. Role-Based Authorization
+
+Authentication answers:
+
+> **Who are you?**
+
+Authorization answers:
+
+> **What are you allowed to do?**
+
+Example:
+
+```text id="g5e1sz"
+JWT
+ ↓
+role = DOCTOR
+ ↓
+GET /api/appointments
+ ↓
+Allowed
+```
+
+But:
+
+```text id="9j5v7a"
+JWT
+ ↓
+role = FAMILY
+ ↓
+POST /api/department-heads
+ ↓
+403 Forbidden
+```
+
+---
+
+# 6. Role Hierarchy
+
+Our organizational hierarchy remains:
+
+```text id="6b8r2q"
+CHAIRMAN
+    ↓
+HOSPITAL ADMIN
+    ↓
+DEPARTMENT HEAD
+    ↓
+DOCTOR
+```
+
+But **this does not mean higher roles automatically have access to private patient medical records**.
+
+That's important.
+
+For example:
+
+```text id="f0z5m6"
+Chairman
+   ❌ automatically sees patient records
+
+Hospital Admin
+   ❌ automatically sees patient records
+
+Department Head
+   ❌ automatically sees every patient's records
+
+Doctor
+   ✅ sees patient information through the appropriate healthcare workflow
+```
+
+---
+
+# 7. Permission Matrix
+
+Here's the simplified system-level permission model.
+
+| Feature         | Family |    Doctor   |     Dept Head     |  Hospital Admin | Chairman |
+| --------------- | :----: | :---------: | :---------------: | :-------------: | :------: |
+| Family account  |    ✅   |      ❌      |         ❌         |        ❌        |     ❌    |
+| Family members  |    ✅   |      ❌      |         ❌         |        ❌        |     ❌    |
+| Medical records |    ✅   |      ✅*     |         ❌         |        ❌        |     ❌    |
+| AI predictions  |    ✅   |      ✅*     |         ❌         |        ❌        |     ❌    |
+| Appointments    |    ✅   |      ✅      |         ❌         |        ✅        |     ❌    |
+| Consultations   |  View  | Create/View |       View*       |      View*      |     ❌    |
+| Prescriptions   |  View  | Create/View |       View*       |      View*      |     ❌    |
+| Doctors         | Browse | Own profile | Manage department | Manage hospital |   View   |
+| Departments     |  View  |   View own  |     Manage own    |      Manage     |  Manage  |
+| Hospital        |  View  |     View    |        View       |      Manage     |  Manage  |
+| Knowledge       |  Read  |    Create   |       Review      |       View      |   View   |
+| Articles        |  Read  |    Create   |   Review/Approve  |       View      |   View   |
+
+`*` = access according to the healthcare workflow and service rules, **not unrestricted system-wide access**.
+
+---
+
+# 8. Family Authorization
+
+Family has the strongest access to **its own family information**.
+
+```text id="7j2k5e"
+Family Account
+      ↓
+Family Members
+      ↓
+Any member profile
+      ↓
+Records
+AI
+Appointments
+Consultations
+Prescriptions
+```
+
+Because the family account owns these profiles, family members can access the information of other members within that family.
+
+---
+
+# 9.1 Family Grants Doctor Access
+
+Family authorization for doctors is explicit and member-specific.
+
+```text
+Family Account
+      ↓
+Select Family Member
+      ↓
+Select Doctor
+      ↓
+Grant Full Access
+      ↓
+RecordAccess { status: ACTIVE }
+```
+
+The grant is for the selected family member only. An ACTIVE grant provides complete medical-record access for that member; there are no record-type checkboxes.
+
+The family can revoke the access later. The doctor can view their own access history.
+
+---
+
+# 9. Doctor Authorization
+
+A doctor should **not** be able to do:
+
+```text id="h5j8x1"
+GET /api/records/all
+```
+
+and obtain everyone's medical records.
+
+Instead, the Medical Record Service checks an ACTIVE `RecordAccess` relationship for the specific family member. The family must have explicitly granted that doctor full access to the selected member.
+
+Conceptually:
+
+```text id="1r5z6a"
+Doctor
+ ↓
+Specific Family Member
+ ↓
+Medical Record Service
+ ↓
+Check ACTIVE RecordAccess
+ ↓
+Return complete records for that member
+```
+
+This prevents:
+
+```text id="7x8p3n"
+Doctor A
+   ↓
+All patients in hospital ❌
+```
+
+---
+
+# 10. Department Head Authorization
+
+A Department Head belongs to:
+
+```text id="k2d7m9"
+Hospital
+   ↓
+Department
+   ↓
+Department Head
+```
+
+Therefore, they can manage their department.
+
+Example:
+
+```text id="w4f3q6"
+Department Head — Cardiology
+       ↓
+Cardiology
+       ├── Doctor 1
+       ├── Doctor 2
+       └── Doctor 3
+```
+
+They should not automatically manage:
+
+```text id="5v7n8c"
+Orthopedics ❌
+Diabetology ❌
+```
+
+---
+
+# 11. Hospital Admin Authorization
+
+Hospital Admin manages the hospital:
+
+```text id="9g4k1w"
+Hospital Admin
+      ↓
+Hospital
+      ├── Departments
+      ├── Department Heads
+      └── Doctors
+```
+
+But again:
+
+> Hospital administration does not equal automatic access to private medical records.
+
+---
+
+# 12. Chairman Authorization
+
+Chairman is the highest organizational role.
+
+```text id="q8j2k4"
+Chairman
+   ↓
+Hospital
+   ↓
+Hospital Admin
+   ↓
+Departments
+   ↓
+Department Heads
+   ↓
+Doctors
+```
+
+Chairman manages/oversees the platform and hospital-level configuration.
+
+But:
+
+```text id="b5k6p9"
+Chairman
+   ❌ automatic access to patient medical records
+```
+
+This separation is good from a privacy/security perspective and makes your architecture more realistic.
+
+---
+
+# 13. API Gateway Authorization Middleware
+
+Conceptually:
+
+```text id="m7n4p2"
+Request
+  ↓
+JWT Middleware
+  ↓
+Decode JWT
+  ↓
+req.user = {
+   userId,
+   role,
+   referenceId
+}
+  ↓
+Role Middleware
+  ↓
+Controller
+```
+
+For example:
+
+```text id="6x9q2v"
+requireRole("DOCTOR")
+```
+
+allows only:
+
+```text
+DOCTOR
+```
+
+while:
+
+```text id="q3w7e8"
+requireRole(
+    "HOSPITAL_ADMIN",
+    "CHAIRMAN"
+)
+```
+
+allows either role.
+
+---
+
+# 14. Service-Level Authorization
+
+The Gateway performs the first authorization check, but **services should still enforce business rules**.
+
+For example:
+
+```text id="2r5t8y"
+Gateway
+ ↓
+"User is DOCTOR"
+ ↓
+Doctor Service
+ ↓
+"Does this doctor own this profile?"
+ ↓
+YES → Continue
+NO  → 403
+```
+
+This gives us **defense in depth**.
+
+We don't want a service to blindly trust every request just because it came through the Gateway.
+
+---
+
+# 15. Example — Doctor Viewing Patient
+
+```text id="v7k3m2"
+Doctor
+ ↓
+GET /api/records/member/123
+ ↓
+API Gateway
+ ↓
+Verify JWT
+ ↓
+role = DOCTOR
+ ↓
+Medical Record Service
+ ↓
+Check ACTIVE RecordAccess for this family member
+ ↓
+Patient information
+ ↓
+Return records
+```
+
+If unauthorized:
+
+```http id="c8n4x6"
+403 Forbidden
+```
+
+---
+
+# 16. Example — Family Booking Appointment
+
+```text id="s6h2q9"
+Family
+ ↓
+POST /api/appointments
+ ↓
+Gateway
+ ↓
+JWT verified
+ ↓
+role = FAMILY
+ ↓
+Appointment Service
+ ↓
+Verify family owns patient profile
+ ↓
+Verify doctor exists
+ ↓
+Verify appointment slot
+ ↓
+Create appointment
+ ↓
+Trigger required AI prediction
+```
+
+---
+
+# 17. Example — Department Head Creating Doctor
+
+```text id="z3p7m1"
+Department Head
+ ↓
+POST /api/doctors
+ ↓
+Gateway
+ ↓
+JWT verified
+ ↓
+role = DEPARTMENT_HEAD
+ ↓
+Doctor Service
+ ↓
+Verify department head's department
+ ↓
+Create doctor
+ ↓
+Create corresponding Auth account
+```
+
+The important part is:
+
+```text id="n4k8s2"
+Department Head
+      ↓
+Only their department
+```
+
+not every department.
+
+---
+
+# 18. Example — Doctor Creating Article
+
+```text id="j6r2p8"
+Doctor
+ ↓
+POST /api/knowledge/articles
+ ↓
+Gateway
+ ↓
+JWT
+ ↓
+Knowledge Service
+ ↓
+Create DRAFT
+```
+
+Then:
+
+```text id="x9m4q5"
+Doctor
+ ↓
+Submit Article
+ ↓
+Department Head
+ ↓
+Review
+ ↓
+Approve
+ ↓
+Publish
+```
+
+---
+
+# 19. Authentication vs Authorization
+
+For your SOA/Microservices explanation, remember this simple distinction:
+
+### Authentication
+
+```text
+"Who are you?"
+```
+
+Handled primarily by:
+
+```text
+Auth Service + JWT
+```
+
+### Authorization
+
+```text
+"What are you allowed to do?"
+```
+
+Handled by:
+
+```text
+API Gateway
++
+Individual Microservices
+```
+
+---
+
+# 20. Final Security Flow
+
+```text id="7s3k9p"
+                   USER
+                    │
+                    ▼
+              ┌───────────┐
+              │   React   │
+              └─────┬─────┘
+                    │
+                    ▼
+              ┌───────────┐
+              │ API       │
+              │ Gateway   │
+              └─────┬─────┘
+                    │
+             Verify JWT
+                    │
+              ┌─────┴─────┐
+              │           │
+           Invalid       Valid
+              │           │
+              ▼           ▼
+             401      Extract identity
+                          │
+                          ▼
+                    Role checking
+                          │
+                    ┌─────┴─────┐
+                    │           │
+                  Denied      Allowed
+                    │           │
+                    ▼           ▼
+                   403      Microservice
+                                │
+                                ▼
+                       Business authorization
+                                │
+                         ┌──────┴──────┐
+                         │             │
+                       Denied        Allowed
+                         │             │
+                         ▼             ▼
+                        403          Response
+```
+
+---

@@ -1,0 +1,1358 @@
+# 👨‍⚕️ ROLE 2 — DOCTOR
+
+## 1. Basic Concept
+
+A **Doctor** is a medical professional working within one hospital and one department.
+
+Doctors are **not allowed to self-register**.
+
+Their account is created by the **Department Head** of their department.
+
+```text
+🏥 Hospital
+     │
+     ├── 🦴 Orthopedics
+     │      └── 👨‍⚕️ Doctors
+     │
+     ├── 🩺 Diabetology
+     │      └── 👨‍⚕️ Doctors
+     │
+     └── ❤️ Cardiology
+            └── 👨‍⚕️ Doctors
+```
+
+Each doctor:
+
+* Works in exactly **one hospital**
+* Belongs to exactly **one department**
+* Has exactly **one specialization**
+* Has their own professional profile
+* Can manage their own availability
+* Can consult authorized patients
+* Can create consultations
+* Can issue prescriptions
+* Can create medical knowledge articles
+* Can view AI-assisted predictions for authorized patients
+
+---
+
+# 2. Doctor Account Creation
+
+Doctors cannot create their own accounts.
+
+The account creation hierarchy is:
+
+```text
+Chairman
+   ↓
+Hospital Admin
+   ↓
+Department Head
+   ↓
+Doctor Account
+```
+
+### Doctor creation flow
+
+```text
+Department Head
+      ↓
+Create Doctor
+      ↓
+Enter Doctor Information
+      ↓
+Create Account
+      ↓
+Doctor receives/login credentials
+      ↓
+Doctor Login
+```
+
+The Department Head can only create doctors belonging to **their own department**.
+
+---
+
+# 3. Doctor Registration
+
+There is **no public Doctor Registration page**.
+
+If a doctor tries to register independently:
+
+```text
+Doctor Registration
+        ↓
+      ❌ Not Allowed
+```
+
+Instead:
+
+```text
+Department Head
+        ↓
+Create Doctor Account
+        ↓
+Doctor Login
+```
+
+For the current version, doctors use:
+
+> **Normal email/password login**
+
+No OTP or Google authentication is required initially.
+
+---
+
+# 4. Doctor Profile
+
+Every doctor has a professional profile.
+
+### Profile information
+
+* Full name
+* Profile picture
+* Email
+* Mobile number
+* Hospital
+* Department
+* Specialization
+* Years of experience
+* Qualifications
+* Professional description
+* Consultation information
+* Availability
+* Account status
+
+Example:
+
+```text
+┌──────────────────────────────────┐
+│ 👨‍⚕️ Dr. Rahul Kumar              │
+│                                  │
+│ Orthopedic Specialist            │
+│ Department: Orthopedics          │
+│ Hospital: MediMind Hospital      │
+│ Experience: 8 Years              │
+│                                  │
+│ Qualifications                   │
+│ MBBS, MS Orthopedics             │
+│                                  │
+│ Status: Active                   │
+└──────────────────────────────────┘
+```
+
+---
+
+# 5. Doctor Organizational Restrictions
+
+A doctor is restricted to one organizational location.
+
+```text
+Doctor
+  │
+  ├── Hospital → ONE
+  │
+  ├── Department → ONE
+  │
+  └── Specialization → ONE
+```
+
+Example:
+
+```text
+Dr. Rahul
+    │
+    ├── Hospital: MediMind Hospital
+    ├── Department: Orthopedics
+    └── Specialization: Orthopedic Specialist
+```
+
+The doctor cannot simultaneously belong to:
+
+```text
+Orthopedics + Cardiology ❌
+```
+
+or:
+
+```text
+Hospital A + Hospital B ❌
+```
+
+---
+
+# 6. 👨‍⚕️ Doctor Dashboard
+
+After login, the doctor enters the dashboard.
+
+The dashboard provides a quick overview of their work.
+
+### Dashboard can show:
+
+* Today's appointments
+* Upcoming appointments
+* Authorized patients
+* Pending consultations
+* Recent patient activity
+* AI predictions
+* Recent prescriptions
+* Knowledge article status
+
+Example:
+
+```text
+┌──────────────────────────────────────────┐
+│ Welcome, Dr. Rahul 👋                    │
+│                                          │
+│ Today's Appointments        8             │
+│ Authorized Patients         24            │
+│ Pending Consultations       3             │
+│ AI Predictions Reviewed     5             │
+│                                          │
+├──────────────┬──────────────┬─────────────┤
+│ 📅 Today     │ 👥 Patients │ 🤖 AI       │
+│     8        │     24      │      5      │
+└──────────────┴──────────────┴─────────────┘
+```
+
+---
+
+# 7. 👤 My Profile
+
+The doctor can view their professional profile.
+
+### Sections
+
+**Personal Information**
+
+* Name
+* Email
+* Mobile number
+* Profile picture
+
+**Professional Information**
+
+* Hospital
+* Department
+* Specialization
+* Experience
+* Qualifications
+* Professional description
+
+**Availability**
+
+* Working days
+* Working hours
+* Consultation slots
+
+The doctor can update information that they are permitted to manage.
+
+Organizational fields such as department/hospital assignment remain controlled by the appropriate administrative role.
+
+---
+
+# 8. 🕐 Availability
+
+Doctors can manage their consultation availability.
+
+Example:
+
+```text
+Doctor Availability
+
+Monday       09:00 AM – 01:00 PM
+Tuesday      09:00 AM – 01:00 PM
+Wednesday    02:00 PM – 06:00 PM
+Thursday     09:00 AM – 01:00 PM
+Friday       02:00 PM – 06:00 PM
+Saturday     09:00 AM – 12:00 PM
+Sunday       Not Available
+```
+
+The availability information is used when families book appointments.
+
+Flow:
+
+```text
+Doctor sets availability
+        ↓
+Available slots generated
+        ↓
+Family views slots
+        ↓
+Family books appointment
+```
+
+---
+
+# 9. 👥 Patients Page
+
+The Patients page shows **only patients who have authorized this doctor**.
+
+This is extremely important.
+
+A doctor does **not** automatically see all patients belonging to the hospital.
+
+Example:
+
+```text
+Family Account
+      │
+      ├── Father
+      ├── Mother
+      └── Son
+```
+
+If the family authorizes:
+
+```text
+Mother → Dr. Rahul
+```
+
+then:
+
+```text
+Dr. Rahul
+    ↓
+Patients
+    ↓
+Mother
+```
+
+The doctor cannot automatically see:
+
+```text
+Father ❌
+Son ❌
+```
+
+unless those patients are separately authorized.
+
+---
+
+# 10. Patient List
+
+Example:
+
+```text
+My Patients
+
+┌─────────────────────────────┐
+│ 👩 Priya Sharma             │
+│ Age: 42                     │
+│ Cardiology                  │
+│ Access: Active              │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│ 👨 Ravi Kumar               │
+│ Age: 51                     │
+│ Orthopedic Consultation     │
+│ Access: Active              │
+└─────────────────────────────┘
+```
+
+The doctor can search/filter their authorized patients.
+
+Possible filters:
+
+* Name
+* Patient ID
+* Appointment status
+* Recent consultation
+* Department-related information
+
+---
+
+# 11. 👤 Patient Profile
+
+Selecting a patient opens the patient profile.
+
+The doctor can see the information that belongs to the **authorized patient**.
+
+### Patient profile can contain:
+
+**Personal Information**
+
+* Name
+* Date of birth
+* Gender
+* Blood group
+* Contact information
+
+**Health Summary**
+
+* Medical conditions
+* Allergies
+* Previous treatments
+* Important health information
+
+**Medical Activity**
+
+* Medical records
+* AI predictions
+* Appointments
+* Consultations
+* Prescriptions
+
+---
+
+# 12. 🗂️ Patient Medical Records
+
+The doctor can access the **complete authorized medical record history** of the patient.
+
+This can include:
+
+* Family-uploaded reports
+* Blood tests
+* Laboratory reports
+* X-rays
+* Scans
+* ECG reports
+* Prescriptions
+* Previous consultations
+* AI prediction reports
+* Other relevant medical documents
+
+Example:
+
+```text
+Patient: Priya Sharma
+
+Medical Records
+
+🩸 Blood Test
+15 Sep 2026
+Uploaded by Family
+
+🦴 X-Ray
+10 Sep 2026
+Uploaded by Family
+
+❤️ ECG
+05 Sep 2026
+Uploaded by Family
+
+💊 Prescription
+01 Sep 2026
+Dr. Kumar
+```
+
+Because the family granted access to the patient, the doctor receives access to the **patient's complete authorized record set**.
+
+---
+
+# 13. 🤖 Patient AI Predictions
+
+The doctor can view AI predictions belonging to authorized patients.
+
+Example:
+
+```text
+AI Predictions — Priya Sharma
+
+❤️ Heart Disease Risk
+Risk: Moderate
+Score: 64%
+
+🩺 Diabetes Risk
+Risk: Low
+Score: 21%
+
+🦴 Fracture Detection
+No fracture detected
+Confidence: 94%
+```
+
+The doctor can use these results as **clinical decision support**.
+
+The AI result does not replace professional medical assessment.
+
+---
+
+# 14. 🤖 AI Explanation
+
+For supported AI models, the doctor can view an explanation of the prediction.
+
+For image-based fracture detection, this may include:
+
+```text
+X-Ray
+  ↓
+CNN Model
+  ↓
+Prediction
+  ↓
+Explainability
+  ↓
+Grad-CAM / Heatmap
+```
+
+Example:
+
+```text
+AI Prediction
+
+Possible Fracture
+Confidence: 92%
+
+[View X-Ray]
+
+[View AI Explanation]
+```
+
+The explanation helps the doctor understand which region of an X-ray influenced the model.
+
+The system should present this as:
+
+> **AI-assisted explanation, not proof of diagnosis.**
+
+---
+
+# 15. 📅 Doctor Appointments
+
+The doctor can manage their appointments.
+
+### Appointment sections
+
+* Today's appointments
+* Upcoming appointments
+* Completed appointments
+* Cancelled appointments
+* Appointment history
+
+Example:
+
+```text
+Today's Appointments
+
+09:00 AM
+👩 Priya Sharma
+Orthopedic Consultation
+Status: Confirmed
+
+10:30 AM
+👨 Ravi Kumar
+Follow-up Consultation
+Status: Confirmed
+
+11:30 AM
+👩 Anjali Rao
+Consultation
+Status: Completed
+```
+
+The doctor can view appointment details and proceed to consultation.
+
+---
+
+# 16. 📋 Consultation
+
+The doctor can create a consultation for an authorized patient.
+
+### Consultation can contain:
+
+* Patient
+* Doctor
+* Appointment
+* Date/time
+* Symptoms
+* Observations
+* Clinical assessment
+* Treatment plan
+* Doctor notes
+* Related records
+* AI prediction reviewed
+* Follow-up information
+
+Example:
+
+```text
+New Consultation
+
+Patient:
+Priya Sharma
+
+Symptoms:
+Knee pain
+
+Observations:
+...
+
+Clinical Assessment:
+...
+
+AI Prediction Reviewed:
+Possible fracture
+
+Treatment Plan:
+...
+
+Follow-up:
+...
+
+[Submit Consultation]
+```
+
+---
+
+# 17. 🔒 Consultation Immutability
+
+Once a doctor submits/finalizes a consultation:
+
+> **The original consultation cannot be edited or deleted.**
+
+This protects medical-history integrity.
+
+```text
+Doctor creates consultation
+          ↓
+       Draft
+          ↓
+       Submit
+          ↓
+       FINAL
+          ↓
+     IMMUTABLE
+```
+
+If the doctor discovers an error:
+
+```text
+Original Consultation
+        ↓
+      Final
+        ↓
+   Immutable
+        ↓
+Amendment / Correction
+        ↓
+New linked record
+```
+
+Therefore, the system maintains an auditable medical history instead of silently changing historical records.
+
+---
+
+# 18. 💊 Prescriptions
+
+Doctors can create prescriptions for authorized patients.
+
+Example:
+
+```text
+New Prescription
+
+Patient:
+Priya Sharma
+
+Doctor:
+Dr. Rahul
+
+Medicine:
+Medicine A
+
+Dosage:
+500 mg
+
+Frequency:
+2 times/day
+
+Duration:
+5 days
+
+Instructions:
+After food
+
+[Submit Prescription]
+```
+
+The prescription becomes part of the patient's medical history.
+
+---
+
+# 19. 🔒 Prescription Immutability
+
+After final submission:
+
+> **The original prescription cannot be edited or deleted.**
+
+If a correction is required:
+
+```text
+Original Prescription
+        ↓
+      FINAL
+        ↓
+    Immutable
+        ↓
+New / Corrected Prescription
+        ↓
+Linked to Original
+```
+
+This preserves prescription history.
+
+---
+
+# 20. 🔐 Patient Access
+
+The doctor can see which patients have authorized them.
+
+Example:
+
+```text
+Patient Access
+
+┌──────────────────────────────┐
+│ 👩 Priya Sharma              │
+│ Access: Active               │
+│ Granted: 15 Sep 2026         │
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│ 👨 Ravi Kumar                │
+│ Access: Active               │
+│ Granted: 12 Sep 2026         │
+└──────────────────────────────┘
+```
+
+The doctor cannot grant themselves access.
+
+Only the family can authorize access.
+
+---
+
+# 21. 📜 Doctor Access History
+
+Unlike the family side, we decided that the **doctor should be able to see their own patient authorization/access history**.
+
+Example:
+
+```text
+Access History
+
+Patient: Priya Sharma
+
+15 Sep 2026
+Access Granted
+
+16 Sep 2026
+Access Active
+
+20 Sep 2026
+Access Revoked
+```
+
+The purpose is to allow the doctor to understand:
+
+* Which patients authorized them
+* When access was granted
+* Current access status
+* When access was revoked
+
+This is an authorization history, not unrestricted access to other patients.
+
+---
+
+# 22. 🚫 Unauthorized Patient Protection
+
+If a doctor attempts to open an unauthorized patient's records:
+
+```text
+Doctor
+  ↓
+Patient Request
+  ↓
+Authorization Check
+  ↓
+Not Authorized
+  ↓
+❌ Access Denied
+```
+
+Example:
+
+```text
+Patient: Father
+Doctor: Dr. Rahul
+
+Authorization:
+Not Granted
+
+❌ You do not have access to this patient's medical records.
+```
+
+This must be enforced by the backend, not only hidden in the React UI.
+
+---
+
+# 23. 📚 MediMind Knowledge
+
+Doctors have access to the **MediMind Knowledge** system.
+
+This is different from patient medical records.
+
+```text
+Medical Records
+      ↓
+Private patient information
+```
+
+while:
+
+```text
+MediMind Knowledge
+      ↓
+Medical knowledge / articles
+      ↓
+Doctors + Medical Staff
+      ↓
+Published public knowledge
+```
+
+Doctors can read published articles from other medical professionals.
+
+---
+
+# 24. ✍️ My Articles
+
+The doctor can manage their own knowledge articles.
+
+Example:
+
+```text
+My Articles
+
+┌──────────────────────────────┐
+│ Understanding Bone Fractures │
+│ Status: Published            │
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│ Knee Pain Prevention         │
+│ Status: Under Review         │
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│ Post-Fracture Recovery       │
+│ Status: Draft                │
+└──────────────────────────────┘
+```
+
+Possible statuses:
+
+```text
+Draft
+   ↓
+Submitted
+   ↓
+Under Review
+   ↓
+Approved
+   ↓
+Published
+```
+
+---
+
+# 25. 📝 Create Article
+
+A doctor can create a medical knowledge article.
+
+### Article fields
+
+* Title
+* Summary
+* Content
+* Category
+* Tags
+* References, if applicable
+* Author information
+
+Example:
+
+```text
+Create Article
+
+Title:
+Understanding Bone Fractures
+
+Category:
+Orthopedics
+
+Summary:
+Basic information about common bone fractures.
+
+Content:
+...
+
+[Save Draft]
+[Submit for Review]
+```
+
+---
+
+# 26. 🧑‍⚕️ Article Approval
+
+A doctor cannot independently publish an article immediately.
+
+The workflow is:
+
+```text
+Doctor
+  ↓
+Create Article
+  ↓
+Draft
+  ↓
+Department Head
+  ↓
+Review
+  ↓
+Approve
+  ↓
+Publish
+```
+
+The Department Head can:
+
+* Review
+* Approve
+* Reject/request changes
+* Publish approved content
+
+This provides a basic medical-content quality-control process.
+
+---
+
+# 27. 🌐 Public Knowledge
+
+Once an article is published, it can be made publicly readable.
+
+```text
+Published Article
+       ↓
+ ┌─────┼─────────┐
+ ↓     ↓         ↓
+Family Doctors Public
+```
+
+This helps families:
+
+* Understand medical topics
+* Learn about conditions
+* Understand available specialties
+* Learn about doctors' areas of expertise
+* Build trust before booking appointments
+
+However:
+
+> **Private patient records must never be exposed through public articles.**
+
+---
+
+# 28. 👨‍⚕️ Doctor Experience
+
+The doctor's professional profile can help families decide whether to book an appointment.
+
+Families can potentially see:
+
+* Doctor name
+* Department
+* Specialization
+* Experience
+* Qualifications
+* Professional description
+* Published articles
+* Availability
+
+This creates:
+
+```text
+Doctor Profile
+      ↓
+Professional Experience
+      ↓
+Knowledge Articles
+      ↓
+Family Trust
+      ↓
+Appointment Booking
+```
+
+---
+
+
+Doctors can receive notifications for:
+
+### Patient/appointment events
+
+* New appointment
+* Appointment cancellation
+* Appointment reschedule
+* Appointment reminder
+
+### Access events
+
+* New patient authorization
+* Patient access revoked
+
+### Clinical events
+
+* Patient uploaded a new medical record
+* AI prediction completed
+* Consultation-related update
+
+### Knowledge events
+
+* Article submitted
+* Article approved
+* Article rejected
+* Article published
+
+---
+
+# 30. ⚙️ Doctor Settings
+
+Settings can contain:
+
+### Profile
+
+* Personal information
+* Professional information
+
+### Availability
+
+* Working hours
+* Consultation slots
+
+### Security
+
+* Change password
+* Active sessions/devices
+* Logout
+
+
+* Appointment notifications
+* Patient notifications
+* Article notifications
+
+---
+
+# 31. Doctor Permissions Summary
+
+| Action                                   | Doctor |
+| ---------------------------------------- | :----: |
+| Self-register                            |    ❌   |
+| Login                                    |    ✅   |
+| View own profile                         |    ✅   |
+| Manage own permitted profile information |    ✅   |
+| Change password                          |    ✅   |
+| Manage availability                      |    ✅   |
+| View all hospital patients               |    ❌   |
+| View all department patients             |    ❌   |
+| View authorized patients                 |    ✅   |
+| View unauthorized patient                |    ❌   |
+| View authorized patient's records        |    ✅   |
+| View authorized patient's AI predictions |    ✅   |
+| View AI explanations                     |    ✅   |
+| Create consultation                      |    ✅   |
+| Edit finalized consultation              |    ❌   |
+| Delete finalized consultation            |    ❌   |
+| Create amendment                         |    ✅   |
+| Create prescription                      |    ✅   |
+| Edit finalized prescription              |    ❌   |
+| Delete finalized prescription            |    ❌   |
+| Create corrected prescription            |    ✅   |
+| Grant patient access to self             |    ❌   |
+| View own patient access history          |    ✅   |
+| Revoke patient access                    |    ❌   |
+| Read published knowledge                 |    ✅   |
+| Create knowledge article                 |    ✅   |
+| Edit own draft article                   |    ✅   |
+| Publish own article directly             |    ❌   |
+| Submit article for review                |    ✅   |
+| Manage other doctors                     |    ❌   |
+| Create doctors                           |    ❌   |
+| Manage department                        |    ❌   |
+| Manage hospital                          |    ❌   |
+
+---
+
+# 32. Final Doctor Navigation
+
+The final Doctor sidebar can be:
+
+```text id="k9jjxx"
+🏠 Dashboard
+
+👤 My Profile
+
+🕐 Availability
+
+👥 Patients
+
+   └── Patient Profile
+         ├── Medical Records
+         ├── AI Predictions
+         ├── AI Explanation
+         ├── Appointments
+         ├── Consultations
+         └── Prescriptions
+
+📅 Appointments
+
+📋 Consultations
+
+💊 Prescriptions
+
+🔐 Patient Access
+
+📚 MediMind Knowledge
+
+✍️ My Articles
+
+📝 Create Article
+
+
+⚙️ Settings
+```
+
+---
+
+# ⭐ 33. Complete Doctor Workflow
+
+```text
+                       DOCTOR LOGIN
+                            ↓
+                    👨‍⚕️ DOCTOR DASHBOARD
+                            ↓
+              ┌─────────────┼─────────────┐
+              ↓             ↓             ↓
+          APPOINTMENTS    PATIENTS      KNOWLEDGE
+              ↓             ↓             ↓
+        Select Patient   Authorized     Articles
+              ↓          Patients          ↓
+              │             ↓          Create Article
+              │       Patient Profile     ↓
+              │             ↓          Department Head
+              │       Medical Records       ↓
+              │             ↓             Review
+              │       AI Predictions        ↓
+              │             ↓            Publish
+              │       AI Explanation
+              │             ↓
+              └────→ Consultation
+                         ↓
+                  Clinical Assessment
+                         ↓
+                    Prescription
+                         ↓
+                  Permanent History
+```
+
+---
+
+# ⭐ 34. Patient Authorization Workflow
+
+```text
+                  FAMILY ACCOUNT
+                        ↓
+                 Select Patient
+                        ↓
+                  Select Doctor
+                        ↓
+                  Grant Access
+                        ↓
+                Authorization
+                   Created
+                        ↓
+               👨‍⚕️ Doctor
+                        ↓
+              Authorized Patients
+                        ↓
+               Patient Profile
+                        ↓
+        ┌───────────────┼────────────────┐
+        ↓               ↓                ↓
+     Records        AI Results       Appointments
+        ↓               ↓                ↓
+        └───────────────┼────────────────┘
+                        ↓
+                  Consultation
+                        ↓
+                   Prescription
+```
+
+---
+
+# ⭐ 35. Doctor Cannot Control Patient Access
+
+The doctor **cannot decide on their own** to access a patient's records.
+
+Correct:
+
+```text
+Family
+   ↓
+Chooses Doctor
+   ↓
+Grants Access
+   ↓
+Doctor Access
+```
+
+Incorrect:
+
+```text
+Doctor
+   ↓
+Search Patient
+   ↓
+Automatically Access Records ❌
+```
+
+This is a core privacy/security rule in MediMind.
+
+---
+
+# ⭐ 36. Doctor Clinical Workflow
+
+```text
+Patient Authorized
+       ↓
+Appointment Booked
+       ↓
+Doctor Views Patient
+       ↓
+Review Medical Records
+       ↓
+Review AI Predictions
+       ↓
+Review AI Explanation
+       ↓
+Consultation
+       ↓
+Clinical Assessment
+       ↓
+Treatment Plan
+       ↓
+Prescription
+       ↓
+Final Submission
+       ↓
+Immutable Clinical History
+```
+
+---
+
+# ⭐ 37. AI + Doctor Human-in-the-Loop
+
+MediMind should follow:
+
+```text
+                Patient
+                   ↓
+             Medical Data
+                   ↓
+               AI Model
+                   ↓
+          AI-assisted Prediction
+                   ↓
+            Explainability
+                   ↓
+                Doctor
+                   ↓
+          Clinical Assessment
+                   ↓
+             Final Decision
+```
+
+The AI system should **not** be presented as:
+
+```text
+AI → Autonomous Diagnosis ❌
+```
+
+Instead:
+
+```text
+AI → Decision Support → Doctor → Clinical Assessment
+```
+
+---
+
+# ⭐ 38. Doctor Knowledge Workflow
+
+```text
+Doctor
+   ↓
+Create Knowledge Article
+   ↓
+Save Draft
+   ↓
+Submit for Review
+   ↓
+Department Head
+   ↓
+Review
+   ↓
+Approve
+   ↓
+Publish
+   ↓
+┌──────────────┬──────────────┬──────────────┐
+↓              ↓              ↓
+Doctors       Families       Public Users
+```
+
+Only **published** knowledge is publicly visible.
+
+Patient-specific confidential information must remain outside the public knowledge system.
+
+---
+
+# ⭐ 39. Complete Role 2 Concept
+
+The Doctor role can be summarized as:
+
+```text
+                         👨‍⚕️ DOCTOR
+                              │
+             ┌────────────────┼────────────────┐
+             ↓                ↓                ↓
+        👥 Patients      📅 Appointments    📚 Knowledge
+             │                │                │
+             ↓                ↓                ↓
+      Authorized Only     Booked Slots      Articles
+             │                │                │
+             ↓                ↓                ↓
+      🗂️ Medical Records  📋 Consultation   Review
+             │                │                │
+             ↓                ↓                ↓
+       🤖 AI Results      💊 Prescription    Publish
+             │
+             ↓
+       AI Explanation
+             │
+             ↓
+       Clinical Review
+```
+
+### Core principles
+
+> **A doctor can access only patients who have explicitly authorized that doctor.**
+
+> **Authorization is patient-specific, not family-wide.**
+
+> **Once authorized, the doctor receives access to the complete record set of that patient.**
+
+> **Finalized consultations and prescriptions are immutable; corrections use amendments or new records.**
+
+> **AI provides decision support and explainability, while the doctor remains responsible for clinical assessment.**
+
+> **Doctors can create medical knowledge, but publication requires Department Head review.**
+
+> **Published knowledge may be publicly accessible, while private patient information remains protected.**
+
+> **Doctors cannot self-register, create other doctors, manage departments, or automatically access hospital-wide patient records.**

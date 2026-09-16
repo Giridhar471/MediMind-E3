@@ -1,0 +1,874 @@
+# 🏥 MediMind — Final Tech Stack
+
+## 🎨 1. Frontend
+
+### Core Technologies
+
+* React.js
+* JavaScript
+* Tailwind CSS
+
+### Frontend Libraries
+
+* React Router
+* Axios
+
+### Frontend Responsibilities
+
+* User interface for all MediMind roles
+* Role-based navigation
+* Family account and family-member management
+* Doctor and hospital management interfaces
+* Appointment booking and management
+* Medical record management
+* AI prediction interfaces
+* Doctor consultation and prescription interfaces
+* MediMind Knowledge interface
+* Dashboards and analytics views
+* Responsive design
+* Theme support
+
+---
+
+# ⚙️ 2. Backend & Microservices
+
+### Core Technologies
+
+* Node.js
+* Express.js
+* REST APIs
+* API Gateway
+
+### Microservices
+
+```text
+                         MediMind
+                            │
+                     ┌──────┴──────┐
+                     │ API Gateway │
+                     └──────┬──────┘
+                            │
+       ┌────────────┬───────┼────────┬─────────────┐
+       ↓            ↓       ↓        ↓             ↓
+   Auth Service  Family  Hospital  Doctor     Appointment
+                 Service  Service   Service      Service
+       │            │       │        │             │
+       └────────────┴───────┼────────┴─────────────┘
+                            │
+                    Medical Record
+                       Service
+                            │
+                  ┌─────────┴─────────┐
+                  ↓                   ↓
+           AI Prediction         Knowledge
+              Service              Service
+```
+
+### Final Services
+
+#### 🔐 Auth Service
+
+Responsible for:
+
+* User authentication
+* Login
+* Password management
+* JWT authentication
+* Role management
+* Account status
+
+Roles:
+
+```text
+FAMILY
+DOCTOR
+DEPARTMENT_HEAD
+HOSPITAL_ADMIN
+CHAIRMAN
+```
+
+---
+
+#### 👨‍👩‍👧 Family Service
+
+Responsible for:
+
+* Family accounts
+* Family members
+* Family-member profiles
+* Family account management
+* Family member management
+
+The family member represents the patient identity within the system.
+
+---
+
+#### 🏥 Hospital Service
+
+Responsible for:
+
+* Hospitals
+* Departments
+* Department Heads
+* Hospital organizational structure
+
+Hierarchy:
+
+```text
+Hospital
+   ↓
+Department
+   ↓
+Department Head
+```
+
+---
+
+#### 👨‍⚕️ Doctor Service
+
+Responsible for:
+
+* Doctor profiles
+* Doctor specialization
+* Qualifications
+* Experience
+* Professional information
+* Doctor availability
+
+---
+
+#### 📅 Appointment Service
+
+Responsible for:
+
+* Appointment booking
+* Appointment rescheduling
+* Appointment cancellation
+* Appointment status
+* Doctor-patient appointment relationships
+* Appointment scheduling
+
+Every appointment is associated with an AI prediction.
+
+---
+
+#### 🗂️ Medical Record Service
+
+Responsible for:
+
+* Medical records
+* Consultations
+* Prescriptions
+* Doctor access authorization
+* Record access management
+
+Medical-record access follows:
+
+```text
+Family Account
+      ↓
+Select Family Member
+      ↓
+Select Doctor
+      ↓
+Grant Access
+      ↓
+Doctor
+      ↓
+Complete Records of Selected Member
+```
+
+The organizational hierarchy does not automatically provide access to private medical records.
+
+---
+
+#### 🤖 AI Prediction Service
+
+Responsible for:
+
+* AI-assisted predictions
+* AI health assessments
+* Prediction history
+* Prediction results
+* Confidence/risk information
+* AI explanations
+
+AI modules:
+
+```text
+├── Fracture Detection
+├── Diabetes Risk Prediction
+├── Heart Disease Risk Prediction
+└── General Health Assessment
+```
+
+---
+
+#### 📚 Knowledge Service
+
+Responsible for:
+
+* MediMind Knowledge
+* Doctor-created articles
+* Article drafts
+* Article submission
+* Department Head review
+* Article approval/rejection
+* Article publication
+* Public medical knowledge
+
+Workflow:
+
+```text
+Doctor Creates Article
+        ↓
+      Draft
+        ↓
+Submit for Review
+        ↓
+Department Head Review
+        ↓
+Approval
+        ↓
+     Publish
+        ↓
+Public / Family / Medical Staff
+```
+
+Private patient information must not be exposed in knowledge articles without proper authorization and anonymization.
+
+---
+
+# 🗄️ 3. Database
+
+### Database Technologies
+
+* MongoDB
+* MongoDB Atlas
+* Mongoose
+
+### Database Architecture
+
+MediMind will use:
+
+**One MongoDB Atlas deployment with separate logical databases for each microservice.**
+
+```text
+                         MongoDB Atlas
+                              │
+       ┌──────────────┬───────┼────────┬──────────────┐
+       ↓              ↓       ↓        ↓              ↓
+medimind_auth   medimind_family  medimind_hospital
+       │              │              │
+     users      families/members   hospitals/
+                                  departments/
+                                  department_heads
+
+       ↓              ↓              ↓
+medimind_doctor   medimind_appointment
+       │                  │
+    doctors          appointments
+
+              ↓
+       medimind_records
+              │
+       ┌──────┼──────────┐
+       ↓      ↓          ↓
+    records consultations prescriptions
+                     │
+                     ↓
+                record_access
+
+              ↓
+        medimind_ai
+              │
+         predictions
+
+              ↓
+      medimind_knowledge
+              │
+           articles
+```
+
+### Logical Databases
+
+```text
+medimind_auth
+└── users
+
+medimind_family
+├── families
+└── family_members
+
+medimind_hospital
+├── hospitals
+├── departments
+└── department_heads
+
+medimind_doctor
+└── doctors
+
+medimind_appointment
+└── appointments
+
+medimind_records
+├── medical_records
+├── consultations
+├── prescriptions
+└── record_access
+
+medimind_ai
+└── predictions
+
+medimind_knowledge
+└── articles
+```
+
+### Database Communication Rule
+
+Microservices **must not directly access another service's database**.
+
+Cross-service communication uses:
+
+```text
+Service A
+   ↓
+REST API
+   ↓
+Service B
+   ↓
+Service B Database
+```
+
+Mongoose `populate()` is used only for relationships within the same service/database.
+
+---
+
+# 🧠 4. AI / Deep Learning — PDNC
+
+### Technologies
+
+* Python
+* PyTorch
+* FastAPI
+* NumPy
+* Pandas
+* Scikit-learn
+* Matplotlib
+
+### AI Techniques
+
+* CNN
+* DNN
+* NLP / Text-based Health Assessment
+
+---
+
+## AI Modules
+
+### 🦴 1. Fracture Detection
+
+Input:
+
+```text
+Medical X-ray Image
+        ↓
+Image Preprocessing
+        ↓
+CNN
+        ↓
+Fracture Prediction
+        ↓
+Confidence
+        ↓
+Explanation
+```
+
+Input Type:
+
+```text
+IMAGE
+```
+
+---
+
+### 🩺 2. Diabetes Risk Prediction
+
+Input:
+
+```text
+Health Parameters
+        ↓
+Data Preprocessing
+        ↓
+DNN
+        ↓
+Diabetes Risk Prediction
+        ↓
+Risk Score / Confidence
+        ↓
+Explanation
+```
+
+Input Type:
+
+```text
+HEALTH_PARAMETERS
+```
+
+---
+
+### ❤️ 3. Heart Disease Risk Prediction
+
+Input:
+
+```text
+Health Parameters
+        ↓
+Data Preprocessing
+        ↓
+DNN
+        ↓
+Heart Disease Risk Prediction
+        ↓
+Risk Score / Confidence
+        ↓
+Explanation
+```
+
+Input Type:
+
+```text
+HEALTH_PARAMETERS
+```
+
+---
+
+### 🧠 4. General Health Assessment
+
+Input:
+
+```text
+Free-text Symptoms
+        ↓
+Text Processing
+        ↓
+NLP / AI Model
+        ↓
+Possible Health Concerns
+        ↓
+Urgency Indication
+        ↓
+General Guidance
+```
+
+Example:
+
+```text
+"Having 103°F temperature, headache
+and body pain since yesterday."
+```
+
+The system provides possible concerns and general guidance rather than claiming an autonomous medical diagnosis.
+
+Input Type:
+
+```text
+TEXT
+```
+
+---
+
+# 🔗 5. AI Service Integration
+
+The AI service will be implemented separately using:
+
+```text
+Python + FastAPI
+```
+
+The Node.js backend communicates with the AI service through APIs.
+
+```text
+React Frontend
+      ↓
+API Gateway
+      ↓
+Node.js Backend
+      ↓
+AI Prediction Service
+      ↓
+Python FastAPI
+      ↓
+PyTorch / ML Models
+      ↓
+Prediction Result
+      ↓
+Node.js Backend
+      ↓
+React Frontend
+```
+
+---
+
+# 👨‍⚕️ 6. Human-in-the-Loop AI
+
+MediMind AI is designed as **clinical decision support**, not autonomous diagnosis.
+
+```text
+Patient
+   ↓
+Medical Data
+   ↓
+AI Model
+   ↓
+AI-Assisted Prediction
+   ↓
+AI Explanation
+   ↓
+Doctor
+   ↓
+Clinical Assessment
+   ↓
+Final Decision
+```
+
+For appointments:
+
+```text
+Appointment
+     ↓
+Required AI Prediction
+     ↓
+AI Result
+     ↓
+Doctor Reviews Result
+     ↓
+Consultation
+     ↓
+Prescription
+```
+
+Independent AI predictions can also be performed without an appointment.
+
+---
+
+# 🐳 7. Microservices & Deployment
+
+### Technologies
+
+* Docker
+* Docker Compose
+
+Each microservice will be packaged and run as an independent Docker container.
+
+Example:
+
+```text
+Docker Compose
+│
+├── API Gateway
+├── Auth Service
+├── Family Service
+├── Hospital Service
+├── Doctor Service
+├── Appointment Service
+├── Medical Record Service
+├── AI Prediction Service
+└── Knowledge Service
+```
+
+Kubernetes will **not** be used.
+
+---
+
+# 🧪 8. Testing
+
+### Backend Testing
+
+* Postman
+* Jest
+* Supertest
+
+### Frontend Testing
+
+* React Testing Library
+
+Testing will cover:
+
+* REST APIs
+* Authentication
+* Authorization
+* Role-based access
+* CRUD operations
+* Appointment workflows
+* Medical-record access
+* AI API integration
+* Knowledge article workflow
+* Frontend components
+
+---
+
+# 🔄 9. Adaptive Software Engineering
+
+### Version Control
+
+* Git
+* GitHub
+
+### CI/CD
+
+* GitHub Actions
+
+### Development Methodology
+
+* Agile / Scrum
+* User Stories
+* Product Backlog
+* Sprint Planning
+* Sprint Reviews
+* Retrospectives
+* Continuous Integration
+* Continuous Delivery
+
+The project can evolve iteratively based on:
+
+```text
+Requirements
+    ↓
+Sprint Planning
+    ↓
+Development
+    ↓
+Testing
+    ↓
+Sprint Review
+    ↓
+Feedback
+    ↓
+Adapt Requirements
+    ↓
+Next Sprint
+```
+
+---
+
+# 🚪 10. API Gateway
+
+The API Gateway acts as the **single entry point** for the frontend.
+
+```text
+React Frontend
+      ↓
+  API Gateway
+      ↓
+ ┌────┼─────┬────────┬────────┐
+ ↓    ↓     ↓        ↓        ↓
+Auth Family Hospital Doctor Appointment
+                         │
+                         ↓
+                  Medical Records
+                         │
+                ┌────────┴────────┐
+                ↓                 ↓
+              AI              Knowledge
+```
+
+Responsibilities:
+
+* Route API requests
+* Forward requests to appropriate microservices
+* Centralize backend entry point
+* Support authentication/authorization flow
+* Hide internal service structure from the frontend
+
+---
+
+# 🔐 11. Authentication & Security
+
+### Technologies
+
+* JWT
+* bcrypt
+* Environment Variables
+
+### Authentication Flow
+
+```text
+User
+ ↓
+Login
+ ↓
+Auth Service
+ ↓
+Validate Credentials
+ ↓
+JWT
+ ↓
+Frontend
+ ↓
+API Gateway
+ ↓
+Protected Microservice
+```
+
+### Authorization
+
+Role-based authorization will be implemented for:
+
+```text
+Family
+Doctor
+Department Head
+Hospital Admin
+Chairman
+```
+
+Medical-record authorization is handled separately through explicit doctor access granted by the family for a specific family member.
+
+---
+
+# 📦 12. File / Medical Record Handling
+
+Medical records such as:
+
+* Reports
+* Tests
+* X-rays
+* Scans
+* ECGs
+* Prescription documents
+* Other medical documents
+
+will be managed through the **Medical Record Service**.
+
+The database stores record metadata and file references rather than placing large files directly inside normal MongoDB documents.
+
+---
+
+# 🚫 13. Technologies Not Used
+
+As finalized for the current MediMind architecture:
+
+```text
+❌ GraphQL
+❌ Redis
+❌ RabbitMQ
+❌ Kubernetes
+❌ Notification Service
+```
+
+The project will use:
+
+```text
+REST APIs
++
+API Gateway
++
+Node.js / Express
++
+MongoDB / Mongoose
++
+Python / FastAPI
++
+PyTorch
++
+Docker Compose
+```
+
+---
+
+# ⭐ Final Technology Architecture
+
+```text
+                         ┌─────────────────┐
+                         │  React Frontend │
+                         │ JavaScript      │
+                         │ Tailwind CSS    │
+                         └────────┬────────┘
+                                  │
+                                Axios
+                                  │
+                                  ↓
+                         ┌─────────────────┐
+                         │   API Gateway   │
+                         └────────┬────────┘
+                                  │
+          ┌───────────┬───────────┼───────────┬────────────┐
+          ↓           ↓           ↓           ↓            ↓
+       Auth       Family      Hospital      Doctor     Appointment
+      Service     Service      Service      Service      Service
+          │           │           │           │            │
+          └───────────┴───────────┼───────────┴────────────┘
+                                  ↓
+                       Medical Record Service
+                                  │
+                     ┌────────────┴────────────┐
+                     ↓                         ↓
+              AI Prediction Service      Knowledge Service
+                     │                         │
+                     ↓                         ↓
+               Python FastAPI             Articles
+                     │
+              ┌──────┴───────┐
+              ↓              ↓
+          PyTorch          ML/NLP
+              │
+              ↓
+       AI Predictions
+
+
+                         MongoDB Atlas
+                              │
+       ┌──────────────────────┼──────────────────────┐
+       ↓                      ↓                      ↓
+  Auth Database         Family Database       Hospital Database
+       │                      │                      │
+       ↓                      ↓                      ↓
+     users              families/members      hospitals/depts
+
+       ↓                      ↓                      ↓
+ Doctor Database      Appointment Database    Records Database
+       │                      │                      │
+    doctors            appointments       records/consultations/
+                                         prescriptions/access
+
+                              ↓
+                        AI Database
+                              │
+                         predictions
+
+                              ↓
+                     Knowledge Database
+                              │
+                           articles
+```
+
+## ✅ Final Stack at a Glance
+
+| Layer           | Technology                                                 |
+| --------------- | ---------------------------------------------------------- |
+| Frontend        | React.js, JavaScript, Tailwind CSS                         |
+| Routing         | React Router                                               |
+| HTTP Client     | Axios                                                      |
+| Backend         | Node.js, Express.js                                        |
+| Architecture    | Microservices                                              |
+| API Style       | REST                                                       |
+| Entry Point     | API Gateway                                                |
+| Database        | MongoDB                                                    |
+| Cloud Database  | MongoDB Atlas                                              |
+| ODM             | Mongoose                                                   |
+| Authentication  | JWT + bcrypt                                               |
+| AI Language     | Python                                                     |
+| AI API          | FastAPI                                                    |
+| Deep Learning   | PyTorch                                                    |
+| ML/Data         | NumPy, Pandas, Scikit-learn                                |
+| Visualization   | Matplotlib                                                 |
+| AI Models       | CNN, DNN, NLP                                              |
+| Containers      | Docker                                                     |
+| Orchestration   | Docker Compose                                             |
+| Testing         | Postman, Jest, Supertest, React Testing Library            |
+| Version Control | Git + GitHub                                               |
+| CI/CD           | GitHub Actions                                             |
+| Methodology     | Agile/Scrum                                                |
+| ❌ Not Used      | GraphQL, Redis, RabbitMQ, Kubernetes, Notification Service |

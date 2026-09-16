@@ -1,0 +1,1013 @@
+MEDIMIND — FRONTEND DESIGN SYSTEM, COLORS & PAGE DESIGNS
+==========================================================
+
+Document Purpose
+----------------
+This document defines the common React frontend visual system and the page-level
+design for every MediMind page.
+
+Frontend stack:
+- React.js
+- JavaScript
+- Tailwind CSS
+- React Router
+- Axios
+
+Design goals:
+- Professional healthcare appearance
+- Clean and modern SaaS dashboard
+- High readability
+- Consistent role-based navigation
+- Responsive desktop/tablet/mobile layouts
+- Accessible contrast and clear status indicators
+
+1. GLOBAL VISUAL IDENTITY
+-------------------------
+
+Primary theme:
+- Deep Indigo / Sapphire Blue
+
+Primary:
+- Deep Indigo: #312E81
+- Sapphire Blue: #2563EB
+
+Secondary:
+- Teal: #0F766E
+
+Accent:
+- Blush Pink: #F472B6
+- Use sparingly for highlights, selected states, or supportive visual accents.
+
+Background:
+- Main background: #F8FAFC
+- Card background: #FFFFFF
+- Soft section background: #EEF2FF
+
+Text:
+- Primary: #0F172A
+- Secondary: #475569
+- Muted: #64748B
+
+Borders:
+- #E2E8F0
+
+Status:
+- Success: #16A34A
+- Warning: #F59E0B
+- Error: #DC2626
+- Info: #2563EB
+
+Dark theme:
+- Background: #0F172A
+- Surface: #1E293B
+- Elevated surface: #334155
+- Primary text: #F8FAFC
+- Secondary text: #CBD5E1
+
+2. TYPOGRAPHY
+--------------
+
+Headings:
+- Montserrat
+- Bold / SemiBold
+
+Body:
+- Inter
+- Regular / Medium
+
+Suggested scale:
+- Page title: 28–32px
+- Section title: 20–24px
+- Card title: 16–18px
+- Body: 14–16px
+- Small metadata: 12–13px
+
+3. GLOBAL COMPONENTS
+--------------------
+
+Topbar:
+- White/light surface
+- MediMind logo/name on left
+- Page title/breadcrumb
+- Search where relevant
+- Theme toggle
+- Profile menu
+
+Sidebar:
+- Deep Indigo/Sapphire accent
+- Role-specific navigation
+- Active page highlighted with soft blue/indigo background
+- Icons + labels
+- Collapsible on smaller screens
+
+Cards:
+- White background
+- 12–16px rounded corners
+- Subtle border
+- Light shadow
+- Consistent padding
+
+Buttons:
+Primary:
+- Sapphire Blue
+- White text
+
+Secondary:
+- White/transparent
+- Indigo border/text
+
+Success:
+- Green
+
+Danger:
+- Red
+
+Inputs:
+- White background
+- Slate border
+- Indigo focus ring
+- Clear labels
+- Inline validation
+
+Tables:
+- White card container
+- Sticky header where useful
+- Zebra/hover treatment kept subtle
+- Status badges
+
+Charts:
+- Clean, minimal
+- Use role-specific analytics data
+- Avoid excessive decoration
+
+4. ROLE-BASED VISUAL ACCENTS
+----------------------------
+
+Family:
+- Sapphire Blue + soft Teal
+- Friendly, reassuring healthcare appearance
+
+Doctor:
+- Deep Indigo + Teal
+- Professional clinical appearance
+
+Department Head:
+- Deep Indigo + Sapphire
+- Management/analytics emphasis
+
+Hospital Admin:
+- Sapphire + Indigo
+- Operational dashboard emphasis
+
+Chairman:
+- Deep Indigo + Teal
+- Executive analytics emphasis
+
+5. FAMILY PAGES
+---------------
+
+5.1 Dashboard
+Layout:
+- Welcome header
+- Selected family member/profile selector
+- Quick health summary cards
+- Upcoming appointment
+- Latest AI prediction
+- Recent medical records
+- Quick actions
+
+Cards:
+- Selected member
+- Next appointment
+- Latest AI assessment
+- Recent records
+
+Colors:
+- Sapphire primary
+- Teal health indicators
+- Soft indigo section backgrounds
+
+5.2 Family Members
+Layout:
+- Member card grid
+- Add Member button
+- Search/filter if needed
+- Active/removed status
+
+Member card:
+- Profile picture
+- Name
+- Age
+- Relationship
+- Quick View button
+
+Colors:
+- White cards
+- Indigo headings
+- Teal active badges
+
+5.3 Member Profile
+Layout:
+- Profile header
+- Personal details
+- Emergency contact
+- Health information
+- Medical conditions
+- Allergies
+- Previous treatments
+- Edit controls
+
+Colors:
+- Indigo header
+- Soft blue information panels
+- Red only for allergy/emergency emphasis
+
+5.4 Medical Records
+Layout:
+- Selected member banner
+- Record filters
+- Record cards/table
+- Record type badges
+- Date and source
+
+Colors:
+- Sapphire record categories
+- Teal for family-uploaded/verified presentation where appropriate
+
+5.5 Upload Record
+Layout:
+- Selected member
+- File upload drop zone
+- Record type
+- Description
+- Record date
+- Preview/validation
+- Upload button
+
+Colors:
+- Indigo drop zone
+- Sapphire primary button
+- Red validation errors
+
+5.6 AI Predictions
+Layout:
+- Four large AI module cards
+- Selected family member
+- Recent prediction summary
+- Prediction History link
+
+Modules:
+- Fracture Detection
+- Diabetes Risk
+- Heart Disease Risk
+- General Health
+
+Colors:
+- Fracture: Indigo
+- Diabetes: Teal
+- Heart: Blush Pink used sparingly
+- General Health: Sapphire
+
+5.7 Fracture Detection
+Layout:
+- Selected member
+- X-ray upload
+- Image preview
+- Analyze button
+- Result card
+- Confidence
+- Risk level
+- Grad-CAM/explanation section where available
+
+Colors:
+- Indigo/Sapphire
+- Warning/error statuses use standard status colors
+
+5.8 Diabetes Risk
+Layout:
+- Structured health parameter form
+- Prediction result
+- Risk score
+- Confidence
+- Guidance/disclaimer
+
+Colors:
+- Teal + Sapphire
+
+5.9 Heart Disease Risk
+Layout:
+- Health parameter form
+- Result summary
+- Risk score
+- Confidence
+- Guidance/disclaimer
+
+Colors:
+- Indigo + restrained Blush Pink accent
+
+5.10 General Health
+Layout:
+- Large symptom text area
+- Character/validation guidance
+- Assess button
+- Possible concerns
+- Urgency indication
+- General guidance
+- Disclaimer
+
+Colors:
+- Sapphire
+- Warning amber for elevated urgency
+- Red only for high-urgency indicators
+
+5.11 Prediction History
+Layout:
+- Timeline/table
+- Filter by AI type
+- Date
+- Appointment-linked indicator
+- Result summary
+- View details
+
+Colors:
+- Indigo timeline
+- Teal/sapphire badges
+
+5.12 Doctors
+Layout:
+- Search
+- Department/specialization filters
+- Doctor cards
+- Experience
+- Qualifications
+- Availability
+- View Profile
+
+Colors:
+- Sapphire + Teal
+
+5.13 Appointments
+Layout:
+- Upcoming/past tabs
+- Appointment cards
+- Doctor
+- Department
+- Date/time
+- AI prediction status
+- Reschedule/cancel actions
+
+Colors:
+- Sapphire for upcoming
+- Slate for past
+- Amber for reschedule/pending
+
+5.14 Consultations
+Layout:
+- Consultation history
+- Appointment association
+- Doctor
+- Clinical assessment
+- Treatment plan
+- Final/amended status
+
+Colors:
+- Indigo
+- Teal for finalized
+
+5.15 Prescriptions
+Layout:
+- Prescription cards
+- Doctor
+- Consultation
+- Medicines
+- Dosage/frequency/duration
+- Instructions
+- Final/corrected status
+
+Colors:
+- Teal + Indigo
+
+5.16 Doctor Access
+Layout:
+- Authorized doctors
+- Patient-specific access
+- Doctor profile summary
+- Granted date
+- Active/Revoke action
+
+Important:
+This page controls full "Share Everything" access for the selected family member.
+Do not show granular checkboxes for individual record types.
+
+Colors:
+- Teal for ACTIVE
+- Red for revoke action
+
+5.17 MediMind Knowledge
+Layout:
+- Article cards
+- Search
+- Category/tag filters
+- Published content
+- Article detail
+
+Colors:
+- Indigo + Sapphire
+- Teal category accents
+
+5.18 Settings
+Sections:
+- Account
+- Family/member management
+- Security
+- Preferences
+- Creator-only deactivate/delete
+
+Colors:
+- Neutral slate surfaces
+- Red for destructive actions
+
+6. DOCTOR PAGES
+---------------
+
+6.1 Dashboard
+- Today's appointments
+- Authorized patient count
+- Recent AI predictions
+- Consultation shortcuts
+- Prescription shortcuts
+
+Colors:
+- Indigo + Teal
+
+6.2 My Profile
+- Professional details
+- Qualifications
+- Experience
+- Specialization
+- Description
+- Profile picture
+
+Colors:
+- Indigo
+
+6.3 Availability
+- Weekly schedule
+- Day/time controls
+- Save availability
+
+Colors:
+- Sapphire selected slots
+- Teal saved/active state
+
+6.4 Patients
+- Only patients who authorized this doctor
+- Patient cards/table
+- Search/filter
+
+Colors:
+- Teal + Sapphire
+- No hospital-wide patient directory
+
+6.5 Patient Profile
+- Patient summary
+- Medical records
+- AI predictions
+- AI explanation
+- Appointments
+- Consultations
+- Prescriptions
+
+Use a prominent patient identity header and clear access indicator.
+
+6.6 Medical Records
+- Patient-specific records
+- Filters by type/date
+- Record viewer
+
+Colors:
+- Sapphire + slate
+
+6.7 AI Predictions
+- Current appointment prediction
+- Previous predictions
+- Prediction type
+- Risk/confidence
+- Explanation
+
+Colors:
+- AI-specific module accents
+
+6.8 AI Explanation
+- Prediction summary
+- Confidence
+- Explainability visualization
+- Grad-CAM for fracture when available
+- Feature explanation where supported
+
+Colors:
+- Indigo canvas with white card content
+- Avoid alarmist styling
+
+6.9 Appointments
+- Doctor's appointments
+- Patient
+- Date/time
+- AI prediction indicator
+- Status
+
+Colors:
+- Sapphire + status badges
+
+6.10 Consultations
+- Create draft
+- Patient symptoms
+- Observations
+- Clinical assessment
+- Treatment plan
+- AI prediction reference
+- Finalize
+- Amend finalized consultation through new amendment
+
+Colors:
+- Indigo
+- Teal finalize
+- Amber draft
+- Red only for validation
+
+6.11 Prescriptions
+- Create draft
+- Medicines
+- Dosage
+- Frequency
+- Duration
+- Instructions
+- Finalize/correct
+
+Colors:
+- Teal + Indigo
+
+6.12 Patient Access
+- Patients who granted access
+- Granted date
+- Active/revoked status
+- Doctor's own access history
+
+Colors:
+- Teal active
+- Slate history
+- Red revoked
+
+6.13 MediMind Knowledge
+- Published knowledge
+- Categories
+- Search
+
+6.14 My Articles
+- Drafts
+- Submitted
+- Under review
+- Approved/rejected
+- Published
+
+Status colors:
+- Draft: Slate
+- Submitted: Blue
+- Under review: Amber
+- Approved: Green
+- Rejected: Red
+- Published: Teal
+
+6.15 Create Article
+- Title
+- Summary
+- Content editor
+- Category
+- Tags
+- Save draft
+- Submit for review
+
+Important:
+Do not include private patient information.
+
+6.16 Settings
+- Profile/security/preferences
+- No notification preferences
+
+7. DEPARTMENT HEAD PAGES
+------------------------
+
+7.1 Dashboard
+- Department overview
+- Doctor count
+- Appointment summary
+- Workload
+- AI aggregate summary
+
+Colors:
+- Indigo + Sapphire
+
+7.2 Doctors
+- Only own department doctors
+- Search/filter
+- Status
+
+7.3 Create Doctor
+- Doctor profile form
+- Account creation
+- Specialization
+- Qualifications
+- Experience
+
+Colors:
+- Sapphire primary
+- Indigo headings
+
+7.4 Doctor Details
+- Professional profile
+- Availability
+- Department information
+- Performance summary
+
+7.5 Schedules
+- Department doctor schedules
+- Calendar/list view
+
+7.6 Appointments
+- Department appointment overview
+- Aggregate/operational information
+
+7.7 Workload
+- Doctor workload charts
+- Appointment counts
+- Capacity indicators
+
+7.8 Department Analytics
+- Appointment trends
+- Doctor workload
+- Operational KPIs
+
+7.9 AI Analytics
+- Aggregate AI usage/results
+- Fracture
+- Diabetes
+- Heart Disease
+- General Health
+
+Do not expose private patient medical records.
+
+7.10 Doctor Performance
+- Consultation volume
+- Appointment completion
+- Operational performance
+
+7.11 MediMind Knowledge
+- Department knowledge
+- Published content
+
+7.12 Create Article
+- Department Head article creation
+- Review/approval workflow as applicable
+
+7.13 Settings
+- Account/security/preferences
+
+8. HOSPITAL ADMIN PAGES
+-----------------------
+
+8.1 Dashboard
+- Hospital KPIs
+- Department overview
+- Doctor count
+- Appointment overview
+- AI aggregate metrics
+
+8.2 Hospital Profile
+- Hospital information
+- Address
+- Contact information
+
+8.3 Departments
+- Department list
+- Status
+- Department details
+
+8.4 Department Heads
+- Department head list
+- Department association
+- Status
+
+8.5 Create Department Head
+- Account/profile creation
+- Hospital and department assignment
+
+8.6 Department Head Details
+- Professional/admin information
+- Department
+
+8.7 Doctors
+- Hospital doctor directory
+- Operational/professional information
+- No automatic private medical-record access
+
+8.8 Doctor Details
+- Professional details
+- Department
+- Availability
+- Status
+
+8.9 Staff Management
+- Staff/account status
+- Organizational administration
+
+8.10 Appointments
+- Hospital operational appointment overview
+
+8.11 Schedules
+- Hospital scheduling overview
+
+8.12 Hospital Analytics
+- Aggregate hospital KPIs
+
+8.13 Department Analytics
+- Aggregate department KPIs
+
+8.14 AI Analytics
+- Aggregate AI usage and model-result trends
+- Four AI modules included
+- No private patient records
+
+8.15 Reports
+- Operational/aggregate reports
+
+8.16 Knowledge Activity
+- Article activity and publishing workflow overview
+
+8.17 Activity / Audit
+- Administrative activity/audit information
+
+8.18 Settings
+- Hospital/admin settings
+- Security
+- Preferences
+
+9. CHAIRMAN PAGES
+-----------------
+
+9.1 Platform Dashboard
+- Executive KPI cards
+- Hospital count
+- User/account metrics
+- Appointment trends
+- AI usage summary
+
+9.2 Hospitals
+- Hospital directory
+- Status
+- Performance overview
+
+9.3 Hospital Requests
+- Hospital onboarding/request workflow
+
+9.4 Hospital Details
+- Hospital-level aggregate information
+
+9.5 Hospital Admins
+- Admin directory
+- Hospital association
+
+9.6 Create Hospital Admin
+- Admin account creation
+
+9.7 Departments
+- Cross-hospital department overview
+
+9.8 Doctors
+- Cross-platform professional/organizational overview
+
+9.9 Family Accounts
+- Aggregate/account management information
+- No private patient medical records
+
+9.10 Appointments
+- Platform-level aggregate appointment information
+
+9.11 AI Analytics
+- Platform-wide aggregate AI metrics
+- Fracture
+- Diabetes
+- Heart Disease
+- General Health
+
+9.12 Platform Analytics
+- Executive charts
+- Growth/usage trends
+- Aggregate metrics
+
+9.13 Hospital Performance
+- Hospital comparison using aggregate operational KPIs
+
+9.14 Department Performance
+- Aggregate department comparison
+
+9.15 Reports
+- Platform-level reports
+
+9.16 Knowledge Activity
+- Knowledge publishing/activity overview
+
+9.17 Audit Logs
+- Platform administration audit logs
+
+9.18 Settings
+- Platform/security/preferences
+
+Important privacy rule:
+Chairman does not automatically receive private patient medical records.
+
+10. RESPONSIVE DESIGN
+---------------------
+
+Desktop:
+- Fixed/collapsible sidebar
+- Topbar
+- Multi-column cards
+- Data tables
+
+Tablet:
+- Collapsible sidebar
+- Two-column cards
+- Responsive tables
+
+Mobile:
+- Drawer navigation
+- Single-column cards
+- Stacked forms
+- Horizontal tab scrolling where required
+- Large touch targets
+
+11. ACCESSIBILITY
+-----------------
+
+- Use semantic HTML.
+- Maintain strong text/background contrast.
+- Every input has a label.
+- Buttons must have meaningful labels.
+- Images need alt text.
+- Do not rely only on color to communicate status.
+- Keyboard navigation should be supported.
+- Loading and error states should be visible.
+- Destructive actions require confirmation.
+
+12. GLOBAL UI STATES
+--------------------
+
+Every data-driven page should support:
+- Loading state
+- Empty state
+- Error state
+- Success feedback
+- Validation state
+- Unauthorized/forbidden state
+
+Examples:
+Loading:
+"Loading your medical records..."
+
+Empty:
+"No records available for this family member."
+
+Forbidden:
+"You do not have permission to access this information."
+
+13. PRIVACY-AWARE UI
+--------------------
+
+The selected family member must always be visually clear when family users
+are working with:
+- Medical Records
+- AI Predictions
+- Appointments
+- Consultations
+- Prescriptions
+- Doctor Access
+
+Doctor pages must clearly identify the currently selected authorized patient.
+
+Organizational hierarchy must never be represented as automatic access to private
+medical records.
+
+14. FINAL FRONTEND NAVIGATION
+-----------------------------
+
+FAMILY:
+Dashboard
+Family Members
+Medical Records
+Upload Record
+AI Predictions
+  - Fracture Detection
+  - Diabetes Risk
+  - Heart Disease Risk
+  - General Health
+  - Prediction History
+Doctors
+Appointments
+Consultations
+Prescriptions
+Doctor Access
+MediMind Knowledge
+Settings
+
+DOCTOR:
+Dashboard
+My Profile
+Availability
+Patients
+  - Patient Profile
+    - Medical Records
+    - AI Predictions
+    - AI Explanation
+    - Appointments
+    - Consultations
+    - Prescriptions
+Appointments
+Consultations
+Prescriptions
+Patient Access
+MediMind Knowledge
+My Articles
+Create Article
+Settings
+
+DEPARTMENT HEAD:
+Dashboard
+Doctors
+Create Doctor
+Doctor Details
+Schedules
+Appointments
+Workload
+Department Analytics
+AI Analytics
+Doctor Performance
+MediMind Knowledge
+Create Article
+Settings
+
+HOSPITAL ADMIN:
+Dashboard
+Hospital Profile
+Departments
+Department Heads
+Create Department Head
+Department Head Details
+Doctors
+Doctor Details
+Staff Management
+Appointments
+Schedules
+Hospital Analytics
+Department Analytics
+AI Analytics
+Reports
+Knowledge Activity
+Activity / Audit
+Settings
+
+CHAIRMAN:
+Platform Dashboard
+Hospitals
+Hospital Requests
+Hospital Details
+Hospital Admins
+Create Hospital Admin
+Departments
+Doctors
+Family Accounts
+Appointments
+AI Analytics
+Platform Analytics
+Hospital Performance
+Department Performance
+Reports
+Knowledge Activity
+Audit Logs
+Settings
+
+15. FINAL FRONTEND DESIGN PRINCIPLE
+-----------------------------------
+
+MediMind should look like a professional healthcare SaaS platform rather than
+a generic student dashboard.
+
+Core visual hierarchy:
+- Deep Indigo/Sapphire = navigation, primary actions, identity
+- Teal = positive healthcare/active states
+- Blush Pink = restrained accent
+- Amber = warnings/pending states
+- Red = errors/destructive/high-urgency states
+- White/Slate = clean content surfaces
+
+The design should remain consistent across all five roles while allowing each
+role to emphasize its own workflow.

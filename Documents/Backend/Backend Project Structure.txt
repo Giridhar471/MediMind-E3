@@ -1,0 +1,670 @@
+# 🏗️ MediMind — Backend Project Structure
+
+Now we define the **actual folder structure** for the backend. This will make implementation much easier because every microservice follows the same pattern.
+
+---
+
+# 1. Root Backend Structure
+
+```text
+MediMind/
+│
+├── api-gateway/
+│
+├── auth-service/
+│
+├── family-service/
+│
+├── hospital-service/
+│
+├── doctor-service/
+│
+├── appointment-service/
+│
+├── medical-record-service/
+│
+├── ai-prediction-service/
+│
+├── knowledge-service/
+│
+├── docker-compose.yml
+├── .gitignore
+└── README.md
+```
+
+We will keep the services as **separate Node.js projects**.
+
+The exception is:
+
+```text
+ai-prediction-service
+```
+
+which will be a **Python + FastAPI** service because it hosts the ML/AI models.
+
+---
+
+# 2. Standard Node.js Service Structure
+
+For the Node/Express services, we'll use:
+
+```text
+service/
+│
+├── src/
+│   ├── config/
+│   │
+│   ├── controllers/
+│   │
+│   ├── middleware/
+│   │
+│   ├── models/
+│   │
+│   ├── routes/
+│   │
+│   ├── services/
+│   │
+│   ├── utils/
+│   │
+│   └── app.js
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+└── server.js
+```
+
+This structure will be reused.
+
+---
+
+# 3. Why `controllers` and `services` are Separate
+
+We'll follow:
+
+```text
+Route
+  ↓
+Controller
+  ↓
+Service
+  ↓
+Model
+  ↓
+Database
+```
+
+For example:
+
+```text
+POST /api/families/members
+          ↓
+family.routes.js
+          ↓
+familyMemberController.js
+          ↓
+familyMemberService.js
+          ↓
+FamilyMember Model
+          ↓
+MongoDB
+```
+
+This keeps business logic out of the route files.
+
+---
+
+# 4. API Gateway Structure
+
+```text
+api-gateway/
+│
+├── src/
+│   ├── config/
+│   │   └── services.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── roleMiddleware.js
+│   │   └── errorMiddleware.js
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── familyRoutes.js
+│   │   ├── hospitalRoutes.js
+│   │   ├── doctorRoutes.js
+│   │   ├── appointmentRoutes.js
+│   │   ├── recordRoutes.js
+│   │   ├── aiRoutes.js
+│   │   └── knowledgeRoutes.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+### Gateway does NOT have:
+
+```text
+models/
+controllers/
+database/
+```
+
+because it doesn't own business data.
+
+---
+
+# 5. Gateway Service URLs
+
+We'll keep internal service URLs in:
+
+```text
+src/config/services.js
+```
+
+Conceptually:
+
+```text
+AUTH_SERVICE_URL
+FAMILY_SERVICE_URL
+HOSPITAL_SERVICE_URL
+DOCTOR_SERVICE_URL
+APPOINTMENT_SERVICE_URL
+RECORD_SERVICE_URL
+AI_SERVICE_URL
+KNOWLEDGE_SERVICE_URL
+```
+
+For local development:
+
+```text
+auth-service       → 5001
+family-service     → 5002
+hospital-service   → 5003
+doctor-service     → 5004
+appointment-service→ 5005
+medical-record     → 5006
+ai-prediction      → 5007
+knowledge          → 5008
+```
+
+---
+
+# 6. Auth Service Structure 🔐
+
+```text
+auth-service/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   └── authController.js
+│   │
+│   ├── middleware/
+│   │   └── errorMiddleware.js
+│   │
+│   ├── models/
+│   │   └── User.js
+│   │
+│   ├── routes/
+│   │   └── authRoutes.js
+│   │
+│   ├── services/
+│   │   └── authService.js
+│   │
+│   ├── utils/
+│   │   ├── password.js
+│   │   └── jwt.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+Database:
+
+```text
+medimind_auth
+└── users
+```
+
+---
+
+# 7. Family Service Structure 👨‍👩‍👧
+
+```text
+family-service/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   ├── familyController.js
+│   │   └── familyMemberController.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   └── errorMiddleware.js
+│   │
+│   ├── models/
+│   │   ├── Family.js
+│   │   └── FamilyMember.js
+│   │
+│   ├── routes/
+│   │   ├── familyRoutes.js
+│   │   └── familyMemberRoutes.js
+│   │
+│   ├── services/
+│   │   ├── familyService.js
+│   │   └── familyMemberService.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+---
+
+# 8. Hospital Service 🏥
+
+```text
+hospital-service/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   ├── hospitalController.js
+│   │   ├── departmentController.js
+│   │   └── departmentHeadController.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── roleMiddleware.js
+│   │   └── errorMiddleware.js
+│   │
+│   ├── models/
+│   │   ├── Hospital.js
+│   │   ├── Department.js
+│   │   └── DepartmentHead.js
+│   │
+│   ├── routes/
+│   │   ├── hospitalRoutes.js
+│   │   ├── departmentRoutes.js
+│   │   └── departmentHeadRoutes.js
+│   │
+│   ├── services/
+│   │   ├── hospitalService.js
+│   │   ├── departmentService.js
+│   │   └── departmentHeadService.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+---
+
+# 9. Doctor Service 👨‍⚕️
+
+```text
+doctor-service/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   └── doctorController.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── roleMiddleware.js
+│   │   └── errorMiddleware.js
+│   │
+│   ├── models/
+│   │   └── Doctor.js
+│   │
+│   ├── routes/
+│   │   └── doctorRoutes.js
+│   │
+│   ├── services/
+│   │   └── doctorService.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+---
+
+# 10. Appointment Service 📅
+
+```text
+appointment-service/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   └── appointmentController.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── roleMiddleware.js
+│   │   └── errorMiddleware.js
+│   │
+│   ├── models/
+│   │   └── Appointment.js
+│   │
+│   ├── routes/
+│   │   └── appointmentRoutes.js
+│   │
+│   ├── services/
+│   │   └── appointmentService.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+This service will communicate with:
+
+```text
+Doctor Service
+AI Prediction Service
+Family Service
+```
+
+through REST APIs.
+
+---
+
+# 11. Medical Record Service 🗂️
+
+This service manages medical records, consultations, prescriptions, and doctor access authorization.
+
+The access feature is **not a separate microservice**. It is part of the Medical Record Service and is represented by the `RecordAccess` model.
+
+```text
+medical-record-service/
+│
+├── controllers/
+│   ├── medicalRecordController.js
+│   ├── consultationController.js
+│   ├── prescriptionController.js
+│   └── recordAccessController.js
+│
+├── models/
+│   ├── MedicalRecord.js
+│   ├── Consultation.js
+│   ├── Prescription.js
+│   └── RecordAccess.js
+│
+├── routes/
+│   ├── medicalRecordRoutes.js
+│   ├── consultationRoutes.js
+│   ├── prescriptionRoutes.js
+│   └── recordAccessRoutes.js
+│
+└── services/
+    ├── medicalRecordService.js
+    ├── consultationService.js
+    ├── prescriptionService.js
+    └── recordAccessService.js
+```
+
+`RecordAccess` stores which doctor is authorized for which family member. Access is all-or-nothing for the selected member; there are no granular record-type permissions.
+
+---
+
+# 12. AI Prediction Service 🤖
+
+This one will be Python/FastAPI.
+
+```text
+ai-prediction-service/
+│
+├── app/
+│   ├── api/
+│   │   └── routes/
+│   │       ├── fracture.py
+│   │       ├── diabetes.py
+│   │       ├── heart_disease.py
+│   │       └── general_health.py
+│   │
+│   ├── models/
+│   │   ├── fracture/
+│   │   ├── diabetes/
+│   │   └── heart_disease/
+│   │
+│   ├── services/
+│   │   ├── fracture_service.py
+│   │   ├── diabetes_service.py
+│   │   ├── heart_disease_service.py
+│   │   └── general_health_service.py
+│   │
+│   ├── schemas/
+│   │   └── prediction_schemas.py
+│   │
+│   ├── utils/
+│   │
+│   └── main.py
+│
+├── requirements.txt
+└── .env
+```
+
+The actual trained models will be added later.
+
+---
+
+# 13. Knowledge Service 📚
+
+```text id="1skn9w"
+knowledge-service/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   └── articleController.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── roleMiddleware.js
+│   │   └── errorMiddleware.js
+│   │
+│   ├── models/
+│   │   └── Article.js
+│   │
+│   ├── routes/
+│   │   └── articleRoutes.js
+│   │
+│   ├── services/
+│   │   └── articleService.js
+│   │
+│   └── app.js
+│
+├── .env
+├── package.json
+└── server.js
+```
+
+---
+
+# 14. Environment Variables
+
+Each service gets its own `.env`.
+
+### Example Node service
+
+```env
+PORT=5002
+MONGO_URI=mongodb+srv://...
+JWT_SECRET=...
+```
+
+But we should **not put the same database URI in every service**.
+
+For example:
+
+```text
+Family Service
+      ↓
+medimind_family
+
+
+Doctor Service
+      ↓
+medimind_doctor
+```
+
+The MongoDB deployment can be the same, but the logical databases differ.
+
+---
+
+# 15. Docker Architecture
+
+Eventually we'll run:
+
+```text
+docker-compose.yml
+```
+
+with:
+
+```text id="h7x5j4"
+services:
+
+  api-gateway
+  auth-service
+  family-service
+  hospital-service
+  doctor-service
+  appointment-service
+  medical-record-service
+  ai-prediction-service
+  knowledge-service
+```
+
+Example:
+
+```text
+React
+ ↓
+localhost:5000
+ ↓
+API Gateway
+ ├── auth-service:5001
+ ├── family-service:5002
+ ├── hospital-service:5003
+ ├── doctor-service:5004
+ ├── appointment-service:5005
+ ├── medical-record-service:5006
+ ├── ai-prediction-service:5007
+ └── knowledge-service:5008
+```
+
+---
+
+# 16. One Important Implementation Decision
+
+We'll **not create a huge shared backend package** such as:
+
+```text
+shared-models/
+shared-database/
+shared-services/
+```
+
+because that can blur service ownership.
+
+Instead, each service owns its:
+
+```text
+models
+controllers
+services
+routes
+database connection
+```
+
+The only things that can be standardized are lightweight concepts such as:
+
+```text
+JWT format
+API response format
+HTTP status conventions
+environment variable naming
+```
+
+---
+
+# 17. Final Backend Tree
+
+So the final project will look like:
+
+```text
+MediMind/
+│
+├── api-gateway/
+│
+├── auth-service/
+│
+├── family-service/
+│
+├── hospital-service/
+│
+├── doctor-service/
+│
+├── appointment-service/
+│
+├── medical-record-service/
+│
+├── ai-prediction-service/
+│
+├── knowledge-service/
+│
+├── docker-compose.yml
+├── .gitignore
+└── README.md
+```
+
+And internally:
+
+```text
+Node Service
+│
+└── src
+    ├── config
+    ├── controllers
+    ├── middleware
+    ├── models
+    ├── routes
+    ├── services
+    ├── utils
+    └── app.js
+```
+
+---

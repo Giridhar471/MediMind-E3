@@ -1,0 +1,1150 @@
+MEDIMIND — ASE / AGILE PROJECT PLAN
+====================================
+
+PROJECT DELIVERY PLAN
+----------------------
+
+MediMind will be developed using an Adaptive Software Engineering approach
+combined with Agile/Scrum practices.
+
+Total duration:
+- 4 Sprints
+- 2 weeks per Sprint
+- 8 weeks total
+
+Core development strategy:
+- Frontend and AI development begin in parallel.
+- Backend development becomes the major focus from Sprint 3.
+- Sprint 4 is dedicated to completing remaining features, integrating all
+  layers/services, testing, fixing defects, and preparing the final increment.
+
+HIGH-LEVEL ROADMAP
+------------------
+
+Sprint 1 (Weeks 1–2)
+    User + Doctor Frontend
+    +
+    AI Development Foundation
+
+Sprint 2 (Weeks 3–4)
+    Department Head + Hospital Admin + Chairman Frontend
+    +
+    Advanced AI Development
+
+Sprint 3 (Weeks 5–6)
+    Major Backend Development
+    +
+    AI Improvement / Evaluation
+
+Sprint 4 (Weeks 7–8)
+    Remaining Work
+    +
+    Full Integration
+    +
+    Testing / Refinement / Final Release
+
+
+1. AGILE PRODUCT VISION
+-----------------------
+
+Build MediMind as a secure, role-based intelligent healthcare platform that
+combines:
+
+- Family healthcare management
+- Doctor workflows
+- Hospital administration
+- Department management
+- Platform administration
+- Medical records
+- Appointments
+- Consultations
+- Prescriptions
+- AI-assisted prediction/assessment
+- Knowledge management
+- Microservice architecture
+
+The product will be developed incrementally rather than attempting to build
+every layer completely before demonstrating working functionality.
+
+
+2. SPRINT 1 — USER + DOCTOR FRONTEND + AI FOUNDATION
+----------------------------------------------------
+
+Duration:
+- Week 1
+- Week 2
+
+Primary objective:
+Build the two most important healthcare-facing frontend experiences while
+starting the AI/ML work in parallel.
+
+A. FAMILY / USER FRONTEND
+
+Build the main Family Account experience:
+
+- Login
+- Dashboard
+- Family Members
+- Member Profile
+- Medical Records
+- Upload Record
+- AI Predictions
+- Fracture Detection page
+- Diabetes Risk page
+- Heart Disease Risk page
+- General Health page
+- Prediction History
+- Doctors
+- Appointments
+- Consultations
+- Prescriptions
+- Doctor Access
+- MediMind Knowledge
+- Settings
+
+Important:
+- Selected family member must remain clearly visible.
+- Family access is family-account based.
+- Doctor access is granted for a specific family member.
+- No notification pages.
+
+B. DOCTOR FRONTEND
+
+Build the main Doctor experience:
+
+- Login
+- Dashboard
+- My Profile
+- Availability
+- Patients
+- Patient Profile
+- Medical Records
+- AI Predictions
+- AI Explanation
+- Appointments
+- Consultations
+- Prescriptions
+- Patient Access
+- MediMind Knowledge
+- My Articles
+- Create Article
+- Settings
+
+Important:
+- Doctor sees only authorized patients.
+- Doctor does not automatically see every hospital patient.
+- Patient Profile must bring together the authorized patient's healthcare
+  information.
+
+C. AI WORK
+
+Start AI development in parallel with frontend development.
+
+Tasks:
+- Set up Python environment
+- Set up FastAPI project
+- Create AI Prediction Service structure
+- Prepare datasets
+- Perform data cleaning/exploration
+- Define model input/output contracts
+- Start Fracture Detection CNN
+- Start Diabetes Risk model
+- Start Heart Disease Risk model
+- Define General Health text-assessment pipeline
+- Define model evaluation process
+
+Sprint 1 AI goal:
+A working AI foundation and initial model prototypes, not necessarily
+production-ready models.
+
+D. SPRINT 1 DELIVERABLE
+
+By the end of Sprint 1:
+
+Frontend:
+- Family frontend major flows working
+- Doctor frontend major flows working
+- Responsive base UI
+- Common design system established
+
+AI:
+- AI service running locally
+- Datasets prepared
+- Initial model prototypes
+- Initial inference experiments
+- Standard prediction response structure defined
+
+E. SPRINT 1 ACCEPTANCE
+
+A user should be able to navigate the Family and Doctor interfaces using
+mock/local data even before the complete backend exists.
+
+AI work should demonstrate that the selected datasets can be processed and
+models can produce initial predictions.
+
+
+3. SPRINT 2 — OTHER THREE ROLES + ADVANCED AI
+--------------------------------------------
+
+Duration:
+- Week 3
+- Week 4
+
+Primary objective:
+Complete the remaining role-based frontend experiences while significantly
+advancing the AI layer.
+
+A. DEPARTMENT HEAD FRONTEND
+
+Build:
+
+- Dashboard
+- Doctors
+- Create Doctor
+- Doctor Details
+- Schedules
+- Appointments
+- Workload
+- Department Analytics
+- AI Analytics
+- Doctor Performance
+- MediMind Knowledge
+- Create Article
+- Settings
+
+Rules:
+- Department Head manages only their department.
+- Department Head does not automatically access private patient records.
+
+B. HOSPITAL ADMIN FRONTEND
+
+Build:
+
+- Dashboard
+- Hospital Profile
+- Departments
+- Department Heads
+- Create Department Head
+- Department Head Details
+- Doctors
+- Doctor Details
+- Staff Management
+- Appointments
+- Schedules
+- Hospital Analytics
+- Department Analytics
+- AI Analytics
+- Reports
+- Knowledge Activity
+- Activity / Audit
+- Settings
+
+Rules:
+- Hospital Admin manages hospital operations.
+- Hospital administration does not imply automatic access to private medical
+  records.
+
+C. CHAIRMAN FRONTEND
+
+Build:
+
+- Platform Dashboard
+- Hospitals
+- Hospital Requests
+- Hospital Details
+- Hospital Admins
+- Create Hospital Admin
+- Departments
+- Doctors
+- Family Accounts
+- Appointments
+- AI Analytics
+- Platform Analytics
+- Hospital Performance
+- Department Performance
+- Reports
+- Knowledge Activity
+- Audit Logs
+- Settings
+
+Rules:
+- Chairman receives platform/hospital aggregate information.
+- Chairman does not automatically receive private patient medical records.
+
+D. AI WORK
+
+Advance all four AI modules:
+
+Fracture:
+- Improve CNN
+- Evaluate model
+- Add/prepare Grad-CAM
+- Test image inference
+
+Diabetes:
+- Finalize feature set from selected dataset
+- Preprocessing pipeline
+- Train/tune model
+- Evaluate
+
+Heart Disease:
+- Finalize feature set
+- Preprocessing
+- Train/tune model
+- Evaluate
+
+General Health:
+- Implement text input processing
+- Define possible-concern output
+- Define urgency indication
+- Define general guidance
+- Add medical-evaluation recommendation
+- Add safety disclaimer
+
+E. AI API FOUNDATION
+
+Implement initial FastAPI endpoints:
+
+POST /api/ai/fracture
+POST /api/ai/diabetes
+POST /api/ai/heart-disease
+POST /api/ai/general-health
+
+Also establish:
+- Prediction response format
+- Error handling
+- Model loading
+- Model versioning
+- Prediction persistence interface
+
+F. SPRINT 2 DELIVERABLE
+
+By the end of Sprint 2:
+
+Frontend:
+- All five role interfaces exist
+- Navigation is complete
+- Main page layouts are implemented
+- Role-specific UI restrictions are represented
+
+AI:
+- Four AI modules have working prototypes/endpoints
+- Initial evaluation results available
+- Explainability work started
+- General Health assessment prototype available
+
+
+4. SPRINT 3 — MAJOR BACKEND + AI IMPROVEMENT
+--------------------------------------------
+
+Duration:
+- Week 5
+- Week 6
+
+Primary objective:
+Build the majority of the backend and connect the frontend to real services.
+
+Backend becomes the primary development focus in this sprint.
+
+A. API GATEWAY
+
+Implement:
+
+- Gateway server
+- Request routing
+- JWT verification
+- Authentication information forwarding
+- Role-based route protection
+- Centralized error handling
+- Service URL configuration
+
+Frontend communication:
+
+React
+  ->
+API Gateway
+  ->
+Required Microservice
+
+B. AUTH SERVICE
+
+Implement:
+
+- User model
+- Login
+- Password hashing
+- Password verification
+- JWT generation
+- JWT validation
+- /api/auth/me
+- Change password
+- Account status checking
+
+Roles:
+
+- FAMILY
+- DOCTOR
+- DEPARTMENT_HEAD
+- HOSPITAL_ADMIN
+- CHAIRMAN
+
+C. FAMILY SERVICE
+
+Implement:
+
+- Family account
+- Family creator
+- Family members
+- Add member
+- Edit member
+- Remove member
+- Family account status
+- Creator-only destructive operations
+
+D. HOSPITAL SERVICE
+
+Implement:
+
+- Hospitals
+- Departments
+- Department Heads
+- Department Head creation
+- Department assignment
+- Department-level authorization
+
+E. DOCTOR SERVICE
+
+Implement:
+
+- Doctor profiles
+- Doctor creation
+- Professional information
+- Specialization
+- Qualifications
+- Experience
+- Availability
+- Doctor status
+
+Doctor creation workflow:
+
+Department Head
+    ->
+Doctor Service
+    ->
+Doctor profile
+    +
+Auth account
+
+F. APPOINTMENT SERVICE
+
+Implement:
+
+- Booking
+- Appointment retrieval
+- Rescheduling
+- Cancellation
+- Completion
+- Doctor availability validation
+- Family-member ownership validation
+- Appointment status
+
+Required AI workflow:
+
+Appointment
+    ->
+Required AI Prediction
+    ->
+Prediction linked using ai_prediction_id
+    ->
+Doctor sees prediction
+
+There is no optional appointment AI requirement.
+
+G. MEDICAL RECORD SERVICE
+
+Implement:
+
+Medical Records:
+- Upload
+- View
+- Update
+- Delete where permitted
+
+Consultations:
+- Create draft
+- View
+- Finalize
+- Amend finalized consultation
+
+Prescriptions:
+- Create draft
+- View
+- Finalize
+- Correct finalized prescription through a new linked record
+
+Record Access:
+- Grant doctor access
+- Revoke doctor access
+- Check active authorization
+- Doctor access history
+
+Important:
+record_access is a collection inside the Medical Record Service, not a
+separate microservice.
+
+H. KNOWLEDGE SERVICE
+
+Implement:
+
+- Article creation
+- Drafts
+- Submission
+- Review
+- Approval/rejection
+- Publishing
+- Published article retrieval
+
+Workflow:
+
+Doctor
+  ->
+Draft
+  ->
+Submit
+  ->
+Department Head Review
+  ->
+Approve / Reject
+  ->
+Publish
+
+I. AI PREDICTION SERVICE
+
+Connect the trained/prototype models to the backend.
+
+Implement:
+- Model inference
+- Prediction storage
+- Prediction retrieval
+- Member prediction history
+- Appointment association
+- Independent prediction support
+- Model versioning
+- Explanation references
+
+J. AI IMPROVEMENT
+
+During Sprint 3:
+
+- Improve model accuracy/appropriate metrics
+- Evaluate confusion matrices
+- Check precision/recall/F1
+- Validate model behavior
+- Improve preprocessing
+- Improve inference reliability
+- Complete Grad-CAM where applicable
+- Improve General Health safety/output handling
+- Record final model versions
+
+K. SPRINT 3 DELIVERABLE
+
+By the end of Sprint 3:
+
+- Major backend services are implemented.
+- Databases/models are connected.
+- Core APIs work.
+- Authentication works.
+- Authorization works.
+- Family workflows use real APIs.
+- Doctor workflows use real APIs.
+- Appointment workflow is functional.
+- Medical records are functional.
+- AI predictions can be stored and retrieved.
+- Knowledge workflow is functional.
+- Frontend/backend integration has started substantially.
+
+
+5. SPRINT 4 — REMAINING WORK + FULL INTEGRATION
+----------------------------------------------
+
+Duration:
+- Week 7
+- Week 8
+
+Primary objective:
+Complete all remaining features, integrate every layer/service, test the
+complete platform, fix defects, and prepare the final release.
+
+A. COMPLETE REMAINING BACKEND
+
+Finish any incomplete:
+- Hospital Admin APIs
+- Chairman APIs
+- Department Head APIs
+- Analytics APIs
+- Reports
+- Audit functionality
+- Knowledge activity
+- Remaining authorization rules
+- Remaining CRUD operations
+- Error handling
+- Validation
+
+B. COMPLETE FRONTEND INTEGRATION
+
+Replace remaining mock/local data with API calls.
+
+Implement:
+- Axios API layer
+- Loading states
+- Error states
+- Empty states
+- Success messages
+- Form validation
+- Unauthorized/forbidden states
+- Token handling
+- Protected routes
+- Role-based navigation
+- Responsive refinements
+
+C. FULL AI INTEGRATION
+
+Connect:
+
+React
+  ->
+API Gateway
+  ->
+AI Prediction Service
+  ->
+Model
+  ->
+Prediction Database
+  ->
+Response
+  ->
+React
+
+Appointment AI:
+
+Family
+  ->
+Book Appointment
+  ->
+AI Prediction
+  ->
+Appointment.ai_prediction_id
+  ->
+Doctor
+  ->
+AI Prediction
+  ->
+Consultation
+
+D. FULL MEDICAL WORKFLOW
+
+Complete:
+
+Family
+  ->
+Select Member
+  ->
+Browse Doctor
+  ->
+Book Appointment
+  ->
+Required AI Prediction
+  ->
+Doctor Access
+  ->
+Doctor Reviews Patient Data
+  ->
+Doctor Reviews AI Prediction
+  ->
+Consultation
+  ->
+Prescription
+
+E. MICROSERVICE INTEGRATION
+
+Verify all nine components:
+
+1. API Gateway
+2. Auth Service
+3. Family Service
+4. Hospital Service
+5. Doctor Service
+6. Appointment Service
+7. Medical Record Service
+8. AI Prediction Service
+9. Knowledge Service
+
+Rules:
+- Frontend communicates only with Gateway.
+- Services own their own logical databases.
+- Services do not directly query another service's database.
+- Cross-service relationships use IDs and REST APIs.
+- No GraphQL.
+- No Redis.
+- No RabbitMQ.
+- No Kubernetes.
+- No Notification Service.
+
+F. DOCKER / DEPLOYMENT PREPARATION
+
+Complete:
+- Dockerfiles
+- Docker Compose
+- Environment variables
+- Service ports
+- MongoDB Atlas configuration
+- Production configuration
+- Health checks where appropriate
+
+G. TESTING
+
+Perform:
+
+Backend:
+- Unit tests
+- API tests
+- Authentication tests
+- Authorization tests
+- Service tests
+- Integration tests
+
+Frontend:
+- Component tests
+- Page tests
+- Form tests
+- Protected-route tests
+
+AI:
+- Model evaluation
+- Inference tests
+- Input validation
+- Error handling
+- Output validation
+
+End-to-end:
+- Login
+- Family member creation
+- Doctor browsing
+- Appointment booking
+- Required AI prediction
+- Doctor access
+- Consultation
+- Prescription
+- Article workflow
+
+H. SECURITY REVIEW
+
+Verify:
+- Password hashing
+- JWT validation
+- Role authorization
+- Service-level authorization
+- Ownership checks
+- Family-member isolation
+- Doctor access restrictions
+- No medical information inside JWT
+- No unauthorized patient record access
+- No private patient information in public knowledge articles
+
+I. UI / UX REFINEMENT
+
+Review:
+- Consistent colors
+- Typography
+- Spacing
+- Responsive behavior
+- Accessibility
+- Loading states
+- Error states
+- Empty states
+- Confirmation dialogs
+- Medical disclaimer placement
+- AI wording
+
+J. SPRINT 4 DELIVERABLE
+
+At the end of Sprint 4:
+
+MediMind should have:
+- Complete frontend
+- Complete major backend
+- Integrated API Gateway
+- Integrated microservices
+- Working authentication/authorization
+- Working medical workflows
+- Working AI modules
+- Working prediction history
+- Working appointment-AI relationship
+- Working consultation/prescription workflow
+- Working knowledge workflow
+- Testing completed
+- Deployment configuration completed
+- Final demonstrable increment
+
+
+6. SPRINT CEREMONIES
+--------------------
+
+Each two-week sprint follows the same Agile cycle.
+
+SPRINT PLANNING
+- Define sprint goal.
+- Select backlog items.
+- Break items into tasks.
+- Estimate effort.
+- Identify dependencies.
+- Define acceptance criteria.
+
+DAILY SCRUM
+- What was completed?
+- What is being worked on?
+- What is blocked?
+- What needs adaptation?
+
+SPRINT REVIEW
+- Demonstrate working increment.
+- Compare against sprint goal.
+- Collect feedback.
+- Record change requests.
+
+SPRINT RETROSPECTIVE
+- What went well?
+- What did not go well?
+- What should change?
+- What action will improve the next sprint?
+
+SPRINT BACKLOG REFINEMENT
+- Clarify upcoming requirements.
+- Re-prioritize remaining work.
+- Split large tasks.
+- Identify technical risks.
+
+
+7. PRODUCT BACKLOG STRUCTURE
+----------------------------
+
+EPIC 1 — Identity & Access
+- Login
+- JWT
+- Roles
+- Authorization
+- Protected routes
+
+EPIC 2 — Family Healthcare
+- Family account
+- Family members
+- Medical records
+- Doctor access
+- Appointments
+- Consultations
+- Prescriptions
+
+EPIC 3 — Doctor Workflow
+- Profile
+- Availability
+- Patients
+- Patient records
+- AI predictions
+- Consultations
+- Prescriptions
+- Knowledge articles
+
+EPIC 4 — Hospital Management
+- Hospital
+- Departments
+- Department Heads
+- Doctors
+- Schedules
+- Analytics
+
+EPIC 5 — Platform Management
+- Hospitals
+- Hospital Admins
+- Platform analytics
+- Reports
+- Audit logs
+
+EPIC 6 — AI/ML
+- Fracture CNN
+- Diabetes risk
+- Heart disease risk
+- General Health assessment
+- Explainability
+- Prediction history
+- Model versioning
+
+EPIC 7 — Knowledge
+- Articles
+- Review
+- Approval
+- Publishing
+
+EPIC 8 — Integration & Quality
+- API Gateway
+- Microservice communication
+- Docker
+- Testing
+- Security
+- Deployment
+
+
+8. ADAPTIVE SOFTWARE ENGINEERING PRINCIPLES
+-------------------------------------------
+
+MediMind follows an adaptive rather than rigid development approach.
+
+Key principles:
+
+1. Requirements can evolve
+   - Feedback from each sprint can modify backlog priorities.
+
+2. Working software is the primary progress indicator
+   - Each sprint should produce a usable increment.
+
+3. Frontend and AI can evolve independently at first
+   - Backend integration happens when the contracts are ready.
+
+4. AI results may require iteration
+   - Model performance can cause changes to preprocessing, architecture,
+     thresholds, or UI presentation.
+
+5. Integration is incremental
+   - Do not wait until the final day to discover incompatible APIs.
+
+6. Security is continuous
+   - Authorization and privacy are reviewed throughout development.
+
+7. Technical debt is tracked
+   - Temporary shortcuts are recorded and scheduled for cleanup.
+
+8. Feedback changes the plan
+   - Sprint 2/3/4 priorities may be adjusted based on what is learned.
+
+
+9. DEFINITION OF DONE
+---------------------
+
+A task is Done when:
+
+- Code is implemented.
+- Code follows the project structure.
+- Validation is included where required.
+- Authorization is checked where required.
+- API contract is satisfied.
+- Relevant tests pass.
+- Error handling exists.
+- Frontend loading/error states exist where applicable.
+- No obvious console/server errors remain.
+- The feature is reviewed.
+- Git changes are committed.
+- Documentation is updated when the architecture/API changes.
+
+
+10. SPRINT EXIT CRITERIA
+------------------------
+
+Sprint 1:
+- Family and Doctor frontend foundations complete.
+- AI development started successfully.
+
+Sprint 2:
+- All five role frontends substantially complete.
+- Four AI modules have prototypes/endpoints.
+
+Sprint 3:
+- Major backend services operational.
+- Real frontend/backend communication working.
+- AI integrated with persistence.
+
+Sprint 4:
+- All layers integrated.
+- Testing and security review completed.
+- Final demonstrable system ready.
+
+
+11. RISK MANAGEMENT
+-------------------
+
+Risk: AI model performs poorly.
+Response:
+- Evaluate early.
+- Compare models.
+- Improve preprocessing.
+- Report limitations.
+- Do not make unsupported medical claims.
+
+Risk: Backend integration takes longer than expected.
+Response:
+- Keep API contracts stable.
+- Implement service-by-service.
+- Prioritize critical workflows.
+
+Risk: Frontend/backend mismatch.
+Response:
+- Use the Detailed API Contracts document.
+- Test endpoints early.
+- Integrate progressively.
+
+Risk: Authorization vulnerability.
+Response:
+- Gateway authorization + service-level authorization.
+- Test unauthorized access explicitly.
+
+Risk: Sprint 4 becomes overloaded.
+Response:
+- Keep a prioritized backlog.
+- Complete critical healthcare workflows first.
+- Defer non-critical visual refinements if necessary.
+
+
+12. PRIORITY ORDER
+------------------
+
+P0 — Critical:
+- Authentication
+- Authorization
+- Family members
+- Doctor accounts
+- Doctor access
+- Medical records
+- Appointments
+- Required appointment AI
+- Consultations
+- Prescriptions
+- Core AI modules
+- API Gateway
+- Core microservice communication
+
+P1 — Important:
+- Knowledge
+- Analytics
+- Availability
+- Reports
+- Audit
+- Advanced AI explainability
+- Docker/deployment
+
+P2 — Refinement:
+- Advanced visual polish
+- Additional analytics views
+- Minor UX improvements
+- Non-critical convenience features
+
+
+13. GIT / VERSION CONTROL WORKFLOW
+----------------------------------
+
+Recommended:
+
+main
+  |
+  +-- develop
+       |
+       +-- feature/family-frontend
+       +-- feature/doctor-frontend
+       +-- feature/ai-fracture
+       +-- feature/auth-service
+       +-- feature/appointment-service
+       +-- feature/records
+       +-- feature/integration
+
+Rules:
+- Keep commits focused.
+- Use meaningful commit messages.
+- Merge completed features after testing.
+- Avoid committing secrets.
+- Use .env.example for required configuration names.
+
+
+14. FINAL 8-WEEK TIMELINE
+-------------------------
+
+WEEK 1
+- Family frontend
+- Doctor frontend
+- AI environment
+- Dataset preparation
+
+WEEK 2
+- Complete Family/Doctor frontend flows
+- AI model prototypes
+- AI contract preparation
+
+WEEK 3
+- Department Head frontend
+- Hospital Admin frontend
+- AI model development
+
+WEEK 4
+- Chairman frontend
+- Complete role navigation
+- AI endpoints/prototypes
+- AI evaluation
+
+WEEK 5
+- API Gateway
+- Auth Service
+- Family Service
+- Hospital Service
+- Doctor Service
+
+WEEK 6
+- Appointment Service
+- Medical Record Service
+- Knowledge Service
+- AI Prediction Service integration
+- AI improvement
+
+WEEK 7
+- Remaining backend
+- Frontend API integration
+- Analytics/reports/audit
+- Docker/deployment
+
+WEEK 8
+- Full integration
+- Testing
+- Security review
+- Bug fixing
+- UI refinement
+- Final demonstration
+- Final documentation
+
+
+15. FINAL PROJECT STRATEGY
+--------------------------
+
+The proposed four-sprint plan is GOOD and is intentionally structured so that
+frontend and AI development start early instead of waiting for the backend.
+
+The most important adjustment is to avoid treating Sprint 3 as the first time
+the backend is considered at all.
+
+During Sprints 1 and 2:
+- Freeze/maintain API contracts.
+- Define request/response formats.
+- Build frontend against mock data or API mocks where necessary.
+- Keep AI endpoint contracts aligned with the frontend.
+
+This makes Sprint 3 integration substantially easier.
+
+Final strategy:
+
+SPRINT 1
+Frontend foundation + AI foundation
+
+SPRINT 2
+All role frontends + advanced AI
+
+SPRINT 3
+Major backend + real service integration + AI improvement
+
+SPRINT 4
+Remaining features + complete integration + testing + deployment
+
+This is the recommended MediMind Agile delivery plan for the 8-week project.

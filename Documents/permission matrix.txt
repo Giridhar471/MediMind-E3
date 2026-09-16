@@ -1,0 +1,493 @@
+# 🔐 MediMind — FINAL Permission Matrix
+
+## Permission meanings
+
+* ✅ **Allowed**
+* 👁️ **View only**
+* ✏️ **Create/Edit**
+* 🔒 **Conditional**
+* ❌ **Not allowed**
+
+---
+
+# 1. 👨‍👩‍👧 Family & Members
+
+| Action                        |           Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| ----------------------------- | ---------------: | -----: | --------: | -------------: | -------: |
+| Create Family Account         |                ✅ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Login                         |                ✅ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Add Member                    |               ✏️ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Edit Member                   |               ✏️ |      ❌ |         ❌ |              ❌ |        ❌ |
+| View All Family Members       |                ✅ |      ❌ |         ❌ |              ❌ |      👁️ |
+| Access Other Member's Details |                ✅ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Access Other Member's Records |                ✅ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Remove Member                 | **Creator only** |      ❌ |         ❌ |              ❌ |        ❌ |
+| Delete Entire Family Account  |      **Creator** |      ❌ |         ❌ |              ❌ |        ❌ |
+| Deactivate Family Account     |      **Creator** |      ❌ |         ❌ |              ❌ |        ❌ |
+
+---
+
+# 2. 🗂️ Medical Records
+
+### Family
+
+* Upload → ✅
+* View → ✅
+* Edit own uploaded record → ✅
+* Delete own uploaded record → ✅
+* View any family member's records → ✅
+
+### Doctor
+
+* View records → **✅ after patient chooses that doctor**
+* Edit family-uploaded records → ❌
+* Delete family-uploaded records → ❌
+* Add clinical records → ✅
+
+### Administration
+
+* Department Head → ❌ individual records
+* Hospital Admin → ❌ individual records
+* Chairman → ❌ individual records
+
+So the core rule is:
+
+> **Administrative authority does not equal medical-record authority.**
+
+---
+
+# 3. 🔐 Doctor Access — Updated Rule
+
+Your new decision changes the workflow slightly.
+
+You want:
+
+> **When a family member chooses a doctor, that doctor receives access to that member's complete medical history.**
+
+So we don't need a complicated "select individual record" sharing system.
+
+### Flow
+
+```text id="r5w8e2"
+Family
+   ↓
+Select Family Member
+   ↓
+Select Doctor
+   ↓
+"Choose Doctor"
+   ↓
+Access Granted
+   ↓
+Doctor receives ALL records
+   ↓
+Doctor can use Unified Medical Record
+```
+
+### Shared access contains
+
+```text id="f7k5z1"
+Everything
+├── Medical Reports
+├── Test Results
+├── X-Rays / Scans
+├── Prescriptions
+├── Previous Consultations
+├── AI Predictions
+├── Medical History
+└── Other Medical Records
+```
+
+This is much simpler and better for your **Unified Medical Record** concept.
+
+---
+
+# 4. 👨‍⚕️ Doctor Access
+
+| Action                            |    Family | Doctor |
+| --------------------------------- | --------: | -----: |
+| Choose Doctor                     |         ✅ |      ❌ |
+| Grant access                      |         ✅ |      ❌ |
+| View shared member                |         — |      ✅ |
+| View all records of shared member |         — |      ✅ |
+| View unshared member              |         — |      ❌ |
+| View entire family automatically  |         — |      ❌ |
+| View access history               | ❌ for now |      ✅ |
+| Revoke access                     |         ✅ |      ❌ |
+
+### Important
+
+You said:
+
+> "if a patient decided to go to that doctor that doctor should get all the records of that user automatically"
+
+So we can make the action:
+
+**Choose Doctor → Grant Full Medical Access**
+
+rather than having two separate complicated workflows.
+
+---
+
+# 5. 👨‍⚕️ Doctor Management
+
+| Action            | Family |   Doctor | Dept Head | Hospital Admin | Chairman |
+| ----------------- | -----: | -------: | --------: | -------------: | -------: |
+| Self-register     |      ❌ |        ❌ |         ❌ |              ❌ |        ❌ |
+| Create Doctor     |      ❌ |        ❌ |         ✅ |              ❌ |        ❌ |
+| View Doctors      |    👁️ |      👁️ |         ✅ |              ✅ |        ✅ |
+| Edit Own Profile  |      — |        ✅ |         — |              — |        — |
+| Edit Doctor       |      ❌ | Own only |         ✅ |     🔒 Limited |       🔒 |
+| Activate Doctor   |      ❌ |        ❌ |         ✅ |              ✅ |       🔒 |
+| Deactivate Doctor |      ❌ |        ❌ |         ✅ |              ✅ |       🔒 |
+
+---
+
+# 6. 🧑‍⚕️ Department Management
+
+| Action                  | Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| ----------------------- | -----: | -----: | --------: | -------------: | -------: |
+| View Departments        |    👁️ |    👁️ |       👁️ |              ✅ |        ✅ |
+| Create Department       |      ❌ |      ❌ |         ❌ |              ✅ |       🔒 |
+| Edit Department         |      ❌ |      ❌ |         ❌ |              ✅ |       🔒 |
+| Manage Own Department   |      ❌ |      ❌ |         ✅ |              ✅ |      👁️ |
+| Manage Other Department |      ❌ |      ❌ |         ❌ |              ✅ |        ✅ |
+
+Initial departments remain:
+
+```text id="1l3j2k"
+🦴 Orthopedics
+🩺 Diabetology
+❤️ Cardiology
+```
+
+---
+
+# 7. 🧑‍⚕️ Department Head Management
+
+| Action                 | Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| ---------------------- | -----: | -----: | --------: | -------------: | -------: |
+| Create Department Head |      ❌ |      ❌ |         ❌ |              ✅ |        ❌ |
+| View Department Heads  |      ❌ |      ❌ |       👁️ |              ✅ |        ✅ |
+| Edit Department Head   |      ❌ |      ❌ |         ❌ |              ✅ |       🔒 |
+| Activate/Deactivate    |      ❌ |      ❌ |         ❌ |              ✅ |       🔒 |
+| Assign Department      |      ❌ |      ❌ |         ❌ |              ✅ |       🔒 |
+
+---
+
+# 8. 🏥 Hospital Management
+
+| Action                  | Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| ----------------------- | -----: | -----: | --------: | -------------: | -------: |
+| View Hospital           |    👁️ |    👁️ |       👁️ |              ✅ |        ✅ |
+| Create Hospital         |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+| Approve Hospital        |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+| Manage Hospital         |      ❌ |      ❌ |         ❌ |              ✅ |        ✅ |
+| Create Hospital Admin   |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+| Manage Another Hospital |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+
+---
+
+# 9. 📅 Appointments
+
+| Action                       | Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| ---------------------------- | -----: | -----: | --------: | -------------: | -------: |
+| View Doctors                 |      ✅ |    👁️ |       👁️ |            👁️ |      👁️ |
+| Book Appointment             |      ✅ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Cancel Appointment           |      ✅ |     🔒 |        🔒 |             🔒 |        ❌ |
+| Reschedule                   |      ✅ |     🔒 |        🔒 |             🔒 |        ❌ |
+| View Own Appointments        |      ✅ |      ✅ |         ❌ |              ❌ |        ❌ |
+| View Department Appointments |      ❌ |     🔒 |         ✅ |            👁️ |      👁️ |
+| View Hospital Appointments   |      ❌ |      ❌ |         ❌ |              ✅ |      👁️ |
+| View Platform Statistics     |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+| Complete Consultation        |      ❌ |      ✅ |         ❌ |              ❌ |        ❌ |
+
+---
+
+# 10. 🤖 AI Predictions
+
+| Action                      | Family |            Doctor |     Dept Head | Hospital Admin |      Chairman |
+| --------------------------- | -----: | ----------------: | ------------: | -------------: | ------------: |
+| Run AI Prediction           |      ✅ |                🔒 |             ❌ |              ❌ |             ❌ |
+| Fracture Detection          |      ✅ | 🔒 Shared Patient | 👁️ Aggregate |  👁️ Aggregate | 👁️ Aggregate |
+| Diabetes Risk               |      ✅ | 🔒 Shared Patient | 👁️ Aggregate |  👁️ Aggregate | 👁️ Aggregate |
+| Heart Disease Risk          |      ✅ | 🔒 Shared Patient | 👁️ Aggregate |  👁️ Aggregate | 👁️ Aggregate |
+| General Health Assessment          |      ✅ | 🔒 Shared Patient | 👁️ Aggregate |  👁️ Aggregate | 👁️ Aggregate |
+| View Own/Family Prediction  |      ✅ |                 — |             ❌ |              ❌ |             ❌ |
+| View Patient Prediction     |      — |          ✅ Shared |             ❌ |              ❌ |             ❌ |
+| View Confidence             |      ✅ |                 ✅ |             ❌ |              ❌ |             ❌ |
+| View Explanation            |      ✅ |                 ✅ |             ❌ |              ❌ |             ❌ |
+| View Aggregate AI Analytics |      ❌ |                 ❌ |             ✅ |              ✅ |             ✅ |
+
+---
+
+# 11. 🩺 Consultation
+
+Here's the decision I recommend:
+
+### Once a doctor submits a consultation:
+
+> **The original consultation cannot be edited or deleted.**
+
+Instead, if the doctor makes a mistake:
+
+```text id="0g8w0m"
+Original Consultation
+       ↓
+Locked / Immutable
+       ↓
+Doctor adds Amendment
+       ↓
+New timestamp + reason
+```
+
+This is better for a medical-history system because we maintain a trustworthy history.
+
+| Action                      |    Family |            Doctor | Dept Head | Hospital Admin | Chairman |
+| --------------------------- | --------: | ----------------: | --------: | -------------: | -------: |
+| View consultation           | 🔒 Family | 🔒 Shared patient |         ❌ |              ❌ |        ❌ |
+| Create consultation         |         ❌ |                 ✅ |         ❌ |              ❌ |        ❌ |
+| Edit submitted consultation |         ❌ |                 ❌ |         ❌ |              ❌ |        ❌ |
+| Add amendment               |         ❌ |                 ✅ |         ❌ |              ❌ |        ❌ |
+| Delete consultation         |         ❌ |                 ❌ |         ❌ |              ❌ |        ❌ |
+
+---
+
+# 12. 💊 Prescriptions
+
+Similarly:
+
+> **Submitted prescriptions should be immutable.**
+
+If a correction is required, issue a corrected/new prescription.
+
+| Action                           | Family |            Doctor | Dept Head | Hospital Admin | Chairman |
+| -------------------------------- | -----: | ----------------: | --------: | -------------: | -------: |
+| View prescription                |      ✅ | 🔒 Shared patient |         ❌ |              ❌ |        ❌ |
+| Create prescription              |      ❌ |                 ✅ |         ❌ |              ❌ |        ❌ |
+| Edit submitted prescription      |      ❌ |                 ❌ |         ❌ |              ❌ |        ❌ |
+| Delete prescription              |      ❌ |                 ❌ |         ❌ |              ❌ |        ❌ |
+| Issue new/corrected prescription |      ❌ |                 ✅ |         ❌ |              ❌ |        ❌ |
+
+---
+
+# 13. 📚 MediMind Knowledge
+
+Your decision here is especially good for the platform.
+
+The knowledge section is **publicly accessible**, even without a MediMind account.
+
+### Public users can:
+
+* Read doctor profiles/experience
+* Read published medical knowledge
+* Learn about departments/doctors
+* Use it to decide which doctor to book
+
+### Medical staff can:
+
+* Read articles
+* Publish articles
+* Learn from other professionals
+
+### Publishing workflow
+
+```text id="2w3f0d"
+Doctor writes article
+       ↓
+Save Draft
+       ↓
+Department Head Review
+       ↓
+Approve
+       ↓
+Publish
+       ↓
+Public + Medical Staff
+```
+
+| Action                  | Public | Family |      Doctor | Dept Head | Hospital Admin | Chairman |
+| ----------------------- | -----: | -----: | ----------: | --------: | -------------: | -------: |
+| Read published articles |      ✅ |      ✅ |           ✅ |         ✅ |            👁️ |      👁️ |
+| View doctor experience  |      ✅ |      ✅ |           ✅ |         ✅ |            👁️ |      👁️ |
+| Create article          |      ❌ |      ❌ |           ✅ |         ✅ |              ❌ |        ❌ |
+| Save draft              |      ❌ |      ❌ |           ✅ |         ✅ |              ❌ |        ❌ |
+| Submit for review       |      ❌ |      ❌ |           ✅ |         — |              ❌ |        ❌ |
+| Approve article         |      ❌ |      ❌ |           ❌ |         ✅ |              ❌ |        ❌ |
+| Publish article         |      ❌ |      ❌ | 🔒 Approved |         ✅ |              ❌ |        ❌ |
+| Edit own article        |      ❌ |      ❌ |           ✅ |         ✅ |              ❌ |        ❌ |
+
+This gives the project a nice **knowledge-sharing component** without exposing private patient information.
+
+---
+
+# 14. 📊 Analytics
+
+| Data                       | Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| -------------------------- | -----: | -----: | --------: | -------------: | -------: |
+| Personal health data       |      ✅ |      ❌ |         ❌ |              ❌ |        ❌ |
+| Own appointment statistics |      ✅ |      ✅ |         ❌ |              ❌ |        ❌ |
+| Doctor workload            |      ❌ |    Own |         ✅ |              ✅ |      👁️ |
+| Department analytics       |      ❌ |      ❌ |         ✅ |              ✅ |        ✅ |
+| Hospital analytics         |      ❌ |      ❌ |         ❌ |              ✅ |        ✅ |
+| Platform analytics         |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+| AI department analytics    |      ❌ |      ❌ |         ✅ |              ✅ |        ✅ |
+| AI platform analytics      |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+
+---
+
+# 15. 📝 Audit Logs
+
+You said **Hospital Admin should see hospital-wide audit logs**.
+
+So:
+
+| Action                  | Family | Doctor | Dept Head | Hospital Admin | Chairman |
+| ----------------------- | -----: | -----: | --------: | -------------: | -------: |
+| View own access history |      ❌ |      ❌ |         ❌ |              ❌ |        ❌ |
+| View department audit   |      ❌ |      ❌ |         ❌ |              ✅ |        ✅ |
+| View hospital audit     |      ❌ |      ❌ |         ❌ |              ✅ |        ✅ |
+| View platform audit     |      ❌ |      ❌ |         ❌ |              ❌ |        ✅ |
+| Generate audit reports  |      ❌ |      ❌ |         ❌ |              ✅ |        ✅ |
+
+For now, users won't have a personal "who viewed my record" history page.
+
+---
+
+# 16. 👤 Account Deactivation & Deletion
+
+You said **both options**.
+
+So we'll support:
+
+### Temporary
+
+**Deactivate**
+
+```text
+Account
+ ↓
+Deactivated
+ ↓
+Cannot login
+ ↓
+Data retained
+```
+
+### Permanent
+
+**Delete**
+
+```text
+Account
+ ↓
+Deletion request
+ ↓
+Data deletion process
+```
+
+For doctors/admins, we'll generally prefer **deactivation** because their historical clinical/administrative records may need to remain intact.
+
+---
+
+# 🔥 Final Core Permission Rules
+
+These are now the rules I would consider **locked**:
+
+### 👨‍👩‍👧 Family
+
+> One login → multiple member profiles → all members can access all family information.
+
+### 👤 Family Creator
+
+> Creates/removes members and can deactivate/delete the entire family account.
+
+### 👨‍⚕️ Doctor
+
+> Cannot register; Department Head creates the account.
+
+### 🏥 Hospital
+
+> One doctor → one hospital → one department → one specialization.
+
+### 🔐 Medical Access
+
+> Family chooses a doctor → that doctor gets access to **all records of that selected family member**.
+
+### 🚫 Admin Clinical Access
+
+> Department Heads, Hospital Admins and Chairman do **not** automatically receive patient medical records.
+
+### 🩺 Clinical Records
+
+> Final consultations and prescriptions are **immutable**; corrections use amendments/new records.
+
+### 📚 Knowledge
+
+> Doctor writes → Department Head approves → published knowledge becomes publicly readable and useful to medical staff.
+
+### 🤖 AI
+
+> Three AI modules only:
+>
+> **Fracture Detection + Diabetes Risk + Heart Disease Risk**
+
+### 📝 Audit
+
+> Hospital Admin sees hospital-wide audit activity; Chairman sees platform-wide audit activity.
+
+---
+
+# 🧩 Final Access Architecture
+
+```text id="5t3n6u"
+                         👑 CHAIRMAN
+                              │
+                 Platform Administration
+                              │
+                              ↓
+                     🏥 HOSPITAL ADMIN
+                              │
+                    Hospital Administration
+                              │
+              ┌───────────────┼───────────────┐
+              ↓               ↓               ↓
+             🦴              🩺              ❤️
+        ORTHOPEDICS      DIABETOLOGY      CARDIOLOGY
+              │               │               │
+         DEPT HEAD        DEPT HEAD        DEPT HEAD
+              │               │               │
+         3 DOCTORS        3 DOCTORS        3 DOCTORS
+              │               │               │
+              └───────────────┼───────────────┘
+                              │
+                         Clinical Care
+                              ↑
+                              │
+                  ┌───────────┴───────────┐
+                  │                       │
+           👨‍👩‍👧 FAMILY ACCOUNT      PUBLIC USERS
+                  │                       │
+          ┌───────┼───────┐               │
+          ↓       ↓       ↓               ↓
+       Member  Member  Member       Doctor Knowledge
+          │       │       │          & Experience
+          │       │       │
+          └───────┼───────┘
+                  ↓
+           Medical Records
+                  ↓
+             AI Predictions
+                  ↓
+             Appointments
+                  ↓
+          Choose Doctor / Share
+                  ↓
+             👨‍⚕️ Doctor
+                  ↓
+        Unified Medical Record
+                  ↓
+            Consultation
+                  ↓
+             Prescription
+```

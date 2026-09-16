@@ -1,0 +1,1615 @@
+# 🗄️ MediMind — Full Database Structure
+
+Yes. Now that **Roles 1–5, permissions, doctor authorization, AI workflow, and the removal of Notifications** are finalized, we can lock the complete database structure.
+
+We'll use **MongoDB + Mongoose**, with **database-per-service** using one MongoDB Atlas deployment.
+
+---
+
+# 1. 🏗️ Final Database Architecture
+
+```text
+                         MongoDB Atlas
+                              │
+       ┌──────────────────────┼──────────────────────┐
+       ↓                      ↓                      ↓
+ medimind_auth          medimind_family       medimind_hospital
+       │                      │                      │
+     users                 families              hospitals
+                            members              departments
+                                                   dept_heads
+       │
+       ├───────────────┐
+       ↓               ↓
+medimind_doctor   medimind_appointment
+       │               │
+    doctors        appointments
+       │               │
+       └───────┬───────┘
+               ↓
+       medimind_records
+               │
+       ┌───────┼──────────┐
+       ↓       ↓          ↓
+    records  consultations prescriptions
+               │
+               ↓
+         record_access
+
+
+       medimind_ai
+             │
+        predictions
+
+
+       medimind_knowledge
+             │
+          articles
+```
+
+### Final services
+
+| # | Service                    | Database               |
+| - | -------------------------- | ---------------------- |
+| 1 | 🚪 API Gateway             | —                      |
+| 2 | 🔐 Auth Service            | `medimind_auth`        |
+| 3 | 👨‍👩‍👧 Family Service    | `medimind_family`      |
+| 4 | 🏥 Hospital Service        | `medimind_hospital`    |
+| 5 | 👨‍⚕️ Doctor Service       | `medimind_doctor`      |
+| 6 | 📅 Appointment Service     | `medimind_appointment` |
+| 7 | 🗂️ Medical Record Service | `medimind_records`     |
+| 8 | 🤖 AI Prediction Service   | `medimind_ai`          |
+| 9 | 📚 Knowledge Service       | `medimind_knowledge`   |
+
+**Notification Service is removed for now.**
+
+---
+
+# 2. 🔐 `medimind_auth`
+
+This database manages **authentication and login identity**.
+
+```text
+medimind_auth
+└── users
+```
+
+## `users`
+
+```js
+{
+  _id: ObjectId,
+
+  email: String,
+  password_hash: String,
+
+  role: String,
+
+  account_type: String,
+
+  reference_id: ObjectId,
+
+  status: String,
+
+  last_login_at: Date,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### `role`
+
+```text
+FAMILY
+DOCTOR
+DEPARTMENT_HEAD
+HOSPITAL_ADMIN
+CHAIRMAN
+```
+
+### `account_type`
+
+```text
+FAMILY_ACCOUNT
+DOCTOR_ACCOUNT
+DEPARTMENT_HEAD_ACCOUNT
+HOSPITAL_ADMIN_ACCOUNT
+CHAIRMAN_ACCOUNT
+```
+
+### `status`
+
+```text
+ACTIVE
+INACTIVE
+DELETED
+```
+
+---
+
+## Important relationship
+
+For a family:
+
+```text
+users
+   │
+   └── reference_id
+            ↓
+         family_id
+```
+
+For a doctor:
+
+```text
+users
+   │
+   └── reference_id
+            ↓
+         doctor_id
+```
+
+Therefore, the authentication service doesn't need to store the entire doctor/family profile.
+
+---
+
+# 3. 👨‍👩‍👧 `medimind_family`
+
+```text
+medimind_family
+├── families
+└── family_members
+```
+
+---
+
+# 4. `families`
+
+Stores the actual Family Account.
+
+```js
+{
+  _id: ObjectId,
+
+  family_name: String,
+
+  creator_user_id: ObjectId,
+
+  email: String,
+  mobile: String,
+
+  status: String,
+
+  created_at: Date,
+  updated_at: Date,
+
+  deactivated_at: Date,
+  deleted_at: Date
+}
+```
+
+### `status`
+
+```text
+ACTIVE
+DEACTIVATED
+DELETED
+```
+
+### Important
+
+```text
+creator_user_id
+```
+
+identifies the person who created the family account.
+
+Only this user has creator-level permissions.
+
+---
+
+# 5. `family_members`
+
+This is one of the most important collections.
+
+```js
+{
+  _id: ObjectId,
+
+  family_id: ObjectId,
+
+  full_name: String,
+  profile_picture: String,
+
+  date_of_birth: Date,
+  gender: String,
+  blood_group: String,
+
+  phone: String,
+  email: String,
+
+  address: String,
+
+  emergency_contact: {
+    name: String,
+    relationship: String,
+    phone: String
+  },
+
+  health_information: String,
+
+  medical_conditions: [String],
+  allergies: [String],
+  previous_treatments: [String],
+
+  status: String,
+
+  created_at: Date,
+  updated_at: Date,
+
+  removed_at: Date
+}
+```
+
+### `status`
+
+```text
+ACTIVE
+REMOVED
+```
+
+---
+
+# 6. ⭐ Family Identity Relationship
+
+This is critical.
+
+```text
+Family Account
+     │
+     │ family_id
+     ↓
+Family Members
+     │
+     ├── member_id
+     ├── member_id
+     ├── member_id
+     └── member_id
+```
+
+Every patient-related service uses:
+
+> `family_member_id`
+
+as the patient reference.
+
+Not the family account ID.
+
+---
+
+# 7. 🏥 `medimind_hospital`
+
+```text
+medimind_hospital
+├── hospitals
+├── departments
+└── department_heads
+```
+
+---
+
+# 8. `hospitals`
+
+```js
+{
+  _id: ObjectId,
+
+  name: String,
+
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    country: String,
+    pincode: String
+  },
+
+  phone: String,
+  email: String,
+
+  status: String,
+
+  created_by: ObjectId,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### Status
+
+```text
+ACTIVE
+INACTIVE
+```
+
+---
+
+# 9. `departments`
+
+```js
+{
+  _id: ObjectId,
+
+  hospital_id: ObjectId,
+
+  name: String,
+  description: String,
+
+  status: String,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### Initial departments
+
+```text
+D001 → Orthopedics
+D002 → Diabetology
+D003 → Cardiology
+```
+
+---
+
+# 10. `department_heads`
+
+```js
+{
+  _id: ObjectId,
+
+  user_id: ObjectId,
+
+  hospital_id: ObjectId,
+
+  department_id: ObjectId,
+
+  status: String,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+A Department Head belongs to:
+
+```text
+ONE Hospital
+ONE Department
+```
+
+---
+
+# 11. 👨‍⚕️ `medimind_doctor`
+
+```text
+medimind_doctor
+└── doctors
+```
+
+---
+
+# 12. `doctors`
+
+```js
+{
+  _id: ObjectId,
+
+  user_id: ObjectId,
+
+  hospital_id: ObjectId,
+  department_id: ObjectId,
+
+  full_name: String,
+  profile_picture: String,
+
+  email: String,
+  mobile: String,
+
+  specialization: String,
+
+  qualifications: [String],
+
+  experience_years: Number,
+
+  professional_description: String,
+
+  availability: [
+    {
+      day: String,
+      start_time: String,
+      end_time: String
+    }
+  ],
+
+  status: String,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### Important restrictions
+
+Every doctor has:
+
+```text
+hospital_id → ONE
+department_id → ONE
+specialization → ONE
+```
+
+Example:
+
+```text
+Dr. Rahul
+   │
+   ├── Hospital → MediMind Hospital
+   ├── Department → Orthopedics
+   └── Specialization → Orthopedic Specialist
+```
+
+---
+
+# 13. 📅 `medimind_appointment`
+
+```text
+medimind_appointment
+└── appointments
+```
+
+---
+
+# 14. `appointments`
+
+```js
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  doctor_id: ObjectId,
+
+  hospital_id: ObjectId,
+
+  department_id: ObjectId,
+
+  appointment_date: Date,
+
+  start_time: String,
+  end_time: String,
+
+  reason: String,
+
+  status: String,
+
+
+  ai_prediction_id: ObjectId,
+
+  created_at: Date,
+  updated_at: Date,
+
+  cancelled_at: Date,
+  cancellation_reason: String
+}
+```
+
+### Appointment status
+
+```text
+BOOKED
+CONFIRMED
+COMPLETED
+CANCELLED
+RESCHEDULED
+```
+
+---
+
+# 15. ⭐ Appointment + AI Relationship
+
+Every appointment requires an AI prediction.
+
+```text
+Appointment
+     │
+     └── ai_prediction_id
+              ↓
+         AI Prediction
+```
+
+Example:
+
+```text
+Appointment A101
+      │
+      ↓
+Prediction P501
+      │
+      ↓
+Diabetes Risk
+```
+
+The AI prediction can therefore be directly associated with the appointment.
+
+---
+
+# 16. 🤖 `medimind_ai`
+
+```text
+medimind_ai
+└── predictions
+```
+
+This service is independent.
+
+A user can run AI **without an appointment**.
+
+---
+
+# 17. `predictions`
+
+```js
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  appointment_id: ObjectId,
+
+  prediction_type: String,
+
+  input_type: String,
+
+  input_data: Mixed,
+
+  result: Mixed,
+
+  risk_level: String,
+
+  risk_score: Number,
+
+  confidence: Number,
+
+  model_name: String,
+
+  model_version: String,
+
+  explanation_reference: String,
+
+  created_at: Date
+}
+```
+
+### `appointment_id`
+
+This is optional.
+
+```text
+appointment_id = null
+```
+
+means:
+
+> Independent AI prediction.
+
+```text
+appointment_id = A101
+```
+
+means:
+
+> AI prediction associated with an appointment.
+
+---
+
+# 18. AI Prediction Types
+
+We now have **four** AI modules.
+
+```text
+FRACTURE_DETECTION
+DIABETES_RISK
+HEART_DISEASE_RISK
+GENERAL_HEALTH
+```
+
+---
+
+# 19. AI Input Types
+
+```text
+IMAGE
+HEALTH_PARAMETERS
+TEXT
+```
+
+Relationship:
+
+| Prediction         | Input               |
+| ------------------ | ------------------- |
+| Fracture Detection | `IMAGE`             |
+| Diabetes Risk      | `HEALTH_PARAMETERS` |
+| Heart Disease Risk | `HEALTH_PARAMETERS` |
+| General Health     | `TEXT`              |
+
+---
+
+# 20. General Health Prediction
+
+Example:
+
+```js
+{
+  family_member_id: M101,
+
+  appointment_id: null,
+
+  prediction_type: "GENERAL_HEALTH",
+
+  input_type: "TEXT",
+
+  input_data: {
+    symptoms: "Having 103F temperature, headache and body pain"
+  },
+
+  result: {
+    possible_concerns: [
+      "Fever-related illness",
+      "Possible infection"
+    ],
+
+    urgency: "MEDICAL_EVALUATION_RECOMMENDED"
+  },
+
+  created_at: Date
+}
+```
+
+This can be performed:
+
+```text
+Without appointment ✅
+```
+
+or:
+
+```text
+As part of appointment ✅
+```
+
+---
+
+# 21. 🦴 Fracture Prediction
+
+```js
+{
+  family_member_id: ObjectId,
+
+  appointment_id: ObjectId,
+
+  prediction_type: "FRACTURE_DETECTION",
+
+  input_type: "IMAGE",
+
+  input_data: {
+    image_reference: String
+  },
+
+  result: {
+    prediction: "POSSIBLE_FRACTURE"
+  },
+
+  confidence: 0.92,
+
+  model_name: "FractureCNN",
+  model_version: "1.0",
+
+  explanation_reference: String,
+
+  created_at: Date
+}
+```
+
+---
+
+# 22. 🩺 Diabetes Prediction
+
+```js
+{
+  family_member_id: ObjectId,
+
+  appointment_id: ObjectId,
+
+  prediction_type: "DIABETES_RISK",
+
+  input_type: "HEALTH_PARAMETERS",
+
+  input_data: {
+    age: Number,
+    glucose: Number,
+    bmi: Number,
+    blood_pressure: Number
+  },
+
+  result: {
+    risk_level: "MODERATE"
+  },
+
+  risk_score: Number,
+
+  model_name: "DiabetesDNN",
+  model_version: "1.0",
+
+  created_at: Date
+}
+```
+
+---
+
+# 23. ❤️ Heart Disease Prediction
+
+```js
+{
+  family_member_id: ObjectId,
+
+  appointment_id: ObjectId,
+
+  prediction_type: "HEART_DISEASE_RISK",
+
+  input_type: "HEALTH_PARAMETERS",
+
+  input_data: {
+    age: Number,
+    blood_pressure: Number,
+    cholesterol: Number,
+    heart_rate: Number
+  },
+
+  result: {
+    risk_level: "LOW"
+  },
+
+  risk_score: Number,
+
+  model_name: "HeartDiseaseDNN",
+  model_version: "1.0",
+
+  created_at: Date
+}
+```
+
+---
+
+# 24. 🗂️ `medimind_records`
+
+This is the main clinical data service.
+
+```text
+medimind_records
+├── medical_records
+├── consultations
+├── prescriptions
+└── record_access
+```
+
+---
+
+# 25. `medical_records`
+
+Used for family-uploaded/general medical documents.
+
+```js
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  record_type: String,
+
+  file_name: String,
+  file_url: String,
+
+  description: String,
+
+  record_date: Date,
+
+  uploaded_by: ObjectId,
+
+  source: String,
+
+  status: String,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### Record types
+
+```text
+REPORT
+TEST
+XRAY
+SCAN
+ECG
+PRESCRIPTION_DOCUMENT
+OTHER
+```
+
+### Source
+
+```text
+FAMILY
+DOCTOR
+```
+
+---
+
+# 26. Family Uploaded Record
+
+Example:
+
+```js
+{
+  family_member_id: M101,
+
+  record_type: "XRAY",
+
+  file_name: "arm_xray.jpg",
+
+  file_url: "/uploads/arm_xray.jpg",
+
+  description: "Left arm pain after fall",
+
+  record_date: "2026-09-15",
+
+  uploaded_by: family_user_id,
+
+  source: "FAMILY",
+
+  status: "ACTIVE"
+}
+```
+
+The family can edit/delete its own uploaded records.
+
+---
+
+# 27. 📋 `consultations`
+
+```js
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  doctor_id: ObjectId,
+
+  appointment_id: ObjectId,
+
+  symptoms: String,
+
+  observations: String,
+
+  clinical_assessment: String,
+
+  treatment_plan: String,
+
+  ai_prediction_ids: [ObjectId],
+
+  notes: String,
+
+  status: String,
+
+  created_at: Date,
+
+  finalized_at: Date,
+
+  amendment_of: ObjectId
+}
+```
+
+### Status
+
+```text
+DRAFT
+FINAL
+AMENDED
+```
+
+---
+
+# 28. Consultation Lifecycle
+
+```text
+Doctor
+  ↓
+Create Consultation
+  ↓
+DRAFT
+  ↓
+Submit
+  ↓
+FINAL
+  ↓
+IMMUTABLE
+```
+
+If correction is required:
+
+```text
+Original Consultation
+       ↓
+    Immutable
+       ↓
+New Amendment
+       ↓
+amendment_of = original_id
+```
+
+---
+
+# 29. 💊 `prescriptions`
+
+```js
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  doctor_id: ObjectId,
+
+  consultation_id: ObjectId,
+
+  medicines: [
+    {
+      name: String,
+      dosage: String,
+      frequency: String,
+      duration: String,
+      instructions: String
+    }
+  ],
+
+  general_instructions: String,
+
+  status: String,
+
+  created_at: Date,
+
+  finalized_at: Date,
+
+  correction_of: ObjectId
+}
+```
+
+### Status
+
+```text
+DRAFT
+FINAL
+CORRECTED
+```
+
+---
+
+# 30. Prescription Lifecycle
+
+```text
+Doctor
+  ↓
+Create Prescription
+  ↓
+DRAFT
+  ↓
+Submit
+  ↓
+FINAL
+  ↓
+IMMUTABLE
+```
+
+Correction:
+
+```text
+Original Prescription
+       ↓
+Immutable
+       ↓
+New Prescription
+       ↓
+correction_of
+```
+
+---
+
+# 31. 🔐 `record_access`
+
+This handles doctor authorization.
+
+```js
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  doctor_id: ObjectId,
+
+  granted_by: ObjectId,
+
+  granted_at: Date,
+
+  revoked_at: Date,
+
+  status: String
+}
+```
+
+### Status
+
+```text
+ACTIVE
+REVOKED
+```
+
+---
+
+# 32. ⭐ Doctor Access Logic
+
+Suppose:
+
+```text
+Family F001
+
+├── Father M001
+├── Mother M002
+└── Son M003
+```
+
+Family grants:
+
+```text
+M002 → Doctor D001
+```
+
+Database:
+
+```text
+record_access
+
+{
+    family_member_id: M002,
+    doctor_id: D001,
+    status: "ACTIVE"
+}
+```
+
+Then:
+
+```text
+D001 → M002 → ALL authorized records
+```
+
+But:
+
+```text
+D001 → M001 ❌
+D001 → M003 ❌
+```
+
+unless separately authorized.
+
+---
+
+# 33. 🚫 No Individual Record Permissions
+
+We are **not** storing:
+
+```text
+can_view_records
+can_view_xrays
+can_view_prescriptions
+can_view_ai
+can_view_consultations
+```
+
+Instead:
+
+```text
+ACTIVE ACCESS
+      ↓
+Complete patient record access
+```
+
+This matches our finalized **Share Everything** design.
+
+---
+
+# 34. 📚 `medimind_knowledge`
+
+```text
+medimind_knowledge
+└── articles
+```
+
+---
+
+# 35. `articles`
+
+```js
+{
+  _id: ObjectId,
+
+  author_doctor_id: ObjectId,
+
+  department_id: ObjectId,
+
+  title: String,
+
+  summary: String,
+
+  content: String,
+
+  category: String,
+
+  tags: [String],
+
+  status: String,
+
+  reviewed_by: ObjectId,
+
+  review_comment: String,
+
+  submitted_at: Date,
+
+  published_at: Date,
+
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### Status
+
+```text
+DRAFT
+SUBMITTED
+UNDER_REVIEW
+APPROVED
+REJECTED
+PUBLISHED
+```
+
+---
+
+# 36. Knowledge Workflow
+
+```text
+Doctor
+  ↓
+Create Article
+  ↓
+DRAFT
+  ↓
+Submit
+  ↓
+Department Head
+  ↓
+UNDER_REVIEW
+  ↓
+APPROVED
+  ↓
+PUBLISHED
+```
+
+Rejected:
+
+```text
+UNDER_REVIEW
+      ↓
+REJECTED
+      ↓
+Doctor edits
+      ↓
+Submit again
+```
+
+---
+
+# 37. 🌐 Public Knowledge
+
+Once published:
+
+```text
+PUBLISHED ARTICLE
+       │
+       ├── Doctors ✅
+       ├── Medical Staff ✅
+       ├── Family Users ✅
+       └── Public Users ✅
+```
+
+But:
+
+```text
+Private Patient Data
+        ↓
+Public Article ❌
+```
+
+Patient information must not be exposed through knowledge articles without appropriate authorization/anonymization.
+
+---
+
+# 38. ❌ Notification Database Removed
+
+The Notification Service and notification database are not part of the current MediMind architecture. No notification database or notifications collection is required in the current implementation.
+
+# 39. 🔗 Complete Relationship Diagram
+
+```text
+                         AUTH
+                          │
+                         users
+                          │
+             ┌────────────┼─────────────┐
+             ↓            ↓             ↓
+          FAMILY        DOCTOR       ADMIN ROLES
+             │            │
+             ↓            ↓
+          families      doctors
+             │            │
+             ↓            │
+       family_members     │
+             │            │
+     ┌───────┼────────────┤
+     │       │            │
+     ↓       ↓            ↓
+ Records    AI       Appointments
+     │       │            │
+     │       │            ↓
+     │       │         Doctor
+     │       │            │
+     │       ↓            │
+     │   predictions      │
+     │                    │
+     ├── consultations ←──┘
+     │
+     ├── prescriptions
+     │
+     └── record_access
+             │
+             ↓
+          Doctor
+```
+
+---
+
+# 40. 🏥 Hospital Relationships
+
+```text
+Hospital
+   │
+   ├── Departments
+   │      │
+   │      └── Department Head
+   │              │
+   │              └── Doctors
+   │
+   └── Hospital Admin
+```
+
+More specifically:
+
+```text
+Hospital H001
+    │
+    ├── Department D001
+    │      ├── Department Head DH001
+    │      ├── Doctor D001
+    │      ├── Doctor D002
+    │      └── Doctor D003
+    │
+    ├── Department D002
+    │      ├── Department Head DH002
+    │      ├── Doctor D004
+    │      ├── Doctor D005
+    │      └── Doctor D006
+    │
+    └── Department D003
+           ├── Department Head DH003
+           ├── Doctor D007
+           ├── Doctor D008
+           └── Doctor D009
+```
+
+---
+
+# 41. 👨‍👩‍👧 Family → Doctor Relationship
+
+This is **not** stored directly inside `families`.
+
+Instead:
+
+```text
+family_members
+      │
+      ↓
+record_access
+      │
+      ↓
+doctors
+```
+
+Example:
+
+```text
+Mother M002
+      ↓
+record_access
+      ↓
+Doctor D004
+```
+
+This means:
+
+> Doctor D004 is authorized to access Mother M002.
+
+---
+
+# 42. 📅 Appointment Relationship
+
+```text
+Family Member
+      ↓
+Appointment
+      ↓
+Doctor
+      ↓
+Department
+      ↓
+Hospital
+```
+
+And:
+
+```text
+Appointment
+      ↓
+AI Prediction
+      ↓
+Consultation
+      ↓
+Prescription
+```
+
+So one complete healthcare journey becomes:
+
+```text
+Patient
+  ↓
+Appointment
+  ↓
+AI Prediction
+  ↓
+Doctor Review
+  ↓
+Consultation
+  ↓
+Prescription
+```
+
+---
+
+# 43. ⭐ Independent AI Journey
+
+AI doesn't require an appointment.
+
+```text
+Patient
+  ↓
+AI Prediction
+  ↓
+Result
+  ↓
+Prediction History
+```
+
+Example:
+
+```text
+Patient
+  ↓
+"Having 103°F temperature..."
+  ↓
+General Health AI
+  ↓
+Result
+  ↓
+Prediction History
+```
+
+Here:
+
+```text
+appointment_id = null
+```
+
+---
+
+# 44. ⭐ Appointment AI Journey
+
+For an appointment:
+
+```text
+Patient
+  ↓
+Appointment
+  ↓
+Required AI Prediction
+  ↓
+AI Result
+  ↓
+Doctor
+  ↓
+Consultation
+```
+
+Here:
+
+```text
+appointment_id = appointment_id
+```
+
+---
+
+# 45. 🔐 Final Access Model
+
+```text
+                 FAMILY ACCOUNT
+                       │
+                       ↓
+                FAMILY MEMBER
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+        Medical Records     AI Predictions
+              │                 │
+              └────────┬────────┘
+                       ↓
+                  Choose Doctor
+                       ↓
+                  Grant Access
+                       ↓
+                  record_access
+                       ↓
+                    DOCTOR
+                       ↓
+              Complete Patient Data
+```
+
+---
+
+# 46. 📊 Complete Collection List
+
+### 🔐 Auth
+
+```text
+medimind_auth
+└── users
+```
+
+### 👨‍👩‍👧 Family
+
+```text
+medimind_family
+├── families
+└── family_members
+```
+
+### 🏥 Hospital
+
+```text
+medimind_hospital
+├── hospitals
+├── departments
+└── department_heads
+```
+
+### 👨‍⚕️ Doctor
+
+```text
+medimind_doctor
+└── doctors
+```
+
+### 📅 Appointment
+
+```text
+medimind_appointment
+└── appointments
+```
+
+### 🗂️ Medical Records
+
+```text
+medimind_records
+├── medical_records
+├── consultations
+├── prescriptions
+└── record_access
+```
+
+### 🤖 AI
+
+```text
+medimind_ai
+└── predictions
+```
+
+### 📚 Knowledge
+
+```text
+medimind_knowledge
+└── articles
+```
+
+---
+
+# 47. ⭐ Final MediMind Database
+
+```text
+                         🏥 MEDIMIND
+                              │
+                         API GATEWAY
+                              │
+       ┌──────────┬───────────┼───────────┬──────────┐
+       ↓          ↓           ↓           ↓          ↓
+     AUTH       FAMILY      HOSPITAL    DOCTOR   APPOINTMENT
+       │          │           │           │          │
+      users    families    hospitals    doctors   appointments
+                 │         departments
+                 │       department_heads
+                 ↓
+          family_members
+                 │
+       ┌─────────┼──────────────┐
+       ↓         ↓              ↓
+    RECORDS      AI         APPOINTMENTS
+       │         │              │
+       │    predictions         │
+       │                        │
+       ├── consultations ←──────┘
+       │
+       ├── prescriptions
+       │
+       └── record_access
+                 │
+                 ↓
+               DOCTOR
+
+
+             KNOWLEDGE
+                 │
+              articles
+                 │
+          Department Head
+              Review
+                 ↓
+             Published
+                 ↓
+       Doctors / Family / Public
+```

@@ -1,0 +1,954 @@
+# 🔌 MediMind — API & Microservice Architecture
+
+This is the version we should use going forward.
+
+---
+
+## 1. Final Microservices
+
+MediMind will have **9 components**:
+
+```text
+1. 🚪 API Gateway
+2. 🔐 Auth Service
+3. 👨‍👩‍👧 Family Service
+4. 🏥 Hospital Service
+5. 👨‍⚕️ Doctor Service
+6. 📅 Appointment Service
+7. 🗂️ Medical Record Service
+8. 🤖 AI Prediction Service
+9. 📚 Knowledge Service
+```
+
+And:
+
+```text
+1 MongoDB Atlas Deployment
+        │
+        ├── medimind_auth
+        ├── medimind_family
+        ├── medimind_hospital
+        ├── medimind_doctor
+        ├── medimind_appointment
+        ├── medimind_records
+        ├── medimind_ai
+        └── medimind_knowledge
+```
+
+Each service owns its own logical database.
+
+---
+
+# 2. Overall Architecture
+
+```text
+                         ┌───────────────────┐
+                         │    React Client   │
+                         └─────────┬─────────┘
+                                   │
+                              HTTP / REST
+                                   │
+                         ┌─────────▼─────────┐
+                         │    API Gateway    │
+                         │       :5000       │
+                         └─────────┬─────────┘
+                                   │
+          ┌────────────┬───────────┼────────────┬──────────────┐
+          ▼            ▼           ▼            ▼              ▼
+       Auth        Family      Hospital       Doctor      Appointment
+      :5001         :5002        :5003         :5004          :5005
+          │            │           │            │              │
+          │            │           │            │              │
+          └────────────┴───────────┴────────────┴──────────────┘
+                                   │
+                         ┌─────────┼─────────┐
+                         ▼         ▼         ▼
+                      Records      AI     Knowledge
+                      :5006       :5007      :5008
+```
+
+The frontend communicates **only with the API Gateway**.
+
+```text
+React
+  ↓
+API Gateway
+  ↓
+Required Microservice
+```
+
+---
+
+# 3. API Gateway
+
+### Port
+
+```text
+5000
+```
+
+### Responsibility
+
+The Gateway is the **single entry point** for the frontend.
+
+It handles:
+
+* Request routing
+* JWT verification
+* Authentication information
+* Role-based access checks
+* Request forwarding
+* Centralized error responses
+
+It does **not** contain medical/business logic.
+
+### Example
+
+Frontend:
+
+```http
+GET /api/families/members
+```
+
+Gateway forwards to:
+
+```text
+Family Service
+GET /families/members
+```
+
+---
+
+# 4. Auth Service 🔐
+
+### Port
+
+```text
+5001
+```
+
+### Database
+
+```text
+medimind_auth
+└── users
+```
+
+### Responsibility
+
+Handles:
+
+* Login
+* Password verification
+* JWT generation
+* Current-user information
+* Password changes
+* Account authentication
+
+### APIs
+
+```text
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
+POST /api/auth/change-password
+```
+
+### Login flow
+
+```text
+React
+  ↓
+POST /api/auth/login
+  ↓
+API Gateway
+  ↓
+Auth Service
+  ↓
+Verify credentials
+  ↓
+Generate JWT
+  ↓
+React receives JWT
+```
+
+---
+
+# 5. Family Service 👨‍👩‍👧
+
+### Port
+
+```text
+5002
+```
+
+### Database
+
+```text
+medimind_family
+
+families
+family_members
+```
+
+### Responsibility
+
+Handles:
+
+* Family account
+* Family creator
+* Family members
+* Member profiles
+* Adding members
+* Editing members
+* Removing members
+* Family account status
+
+### APIs
+
+```text
+POST   /api/families
+GET    /api/families/me
+PUT    /api/families/me
+
+POST   /api/families/members
+GET    /api/families/members
+GET    /api/families/members/:memberId
+PUT    /api/families/members/:memberId
+DELETE /api/families/members/:memberId
+```
+
+### Important
+
+The identity structure remains:
+
+```text
+Family Account
+      ↓
+Family Member
+      ↓
+Patient
+```
+
+One family login can contain multiple patient profiles.
+
+---
+
+# 6. Hospital Service 🏥
+
+### Port
+
+```text
+5003
+```
+
+### Database
+
+```text
+medimind_hospital
+
+hospitals
+departments
+department_heads
+```
+
+### Responsibility
+
+Handles:
+
+* Hospital
+* Departments
+* Department Heads
+* Hospital configuration
+
+### APIs
+
+```text
+GET  /api/hospitals
+GET  /api/hospitals/:hospitalId
+PUT  /api/hospitals/:hospitalId
+
+POST /api/departments
+GET  /api/departments
+GET  /api/departments/:departmentId
+PUT  /api/departments/:departmentId
+
+POST /api/department-heads
+GET  /api/department-heads
+PUT  /api/department-heads/:headId
+```
+
+The hierarchy is:
+
+```text
+Chairman
+   ↓
+Hospital Admin
+   ↓
+Department Head
+```
+
+---
+
+# 7. Doctor Service 👨‍⚕️
+
+### Port
+
+```text
+5004
+```
+
+### Database
+
+```text
+medimind_doctor
+└── doctors
+```
+
+### Responsibility
+
+Handles:
+
+* Doctor profiles
+* Specialization
+* Qualifications
+* Experience
+* Availability
+* Doctor status
+
+### APIs
+
+```text
+GET /api/doctors
+GET /api/doctors/:doctorId
+PUT /api/doctors/:doctorId
+
+GET /api/doctors/:doctorId/availability
+PUT /api/doctors/:doctorId/availability
+```
+
+### Doctor creation
+
+Doctor does **not** self-register.
+
+```text
+Department Head
+       ↓
+Create Doctor
+       ↓
+Doctor Account
+```
+
+---
+
+# 8. Appointment Service 📅
+
+### Port
+
+```text
+5005
+```
+
+### Database
+
+```text
+medimind_appointment
+└── appointments
+```
+
+### Responsibility
+
+Handles:
+
+* Booking
+* Rescheduling
+* Cancellation
+* Appointment status
+* Connecting patient + doctor
+* Connecting appointment + AI prediction
+
+### APIs
+
+```text
+POST /api/appointments
+
+GET /api/appointments
+GET /api/appointments/:appointmentId
+
+PUT /api/appointments/:appointmentId/reschedule
+PUT /api/appointments/:appointmentId/cancel
+PUT /api/appointments/:appointmentId/complete
+```
+
+---
+
+# 9. The Correct Appointment Workflow
+
+This is extremely important.
+
+Every appointment requires an AI prediction.
+
+```text
+Family
+   ↓
+Select Patient
+   ↓
+Choose Doctor
+   ↓
+Choose Date & Time
+   ↓
+Book Appointment
+   ↓
+AI Prediction Required
+   ↓
+AI Prediction Service
+   ↓
+Prediction Created
+   ↓
+Prediction linked to Appointment
+   ↓
+Doctor sees Appointment + AI Prediction
+   ↓
+Consultation
+   ↓
+Prescription
+```
+
+The relationship is:
+
+```text
+Appointment
+     │
+     └── ai_prediction_id
+```
+
+---
+
+# 10. AI Prediction Service 🤖
+
+### Port
+
+```text
+5007
+```
+
+### Database
+
+```text
+medimind_ai
+└── predictions
+```
+
+### Four AI modules
+
+```text
+1. Fracture Detection
+2. Diabetes Risk Prediction
+3. Heart Disease Risk Prediction
+4. General Health Assessment
+```
+
+### APIs
+
+```text
+POST /api/ai/fracture
+POST /api/ai/diabetes
+POST /api/ai/heart-disease
+POST /api/ai/general-health
+
+GET /api/ai/member/:memberId
+GET /api/ai/:predictionId
+```
+
+---
+
+# 11. AI Can Be Used Independently
+
+This is another finalized rule.
+
+A patient **does not need an appointment** to use AI.
+
+For example:
+
+```text
+Family
+ ↓
+Select Patient
+ ↓
+AI Predictions
+ ↓
+Diabetes Risk
+ ↓
+Enter health parameters
+ ↓
+Prediction
+```
+
+Here:
+
+```text
+appointment_id = null
+```
+
+---
+
+# 12. AI Can Also Be Used For an Appointment
+
+For an appointment:
+
+```text
+appointment_id = actual appointment ID
+```
+
+So the same prediction system supports both:
+
+```text
+Independent Prediction
+        │
+        └── appointment_id = null
+
+
+Appointment Prediction
+        │
+        └── appointment_id = <appointment>
+```
+
+---
+
+# 13. General Health AI
+
+The fourth AI module accepts text.
+
+Example:
+
+```text
+"Having 103°F temperature, headache and body pain since yesterday."
+```
+
+API:
+
+```http
+POST /api/ai/general-health
+```
+
+The AI returns things such as:
+
+```text
+Possible concerns
+Urgency indication
+General guidance
+Medical evaluation recommendation
+```
+
+It should **not** say:
+
+```text
+"You have disease X."
+```
+
+Instead:
+
+```text
+"Possible concerns include..."
+"Medical evaluation is recommended."
+```
+
+---
+
+# 14. Medical Record Service 🗂️
+
+### Port
+
+```text
+5006
+```
+
+### Database
+
+```text
+medimind_records
+
+medical_records
+consultations
+prescriptions
+```
+
+### Responsibility
+
+Handles the patient's unified medical information:
+
+```text
+Medical Records
+Consultations
+Prescriptions
+```
+
+### Medical record APIs
+
+```text
+POST   /api/records
+GET    /api/records/member/:memberId
+GET    /api/records/:recordId
+PUT    /api/records/:recordId
+DELETE /api/records/:recordId
+```
+
+---
+
+# 15. Consultation APIs
+
+```text
+POST /api/consultations
+
+GET /api/consultations/member/:memberId
+GET /api/consultations/:consultationId
+
+PUT /api/consultations/:consultationId/finalize
+
+POST /api/consultations/:consultationId/amend
+```
+
+Doctor workflow:
+
+```text
+Patient
+   ↓
+Appointment
+   ↓
+Doctor
+   ↓
+View medical history
+   ↓
+View appointment AI prediction
+   ↓
+Consultation
+   ↓
+Finalize
+```
+
+Once finalized:
+
+```text
+FINAL
+```
+
+The consultation cannot simply be overwritten.
+
+Corrections use:
+
+```text
+AMENDED
+```
+
+with a new linked consultation.
+
+---
+
+# 16. Prescription APIs
+
+```text
+POST /api/prescriptions
+
+GET /api/prescriptions/member/:memberId
+GET /api/prescriptions/:prescriptionId
+
+PUT /api/prescriptions/:prescriptionId/finalize
+
+POST /api/prescriptions/:prescriptionId/correct
+```
+
+Workflow:
+
+```text
+Consultation
+     ↓
+Doctor creates prescription
+     ↓
+Draft
+     ↓
+Finalize
+     ↓
+Prescription becomes immutable
+```
+
+Corrections create a new prescription linked to the previous one.
+
+---
+
+# 17. 🔐 Doctor Medical-Record Access
+
+There is **no separate Doctor Access microservice**. Access authorization is a feature of the Medical Record Service.
+
+The family explicitly grants a doctor full access to the records of a selected family member.
+
+```text
+Family Account
+      ↓
+Select Family Member
+      ↓
+Choose Doctor
+      ↓
+Grant Full Access
+      ↓
+RecordAccess
+      ↓
+Doctor
+      ↓
+Complete Records of Selected Member
+```
+
+The access model is all-or-nothing for the selected family member.
+
+There are no individual permission checkboxes such as:
+
+```text
+☐ Reports
+☐ X-rays
+☐ Prescriptions
+☐ Consultations
+```
+
+### Record Access APIs
+
+```text
+POST /api/records/access
+GET  /api/records/access/member/:memberId
+PUT  /api/records/access/:accessId/revoke
+GET  /api/records/access/doctor/me
+```
+
+The family can view current authorized doctors and revoke access. The doctor can view their own access history.
+
+---
+
+# 18. Unified Medical Platform Concept 📚
+
+### Port
+
+```text
+5008
+```
+
+### Database
+
+```text
+medimind_knowledge
+└── articles
+```
+
+### Responsibility
+
+Handles:
+
+* Medical knowledge articles
+* Doctor-created articles
+* Article drafts
+* Review
+* Approval
+* Publication
+
+### APIs
+
+```text
+POST /api/knowledge/articles
+GET  /api/knowledge/articles
+GET  /api/knowledge/articles/:articleId
+
+PUT  /api/knowledge/articles/:articleId
+
+POST /api/knowledge/articles/:articleId/submit
+POST /api/knowledge/articles/:articleId/review
+POST /api/knowledge/articles/:articleId/publish
+```
+
+Workflow:
+
+```text
+Doctor
+   ↓
+Create Article
+   ↓
+DRAFT
+   ↓
+SUBMIT
+   ↓
+Department Head
+   ↓
+REVIEW
+   ↓
+APPROVE
+   ↓
+PUBLISH
+   ↓
+MediMind Knowledge
+```
+
+---
+
+# 22. Service-to-Service Communication
+
+Services **never directly access another service's database**.
+
+For example:
+
+### ❌ Wrong
+
+```text
+Doctor Service
+      ↓
+medimind_family database
+```
+
+### ✅ Correct
+
+```text
+Doctor Service
+      ↓ HTTP/REST
+Family Service
+      ↓
+medimind_family
+```
+
+Similarly:
+
+```text
+Appointment Service
+        ↓ REST
+AI Prediction Service
+```
+
+and:
+
+```text
+Medical Record Service
+        ↓ REST
+Doctor Service
+```
+
+---
+
+# 22. Final API Structure
+
+```text
+/api
+│
+├── /auth
+│   ├── POST   /login
+│   ├── POST   /logout
+│   ├── GET    /me
+│   └── POST   /change-password
+│
+├── /families
+│   ├── POST   /
+│   ├── GET    /me
+│   ├── PUT    /me
+│   └── /members
+│
+├── /hospitals
+│   ├── GET    /
+│   ├── GET    /:hospitalId
+│   ├── PUT    /:hospitalId
+│   └── /departments
+│
+├── /doctors
+│   ├── GET    /
+│   ├── GET    /:doctorId
+│   └── /:doctorId/availability
+│
+├── /appointments
+│   ├── POST   /
+│   ├── GET    /
+│   ├── GET    /:appointmentId
+│   ├── PUT    /:appointmentId/reschedule
+│   ├── PUT    /:appointmentId/cancel
+│   └── PUT    /:appointmentId/complete
+│
+├── /records
+│   ├── POST   /
+│   ├── GET    /member/:memberId
+│   └── GET    /:recordId
+│
+├── /consultations
+│   ├── POST   /
+│   ├── GET    /member/:memberId
+│   ├── GET    /:consultationId
+│   ├── PUT    /:consultationId/finalize
+│   └── POST   /:consultationId/amend
+│
+├── /prescriptions
+│   ├── POST   /
+│   ├── GET    /member/:memberId
+│   ├── GET    /:prescriptionId
+│   ├── PUT    /:prescriptionId/finalize
+│   └── POST   /:prescriptionId/correct
+│
+├── /ai
+│   ├── POST   /fracture
+│   ├── POST   /diabetes
+│   ├── POST   /heart-disease
+│   ├── POST   /general-health
+│   └── GET    /member/:memberId
+│
+└── /knowledge
+    ├── POST   /articles
+    ├── GET    /articles
+    ├── GET    /articles/:articleId
+    ├── PUT    /articles/:articleId
+    ├── POST   /articles/:articleId/submit
+    ├── POST   /articles/:articleId/review
+    └── POST   /articles/:articleId/publish
+```
+
+---
+
+# 22. Final End-to-End Architecture
+
+```text
+                         ┌──────────────────┐
+                         │    REACT APP     │
+                         └────────┬─────────┘
+                                  │
+                                  ▼
+                         ┌──────────────────┐
+                         │   API GATEWAY    │
+                         │      :5000       │
+                         └────────┬─────────┘
+                                  │
+          ┌──────────┬────────────┼────────────┬───────────┐
+          ▼          ▼            ▼            ▼           ▼
+        AUTH       FAMILY      HOSPITAL      DOCTOR    APPOINTMENT
+        :5001      :5002        :5003         :5004       :5005
+          │          │            │             │           │
+          │          │            │             │           │
+          │          │            │             │           ▼
+          │          │            │             │       AI SERVICE
+          │          │            │             │          :5007
+          │          │            │             │
+          │          │            │             ▼
+          │          │            │          Doctor
+          │          │            │
+          │          │            ▼
+          │          │         Hospital
+          │          │
+          │          ▼
+          │       Family
+          │
+          ▼
+        Users
+
+
+                    ┌────────────────────────┐
+                    │   MEDICAL RECORD        │
+                    │       SERVICE :5006     │
+                    └────────────┬───────────┘
+                                 │
+                     ┌───────────┼───────────┐
+                     ▼           ▼           ▼
+                  Records   Consultations Prescriptions
+
+
+                    ┌────────────────────────┐
+                    │    KNOWLEDGE SERVICE   │
+                    │         :5008           │
+                    └────────────────────────┘
+```
