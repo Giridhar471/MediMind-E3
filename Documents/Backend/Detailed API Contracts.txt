@@ -1,0 +1,1084 @@
+# 🔌 MediMind — Detailed API Contracts
+
+Now we move from the **architecture level** to the **actual API contract level**.
+
+We don't need to implement anything yet. We'll first lock what each endpoint accepts, who can call it, and what it returns.
+
+---
+
+# 1. API Contract Convention
+
+All APIs will follow:
+
+```text
+/api/<resource>
+```
+
+Responses will use JSON.
+
+### Success
+
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {}
+}
+```
+
+### Error
+
+```json
+{
+  "success": false,
+  "message": "Something went wrong"
+}
+```
+
+For validation errors:
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {}
+}
+```
+
+---
+
+# 2. Authentication APIs 🔐
+
+## `POST /api/auth/login`
+
+### Allowed
+
+```text
+FAMILY
+DOCTOR
+DEPARTMENT_HEAD
+HOSPITAL_ADMIN
+CHAIRMAN
+```
+
+### Request
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "token": "JWT_TOKEN",
+    "user": {
+      "userId": "...",
+      "role": "FAMILY",
+      "referenceId": "..."
+    }
+  }
+}
+```
+
+---
+
+## `POST /api/auth/logout`
+
+Requires JWT. The client clears its authentication state/token after logout.
+
+---
+
+## `GET /api/auth/me`
+
+Requires JWT.
+
+Returns the currently authenticated user.
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "...",
+    "role": "DOCTOR",
+    "referenceId": "..."
+  }
+}
+```
+
+---
+
+## `POST /api/auth/change-password`
+
+Requires JWT.
+
+```json
+{
+  "currentPassword": "oldPassword",
+  "newPassword": "newPassword"
+}
+```
+
+---
+
+# 3. Family APIs 👨‍👩‍👧
+
+## Create Family
+
+```http
+POST /api/families
+```
+
+Request:
+
+```json
+{
+  "familyName": "Varadhan Family",
+  "email": "family@example.com",
+  "mobile": "9876543210",
+  "password": "password123"
+}
+```
+
+This creates:
+
+```text
+Auth User
+    +
+Family Account
+```
+
+---
+
+## Get Family
+
+```http
+GET /api/families/me
+```
+
+Returns the logged-in family's account information.
+
+---
+
+## Update Family
+
+```http
+PUT /api/families/me
+```
+
+Only the family creator/account owner can perform creator-level operations.
+
+---
+
+# 4. Family Member APIs
+
+## Add Member
+
+```http
+POST /api/families/members
+```
+
+Example:
+
+```json
+{
+  "fullName": "Rahul Varadhan",
+  "dateOfBirth": "2004-06-15",
+  "gender": "MALE",
+  "bloodGroup": "O+",
+  "phone": "9876543210",
+  "email": "rahul@example.com"
+}
+```
+
+---
+
+## Get Members
+
+```http
+GET /api/families/members
+```
+
+Returns all active members of the family.
+
+---
+
+## Get Specific Member
+
+```http
+GET /api/families/members/:memberId
+```
+
+---
+
+## Update Member
+
+```http
+PUT /api/families/members/:memberId
+```
+
+---
+
+## Remove Member
+
+```http
+DELETE /api/families/members/:memberId
+```
+
+**Only the family creator can remove a member.**
+
+Other family members can view/edit according to the family rules, but cannot remove members.
+
+---
+
+# 5. Doctor APIs 👨‍⚕️
+
+## Get Doctors
+
+```http
+GET /api/doctors
+```
+
+Optional filters:
+
+```text
+?departmentId=...
+?specialization=...
+```
+
+Example:
+
+```http
+GET /api/doctors?specialization=Cardiologist
+```
+
+Family uses this to browse available doctors.
+
+---
+
+## Get Doctor
+
+```http
+GET /api/doctors/:doctorId
+```
+
+Returns professional information:
+
+```json
+{
+  "doctorId": "...",
+  "fullName": "Dr. Arun Kumar",
+  "specialization": "Cardiology",
+  "qualifications": ["MBBS", "MD"],
+  "experienceYears": 8,
+  "professionalDescription": "...",
+  "availability": []
+}
+```
+
+---
+
+## Update Doctor Profile
+
+```http
+PUT /api/doctors/:doctorId
+```
+
+Allowed:
+
+```text
+DOCTOR
+Department Head
+```
+
+with appropriate ownership/department restrictions.
+
+---
+
+## Availability
+
+```http
+GET /api/doctors/:doctorId/availability
+```
+
+```http
+PUT /api/doctors/:doctorId/availability
+```
+
+Doctor manages their own availability.
+
+---
+
+# 6. Doctor Creation
+
+Doctor does not self-register.
+
+```http
+POST /api/doctors
+```
+
+Allowed:
+
+```text
+DEPARTMENT_HEAD
+```
+
+Request:
+
+```json
+{
+  "fullName": "Dr. Arun Kumar",
+  "email": "arun@medimind.com",
+  "mobile": "9876543210",
+  "specialization": "Cardiology",
+  "qualifications": ["MBBS", "MD"],
+  "experienceYears": 8
+}
+```
+
+Backend creates:
+
+```text
+Auth User
+     +
+Doctor Profile
+```
+
+The department is determined from the authenticated Department Head rather than allowing them to arbitrarily select another department.
+
+---
+
+# 7. Appointment APIs 📅
+
+## Book Appointment
+
+```http
+POST /api/appointments
+```
+
+Request:
+
+```json
+{
+  "familyMemberId": "...",
+  "doctorId": "...",
+  "appointmentDate": "2026-10-05",
+  "startTime": "10:00",
+  "endTime": "10:30",
+  "reason": "Regular consultation"
+}
+```
+
+### Flow
+
+```text
+Family
+ ↓
+Verify family owns member
+ ↓
+Verify doctor
+ ↓
+Verify doctor availability
+ ↓
+Create appointment
+ ↓
+AI prediction required
+```
+
+---
+
+# 8. Appointment + AI
+
+Every appointment requires an AI prediction.
+
+The appointment stores the linked prediction ID:
+
+```json
+{
+  "aiPredictionId": "67abc..."
+}
+```
+
+The prediction is created as part of the appointment workflow and linked through `aiPredictionId`.
+
+So:
+
+```text
+Appointment
+     │
+     └──── AI Prediction
+```
+
+---
+
+# 9. Appointment Retrieval
+
+### Family
+
+```http
+GET /api/appointments
+```
+
+Returns appointments belonging to that family.
+
+### Doctor
+
+```http
+GET /api/appointments
+```
+
+Returns appointments relevant to that doctor.
+
+The backend determines the correct scope from JWT identity.
+
+---
+
+## Appointment Details
+
+```http
+GET /api/appointments/:appointmentId
+```
+
+---
+
+## Reschedule
+
+```http
+PUT /api/appointments/:appointmentId/reschedule
+```
+
+```json
+{
+  "appointmentDate": "2026-10-06",
+  "startTime": "11:00",
+  "endTime": "11:30"
+}
+```
+
+---
+
+## Cancel
+
+```http
+PUT /api/appointments/:appointmentId/cancel
+```
+
+```json
+{
+  "reason": "Unable to attend"
+}
+```
+
+---
+
+# 10. AI APIs 🤖
+
+There are **two ways** AI is used.
+
+### Independent
+
+```text
+Patient
+ ↓
+AI
+ ↓
+Prediction
+```
+
+### Appointment-associated
+
+```text
+Patient
+ ↓
+Appointment
+ ↓
+Required AI
+ ↓
+Prediction
+```
+
+---
+
+# 11. Fracture Detection
+
+```http
+POST /api/ai/fracture
+```
+
+Input type:
+
+```text
+IMAGE
+```
+
+Example multipart request:
+
+```text
+familyMemberId
+appointmentId (optional)
+image
+```
+
+Result concept:
+
+```json
+{
+  "predictionType": "FRACTURE_DETECTION",
+  "riskLevel": "HIGH",
+  "confidence": 0.94,
+  "result": {
+    "possibleFracture": true
+  }
+}
+```
+
+---
+
+# 12. Diabetes Risk
+
+```http
+POST /api/ai/diabetes
+```
+
+Input:
+
+```json
+{
+  "familyMemberId": "...",
+  "appointmentId": "...",
+  "age": 45,
+  "glucose": 145,
+  "bloodPressure": 135,
+  "bmi": 28.4,
+  "insulin": 120
+}
+```
+
+The exact input parameters will be finalized when we build the PDNC model.
+
+---
+
+# 13. Heart Disease Risk
+
+```http
+POST /api/ai/heart-disease
+```
+
+Example:
+
+```json
+{
+  "familyMemberId": "...",
+  "appointmentId": "...",
+  "age": 52,
+  "sex": "M",
+  "bloodPressure": 140,
+  "cholesterol": 230,
+  "heartRate": 90
+}
+```
+
+Again, the final model parameters will follow the selected dataset/model.
+
+---
+
+# 14. General Health Assessment
+
+```http
+POST /api/ai/general-health
+```
+
+Request:
+
+```json
+{
+  "familyMemberId": "...",
+  "appointmentId": null,
+  "text": "Having 103°F temperature, headache and body pain since yesterday."
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "predictionType": "GENERAL_HEALTH",
+    "possibleConcerns": [
+      "Fever-related illness",
+      "Possible infection"
+    ],
+    "urgency": "MEDICAL_EVALUATION_RECOMMENDED",
+    "guidance": "...",
+    "disclaimer": "AI-assisted assessment. This is not a medical diagnosis."
+  }
+}
+```
+
+---
+
+# 15. AI Prediction History
+
+```http
+GET /api/ai/member/:memberId
+```
+
+Returns:
+
+```text
+Current predictions
+Previous predictions
+Independent predictions
+Appointment predictions
+```
+
+This supports:
+
+```text
+AI Predictions
+   └── Prediction History
+```
+
+---
+
+# 16. Medical Records 🗂️
+
+## Upload Record
+
+```http
+POST /api/records
+```
+
+Input:
+
+```text
+familyMemberId
+recordType
+description
+recordDate
+file
+```
+
+Example:
+
+```text
+recordType = XRAY
+```
+
+The file itself can later be stored using a suitable file-storage solution; the database stores its metadata/reference.
+
+---
+
+## Get Records
+
+```http
+GET /api/records/member/:memberId
+```
+
+Returns the unified medical records of that patient.
+
+---
+
+## Get Record
+
+```http
+GET /api/records/:recordId
+```
+
+
+## Doctor Access — Grant Access
+
+```http
+POST /api/records/access
+```
+
+A family account can grant a doctor full medical-record access for a specific family member.
+
+Request:
+
+```json
+{
+  "familyMemberId": "...",
+  "doctorId": "..."
+}
+```
+
+Access is all-or-nothing for the selected family member. There are no individual record-type permission checkboxes.
+
+---
+
+## Doctor Access — Current Access
+
+```http
+GET /api/records/access/member/:memberId
+```
+
+Returns the active doctors authorized for the selected family member.
+
+---
+
+## Doctor Access — Revoke Access
+
+```http
+PUT /api/records/access/:accessId/revoke
+```
+
+Only the family account can revoke access it previously granted.
+
+---
+
+## Doctor Access — Doctor History
+
+```http
+GET /api/records/access/doctor/me
+```
+
+Returns the authenticated doctor's access history.
+
+
+
+---
+
+# 17. Consultation APIs 📋
+
+## Create Consultation
+
+```http
+POST /api/consultations
+```
+
+Request:
+
+```json
+{
+  "familyMemberId": "...",
+  "appointmentId": "...",
+  "symptoms": "...",
+  "observations": "...",
+  "clinicalAssessment": "...",
+  "treatmentPlan": "...",
+  "notes": "..."
+}
+```
+
+Only the appropriate doctor can create the consultation for their appointment.
+
+---
+
+## Finalize Consultation
+
+```http
+PUT /api/consultations/:consultationId/finalize
+```
+
+After finalization:
+
+```text
+DRAFT
+  ↓
+FINAL
+```
+
+A `FINAL` consultation cannot simply be edited.
+
+---
+
+## Amend Consultation
+
+```http
+POST /api/consultations/:consultationId/amend
+```
+
+Creates a new linked record:
+
+```text
+Original Consultation
+       ↓
+    Amendment
+```
+
+---
+
+# 18. Prescription APIs 💊
+
+## Create
+
+```http
+POST /api/prescriptions
+```
+
+Example:
+
+```json
+{
+  "familyMemberId": "...",
+  "consultationId": "...",
+  "medicines": [
+    {
+      "name": "Medicine A",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "duration": "5 days",
+      "instructions": "After food"
+    }
+  ],
+  "generalInstructions": "Take adequate rest."
+}
+```
+
+---
+
+## Finalize
+
+```http
+PUT /api/prescriptions/:prescriptionId/finalize
+```
+
+---
+
+## Correct
+
+```http
+POST /api/prescriptions/:prescriptionId/correct
+```
+
+Creates a new prescription linked to the original.
+
+---
+
+# 19. Knowledge APIs 📚
+
+## Create Article
+
+```http
+POST /api/knowledge/articles
+```
+
+Doctor creates:
+
+```text
+DRAFT
+```
+
+---
+
+## Submit
+
+```http
+POST /api/knowledge/articles/:articleId/submit
+```
+
+```text
+DRAFT
+ ↓
+SUBMITTED
+```
+
+---
+
+## Review
+
+```http
+POST /api/knowledge/articles/:articleId/review
+```
+
+Department Head can:
+
+```text
+APPROVE
+REJECT
+```
+
+---
+
+## Publish
+
+```http
+POST /api/knowledge/articles/:articleId/publish
+```
+
+Approved article becomes:
+
+```text
+PUBLISHED
+```
+
+Published articles are publicly readable.
+
+---
+
+# 20. Important Service-to-Service Calls
+
+We don't want random communication between every service.
+
+The main flows are:
+
+### Appointment → Doctor
+
+```text
+Appointment Service
+       ↓
+Doctor Service
+       ↓
+Check doctor/availability
+```
+
+### Appointment → AI
+
+```text
+Appointment Service
+       ↓
+AI Prediction Service
+       ↓
+Create required prediction
+```
+
+### Doctor/Family → Records
+
+```text
+Doctor/Family
+      ↓
+API Gateway
+      ↓
+Medical Record Service
+```
+
+### Knowledge → Doctor/Department
+
+```text
+Knowledge Service
+       ↓
+Doctor identity
+Department identity
+```
+
+using IDs and authenticated context.
+
+---
+
+# 21. Unified Healthcare Workflow
+
+This is the **core business flow** of MediMind:
+
+```text
+┌──────────────────┐
+│   FAMILY LOGIN   │
+└────────┬─────────┘
+         ↓
+┌──────────────────┐
+│ SELECT PATIENT   │
+└────────┬─────────┘
+         ↓
+ ┌───────┼──────────┐
+ ↓       ↓          ↓
+Records AI       Appointment
+         │          │
+         │          ▼
+         │       Required AI
+         │          │
+         └────┬─────┘
+              ↓
+           Doctor
+              ↓
+        Medical History
+              +
+        AI Prediction
+              ↓
+         Consultation
+              ↓
+         Prescription
+```
+
+This is the workflow that ties the **SOA + PDNC + ASE** parts together.
+
+---
+
+# 22. Error Handling
+
+We'll standardize HTTP status codes.
+
+| Code  | Meaning               |
+| ----- | --------------------- |
+| `200` | Successful request    |
+| `201` | Resource created      |
+| `400` | Bad request           |
+| `401` | Not authenticated     |
+| `403` | Not authorized        |
+| `404` | Resource not found    |
+| `409` | Conflict              |
+| `422` | Validation error      |
+| `500` | Internal server error |
+| `503` | Service unavailable   |
+
+Example:
+
+```json
+{
+  "success": false,
+  "message": "Doctor is not available at the selected time"
+}
+```
+
+with:
+
+```http
+409 Conflict
+```
+
+---
+
+# 23. What We Have Locked
+
+At this point the backend architecture is:
+
+```text
+                    React
+                      ↓
+                API Gateway
+                      ↓
+ ┌─────────┬─────────┼─────────┬─────────┬───────────┐
+ ↓         ↓         ↓         ↓         ↓
+Auth     Family   Hospital   Doctor   Appointment
+                                           ↓
+                                           AI
+                                           
+                    ↓
+              Medical Records
+                    ↓
+          ┌─────────┴─────────┐
+          ↓                   ↓
+   Consultations         Prescriptions
+
+                    +
+
+              Knowledge Service
+```
+
+### And importantly:
+
+* ✅ Doctor Access is represented by `record_access` within the Medical Record Service; there is no separate standalone access service
+* ❌ No notification service
+* ❌ No granular record-type permissions
+* ❌ No direct database sharing
+* ❌ No GraphQL
+* ❌ No Redis/RabbitMQ/Kafka
+* ✅ REST APIs
+* ✅ API Gateway
+* ✅ JWT
+* ✅ Role-based authorization
+* ✅ Database-per-service
+* ✅ Four AI modules
+* ✅ Independent AI predictions
+* ✅ AI prediction required for every appointment
+* ✅ Unified medical records
+* ✅ Consultation → Prescription
+* ✅ Doctor article → Department Head review → Publish
+
+---

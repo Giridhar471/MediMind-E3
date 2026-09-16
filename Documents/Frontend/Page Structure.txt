@@ -1,0 +1,121 @@
+# 🏥 MediMind — All User Pages & One-Line Descriptions
+
+Here is the **complete page list for all 5 roles**, with exactly what each page does in one line.
+
+---
+
+## 👨‍👩‍👧 1. Family Account
+
+| Page                        | Description                                                                                     |
+| --------------------------- | ----------------------------------------------------------------------------------------------- |
+| 🏠 **Dashboard**            | Overview of family members, upcoming appointments, recent records and latest AI predictions.    |
+| 👨‍👩‍👧 **Family Members** | Create, view, edit and manage individual family member profiles.                                |
+| 👤 **Member Profile**       | View a selected member's personal information and complete health summary.                      |
+| 🗂️ **Medical Records**     | View and manage reports, tests, prescriptions, scans, X-rays and other medical records.         |
+| 📤 **Upload Record**        | Upload a medical report, test result, prescription, scan or other health document for a member. |
+| 🤖 **AI Predictions**       | Access Fracture Detection, Diabetes Risk, Heart Disease Risk and General Health Assessment services.                      |
+| 📊 **Prediction History**   | View previous AI predictions and their results for each family member.                          |
+| 👨‍⚕️ **Doctors**           | Browse available doctors by department, specialization and hospital.                            |
+| 📅 **Appointments**         | Book, reschedule, cancel and view appointments for family members.                              |
+| 🩺 **Consultations**        | View previous doctor consultations, clinical assessments and notes.                             |
+| 💊 **Prescriptions**        | View prescriptions issued to family members by doctors.                                         |
+| 🔐 **Doctor Access**        | View which doctors currently have access to family members' medical records.                    |
+
+| 📚 **Unified Records**      | View the consolidated medical history for the currently selected family member.                    |
+| ⚙️ **Settings**             | Manage family account, profiles, password, devices, preferences and security.                   |
+
+---
+
+# 👨‍⚕️ 2. Doctor
+
+| Page                        | Description                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 🏠 **Dashboard**            | Overview of today's appointments, authorized patients, AI predictions and recent activities.          |
+| 👤 **My Profile**           | View and manage the doctor's professional profile and contact information.                            |
+| 🕐 **Availability**         | Set and manage consultation days, working hours and available appointment slots.                      |
+| 👨‍👩‍👧 **Patients**       | View only family members who have authorized the doctor to access their records.                      |
+| 👤 **Patient Profile**      | View the selected authorized patient's personal and relevant health information.                      |
+| 🗂️ **Medical Records**     | Review reports, tests, scans, prescriptions and other records shared by the patient/family.           |
+| 🤖 **AI Predictions**       | Review AI-assisted Fracture Detection, Diabetes Risk, Heart Disease Risk and General Health Assessment results for authorized patients. |
+| 🧠 **AI Explanation**       | View prediction confidence and available model-explanation information such as Grad-CAM.              |
+| 📅 **Appointments**         | View and manage the doctor's upcoming and previous patient appointments.                              |
+| 🩺 **Consultations**        | Record symptoms, observations, clinical assessment, treatment plan and consultation notes.            |
+| 💊 **Prescriptions**        | Create and manage prescriptions for patients during consultations.                                    |
+| 📋 **Consultation History** | Review previous consultations and treatment history of authorized patients.                           |
+| 🔐 **Patient Access**       | View the current access status of patients who have shared their records with the doctor.             |
+| 📚 **MediMind Knowledge**   | Browse medical knowledge and doctor-authored articles shared within the platform.                     |
+| ✍️ **My Articles**          | View and manage articles or medical knowledge published by the doctor.                                |
+| ➕ **Create Article**        | Write and publish a medical observation, discovery, research summary or useful clinical knowledge.    |
+| ⚙️ **Settings**             | Manage account, password, professional preferences, notifications and security.                       |
+
+---
+
+# 🧑‍⚕️ 3. Department Head
+
+| Page                        | Description                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| 🏠 **Dashboard**            | Overview of department doctors, appointments, workload, performance and AI activity.          |
+| 👨‍⚕️ **Doctors**           | View and manage all doctors belonging to the Department Head's department.                    |
+| ➕ **Create Doctor**         | Create a new doctor account and assign the doctor to the department.                          |
+| 👤 **Doctor Details**       | View a doctor's professional information, availability, workload and performance.             |
+| 🕐 **Schedules**            | Coordinate department schedules and monitor doctor availability and conflicts.                |
+| 📅 **Appointments**         | View appointments belonging to the department for operational management.                     |
+| 📊 **Workload**             | Monitor appointment distribution and workload across department doctors.                      |
+| 📈 **Department Analytics** | View department-level appointment, doctor and operational statistics.                         |
+| 🤖 **AI Analytics**         | View aggregate AI prediction statistics for the department's prediction type.                 |
+| ⭐ **Doctor Performance**    | Monitor doctor workload, consultations, appointment completion and other performance metrics. |
+| 📚 **MediMind Knowledge**   | Browse and contribute to the shared doctor knowledge and discovery system.                    |
+| ✍️ **Create Article**       | Publish useful medical knowledge, observations or departmental insights.                      |
+| ⚙️ **Settings**             | Manage Department Head account, password, notifications and department preferences.           |
+
+---
+
+# 🏥 4. Hospital Admin
+
+| Page                           | Description                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| 🏠 **Dashboard**               | Overview of hospital departments, doctors, appointments, staff and overall activity. |
+| 🏥 **Hospital Profile**        | Manage the hospital's basic information, contact details and operating information.  |
+| 🏢 **Departments**             | Create, view, edit and manage departments within the hospital.                       |
+| 🧑‍⚕️ **Department Heads**     | View and manage Department Head accounts assigned to hospital departments.           |
+| ➕ **Create Department Head**   | Create a Department Head account and assign it to a specific department.             |
+| 👤 **Department Head Details** | View Department Head information, assigned department and account status.            |
+| 👨‍⚕️ **Doctors**              | View all doctors working in the hospital and their departments.                      |
+| 👤 **Doctor Details**          | View doctor professional information, department and operational status.             |
+| 👥 **Staff Management**        | Monitor and manage hospital administrative and clinical staff accounts.              |
+| 📅 **Appointments**            | Monitor hospital-wide appointments across all three departments.                     |
+| 🕐 **Schedules**               | View and coordinate hospital, department and doctor scheduling information.          |
+| 📊 **Hospital Analytics**      | View hospital-wide statistics for users, appointments, doctors and operations.       |
+| 📈 **Department Analytics**    | Compare appointment, workload and performance statistics across departments.         |
+| 🤖 **AI Analytics**            | View aggregate Fracture, Diabetes and Heart Disease prediction statistics.           |
+| 📋 **Reports**                 | Generate hospital-level appointment, staff, department and AI reports.               |
+| 📚 **Knowledge Activity**      | Monitor doctor knowledge/article activity across the hospital.                       |
+| 📝 **Activity / Audit**        | Track important administrative actions performed within the hospital.                |
+| ⚙️ **Settings**                | Manage hospital configuration, administrative preferences and security.              |
+
+---
+
+# 👑 5. Chairman / Platform Owner
+
+| Page                          | Description                                                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 🏠 **Platform Dashboard**     | Overview of the entire MediMind platform including hospitals, users, doctors, appointments and AI usage. |
+| 🏥 **Hospitals**              | View and manage hospitals registered within the MediMind network.                                        |
+| ➕ **Hospital Requests**       | Review and approve or reject requests from hospitals wanting to join MediMind.                           |
+| 🏥 **Hospital Details**       | View a hospital's administration, departments, doctors and high-level performance.                       |
+| 👤 **Hospital Admins**        | View and manage Hospital Admin accounts across the platform.                                             |
+| ➕ **Create Hospital Admin**   | Create a Hospital Admin account and assign the administrator to a hospital.                              |
+| 🧑‍⚕️ **Departments**         | View department information and statistics across the MediMind network.                                  |
+| 👨‍⚕️ **Doctors**             | View platform-wide doctor information, specialization and hospital assignments.                          |
+| 👨‍👩‍👧 **Family Accounts**  | View platform-level family account statistics and account information.                                   |
+| 📅 **Appointments**           | View platform-wide appointment statistics and trends across hospitals.                                   |
+| 🤖 **AI Analytics**           | Monitor aggregate usage of Fracture, Diabetes Risk and Heart Disease Risk AI services.                   |
+| 📊 **Platform Analytics**     | Analyze overall MediMind usage, users, appointments and system activity.                                 |
+| 🏥 **Hospital Performance**   | Compare high-level performance and activity across hospitals.                                            |
+| 📈 **Department Performance** | Compare department-level statistics across the MediMind network.                                         |
+| 📋 **Reports**                | Generate platform-wide hospital, user, appointment and AI reports.                                       |
+| 📚 **Knowledge Activity**     | Monitor medical knowledge and doctor contribution activity across the platform.                          |
+| 📝 **Audit Logs**             | Monitor important administrative and system activities across MediMind.                                  |
+| ⚙️ **Settings**               | Manage platform configuration, policies, account security and system preferences.                        |
+
+---

@@ -1,0 +1,254 @@
+👥 MediMind User Roles
+Role	Level	Main Purpose
+👨‍👩‍👧 Family Account	End user	Manage family members, health records, appointments, and authorized record sharing
+👨‍⚕️ Doctor	Medical user	Treat patients and review authorized medical information
+🧑‍⚕️ Department Head	Medical management	Manage doctors and oversee a department
+🏥 Hospital Admin	Hospital management	Manage hospital-level operations
+👑 Chairman / Platform Owner	Highest level	Manage and monitor the entire MediMind network
+1. 👨‍👩‍👧 Family Account
+
+The primary healthcare end user.
+
+One family creates one account, with individual profiles for each family member.
+
+Family Account
+│
+├── Father
+├── Mother
+├── Son
+└── Daughter
+
+Each family member has a separate medical profile and medical history.
+
+Can:
+Create and manage family profiles
+Add/remove family members
+Upload medical reports
+Upload scans and medical images
+Upload prescriptions
+Upload previous test results
+Maintain individual medical histories
+Book doctor appointments
+View prescriptions and consultation records
+Use AI prediction and General Health Assessment features
+View AI prediction history
+Share a specific member's records with an authorized doctor
+Grant/revoke doctor access
+Manage family appointments
+🔐 Important
+
+The family account doesn't mean everyone can automatically see every member's medical information.
+
+For example:
+
+Family Account
+      │
+      ├── Father → 🔒 Medical Records
+      ├── Mother → 🔒 Medical Records
+      └── Child  → 🔒 Medical Records
+
+Doctor access is granted separately for each selected family member. An authorized doctor receives complete medical-record access for that member.
+
+2. 👨‍⚕️ Doctor
+
+The main healthcare professional.
+
+Can:
+Create/manage doctor profile
+Manage availability
+View patients who have authorized access
+Review previous reports and tests
+View medical history
+View uploaded scans/images
+View AI predictions
+Review AI confidence/explanation
+Add consultation notes
+Add clinical assessment
+Add prescriptions
+Manage appointments
+Follow patient history
+🔐 Important
+
+A doctor cannot simply search for and open every patient's records.
+
+Patient/Family
+      ↓
+Grants Access
+      ↓
+Doctor
+      ↓
+Authorized Records
+3. 🧑‍⚕️ Department Head
+
+A Department Head manages doctors belonging to a particular department.
+
+For example:
+
+Hospital
+│
+├── Cardiology
+│     ├── Department Head
+│     ├── Doctor
+│     ├── Doctor
+│     └── Doctor
+│
+├── Neurology
+│     ├── Department Head
+│     ├── Doctor
+│     └── Doctor
+│
+└── Radiology
+      ├── Department Head
+      ├── Doctor
+      └── Doctor
+Can:
+Manage doctors within their department
+Assign doctors to schedules
+Manage department schedules
+View department appointments
+Monitor department workload
+View aggregated department statistics
+View department performance
+Manage department-level operations
+🔐 Medical privacy
+
+The Department Head doesn't automatically receive unrestricted access to every patient's complete medical records.
+
+Patient authorization and appropriate medical access rules still apply.
+
+4. 🏥 Hospital Admin
+
+Manages the operations of a particular hospital.
+
+Can:
+Manage hospital information
+Create/manage departments
+Manage Department Heads
+Manage doctors and staff
+Manage hospital schedules
+Manage hospital appointments
+Manage staff accounts
+View hospital-level analytics
+View department-level statistics
+Handle hospital configuration
+Manage hospital operational settings
+Organizational hierarchy
+Hospital Admin
+       ↓
+Department Head
+       ↓
+     Doctor
+
+This is an organizational hierarchy, not automatically a medical-record-access hierarchy.
+
+5. 👑 Chairman / Platform Owner
+
+The highest-level MediMind role.
+
+I recommend calling it:
+
+Chairman / Platform Owner
+
+This represents the person/organization responsible for the entire MediMind network.
+
+                  👑 Chairman
+                Platform Owner
+                       │
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+      Hospital A   Hospital B   Hospital C
+          ↓            ↓            ↓
+      Departments  Departments  Departments
+          ↓            ↓            ↓
+        Doctors      Doctors      Doctors
+Can:
+Register/approve hospitals
+Manage Hospital Admins
+Monitor all hospitals
+View platform-wide analytics
+View hospital performance
+View department performance
+Monitor appointment statistics
+View overall AI prediction statistics
+Monitor platform usage
+View system reports
+Manage platform-level policies
+View audit logs
+Manage the MediMind network
+Example dashboard
+MediMind Platform
+────────────────────────────
+Hospitals              42
+Doctors              1,240
+Family Accounts     18,500
+Appointments        32,800
+AI Predictions       7,420
+
+Hospital Performance
+Department Statistics
+System Activity
+Audit Logs
+🔐 Final Permission Structure
+
+There are two separate structures.
+
+🏢 Organizational hierarchy
+                 👑 Chairman
+                     │
+                     ↓
+              🏥 Hospital Admin
+                     │
+                     ↓
+             🧑‍⚕️ Department Head
+                     │
+                     ↓
+                👨‍⚕️ Doctor
+🩺 Medical-record access
+        👨‍👩‍👧 Family Account
+                 │
+                 ↓
+        Select Family Member
+                 │
+                 ↓
+        Grant Doctor Access
+                 │
+                 ↓
+              👨‍⚕️ Doctor
+                 │
+                 ↓
+       Authorized Medical Records
+
+The organizational hierarchy does NOT automatically grant medical-record access.
+
+For example, a Hospital Admin could see:
+
+"Hospital has 2,500 registered patients."
+
+But that doesn't mean they can automatically open every patient's X-ray, prescription, or medical history.
+
+⭐ Final MediMind Role Structure
+                         👑 CHAIRMAN
+                       Platform Owner
+                              │
+             ┌────────────────┼────────────────┐
+             ↓                ↓                ↓
+        🏥 Hospital A     🏥 Hospital B     🏥 Hospital C
+             │                │                │
+       Hospital Admin   Hospital Admin   Hospital Admin
+             │                │                │
+       ┌─────┼─────┐          ...              ...
+       ↓     ↓     ↓
+   Department Heads
+       │
+       ↓
+   👨‍⚕️ Doctors
+       │
+       │  ← Patient authorization
+       ↓
+   👨‍👩‍👧 Family Accounts
+       │
+   ┌───┼────────┐
+   ↓   ↓        ↓
+ Father Mother  Child
+   │     │       │
+ Medical Records

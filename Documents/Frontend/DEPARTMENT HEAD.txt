@@ -1,0 +1,697 @@
+# 🧑‍⚕️ ROLE 3 — DEPARTMENT HEAD
+
+We will have exactly **3 Department Heads**:
+
+| Department     | AI Area            | Department Head |
+| -------------- | ------------------ | --------------- |
+| 🦴 Orthopedics | Fracture Detection | 1               |
+| 🩺 Diabetology | Diabetes Risk      | 1               |
+| ❤️ Cardiology  | Heart Disease Risk | 1               |
+
+A Department Head is responsible for **managing their department and its doctors**.
+
+They do **not** have unrestricted access to patient medical records.
+
+---
+
+# 1. 🧑‍⚕️ Department Head Account Creation
+
+Department Heads **cannot register themselves**.
+
+The hierarchy is:
+
+```text id="j5g4bq"
+👑 Chairman
+      ↓
+🏥 Hospital Admin
+      ↓
+🧑‍⚕️ Department Head
+```
+
+The Hospital Admin creates the Department Head account.
+
+The Hospital Admin provides:
+
+* Name
+* Email
+* Phone
+* Password
+* Department
+* Hospital
+* Profile information
+
+The Department Head then logs in normally.
+
+---
+
+# 2. 🔐 Login
+
+For now:
+
+```text id="2e9w8w"
+Email
+Password
+   ↓
+Login
+   ↓
+Department Dashboard
+```
+
+The backend identifies:
+
+```text id="2w5r9e"
+User
+├── Role: DEPARTMENT_HEAD
+├── Hospital ID
+└── Department ID
+```
+
+The Department Head can only manage **their assigned department**.
+
+---
+
+# 3. 🏠 Department Dashboard
+
+This is the main page.
+
+For example, an Orthopedics Department Head sees:
+
+```text id="4m1l0p"
+Welcome, Dr. Priya 👋
+Orthopedics Department
+
+┌────────────┬────────────┬─────────────┐
+│ Doctors    │ Appointments│ Patients*   │
+│     3      │     18      │     24      │
+└────────────┴────────────┴─────────────┘
+
+Today's Schedule
+
+09:00  Dr. Rahul
+10:00  Dr. Kumar
+11:30  Dr. Anil
+
+Department Activity
+...
+```
+
+*Patient statistics should be **aggregated**, not unrestricted patient-record access.
+
+### Dashboard can show
+
+* Number of doctors
+* Today's appointments
+* Upcoming appointments
+* Doctor workload
+* Department statistics
+* AI usage statistics
+* Recent department activity
+
+---
+
+# 4. 👨‍⚕️ Doctors Page
+
+This is one of the **most important pages** for the Department Head.
+
+The Department Head manages the doctors in their department.
+
+For Orthopedics:
+
+```text id="03y1si"
+Orthopedics Doctors
+
+┌─────────────────────────────┐
+│ 👨‍⚕️ Dr. Rahul              │
+│ Orthopedics                 │
+│ Status: Active              │
+│ [View] [Edit]               │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│ 👨‍⚕️ Dr. Kumar              │
+│ Orthopedics                 │
+│ Status: Active              │
+│ [View] [Edit]               │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│ 👨‍⚕️ Dr. Anil               │
+│ Orthopedics                 │
+│ Status: Active              │
+│ [View] [Edit]               │
+└─────────────────────────────┘
+
+        [+ Create Doctor]
+```
+
+---
+
+# 5. ➕ Create Doctor
+
+This is the Department Head's key administrative responsibility.
+
+The Department Head creates the doctor account.
+
+```text id="s8cl5h"
+Create Doctor
+
+Name
+Email
+Phone
+Password
+Qualification
+Experience
+Specialization
+Profile Photo
+
+Department:
+Orthopedics 🔒
+
+Hospital:
+MediMind Hospital 🔒
+
+[Create Doctor]
+```
+
+### Important
+
+The Department Head **cannot change**:
+
+* Hospital
+* Department
+
+because these are determined by the organization's hierarchy.
+
+For example:
+
+> Orthopedics Department Head cannot create a Cardiology doctor.
+
+---
+
+# 6. 👨‍⚕️ Doctor Details
+
+Selecting a doctor opens:
+
+```text id="j2qzpe"
+Dr. Rahul Sharma
+
+Department: Orthopedics
+Hospital: MediMind Hospital
+Status: Active
+
+Qualification
+Experience
+
+Availability
+Appointments
+Workload
+Performance
+```
+
+The Department Head can manage relevant professional/operational information.
+
+---
+
+# 7. 🔄 Doctor Account Management
+
+Department Head can:
+
+* Create doctor
+* View doctor
+* Edit doctor information
+* Activate doctor
+* Deactivate doctor
+* View doctor availability
+* View doctor workload
+
+But:
+
+* ❌ Cannot change hospital
+* ❌ Cannot move doctor to another department directly
+* ❌ Cannot view doctor's private account password
+* ❌ Cannot access unrelated departments
+
+---
+
+# 8. 🕐 Schedules
+
+The Department Head manages the **department schedule**.
+
+Example:
+
+```text id="o2v6te"
+Orthopedics Schedule
+
+Monday
+
+Dr. Rahul
+09:00 – 13:00
+
+Dr. Kumar
+14:00 – 18:00
+
+Dr. Anil
+09:00 – 13:00
+```
+
+They can:
+
+* View doctor availability
+* Coordinate schedules
+* Detect overlapping schedules
+* Manage department-level schedule
+* View blocked dates
+
+The doctor can still manage their own availability within the allowed structure.
+
+---
+
+# 9. 📅 Appointments
+
+The Department Head can view appointments belonging to their department.
+
+Example:
+
+```text id="9o9k7q"
+Orthopedics Appointments
+
+Today
+
+10:00
+Father
+Dr. Rahul
+Confirmed
+
+11:00
+Mother
+Dr. Kumar
+Completed
+
+14:00
+Son
+Dr. Anil
+Pending
+```
+
+The Department Head sees the **operational appointment information**.
+
+They don't automatically receive the patient's complete medical history.
+
+---
+
+# 10. 👥 Department Workload
+
+This page helps the Department Head distribute/manage work.
+
+Example:
+
+```text id="h8ryj5"
+Doctor Workload
+
+Dr. Rahul
+Appointments: 12
+
+Dr. Kumar
+Appointments: 8
+
+Dr. Anil
+Appointments: 15
+```
+
+Could also show:
+
+* Appointments per doctor
+* Completed consultations
+* Pending consultations
+* Cancelled appointments
+* Available slots
+
+---
+
+# 11. 📊 Department Analytics
+
+This is where the Department Head gets useful statistics.
+
+For Orthopedics:
+
+```text id="qz7q2m"
+Orthopedics Analytics
+
+Total Appointments
+        128
+
+Completed
+        102
+
+Cancelled
+         12
+
+AI Predictions
+         57
+
+Fracture Predictions
+         57
+```
+
+For Diabetology:
+
+```text id="f0f6m5"
+Diabetes Predictions
+        73
+```
+
+For Cardiology:
+
+```text id="r3o9fw"
+Heart Disease Predictions
+        64
+```
+
+We can add charts later.
+
+---
+
+# 12. 🤖 AI Analytics
+
+Because each department is connected to one AI capability, the Department Head can see **aggregated AI statistics**.
+
+### Orthopedics
+
+```text
+Fracture Detection
+
+Total Predictions
+Average Confidence
+Positive Predictions
+Negative Predictions
+Prediction Trends
+```
+
+### Diabetology
+
+```text
+Diabetes Risk
+
+Total Predictions
+Low Risk
+Medium Risk
+High Risk
+Prediction Trends
+```
+
+### Cardiology
+
+```text
+Heart Disease Risk
+
+Total Predictions
+Low Risk
+Medium Risk
+High Risk
+Prediction Trends
+```
+
+### Important
+
+The Department Head should see **statistics**, not unrestricted patient reports.
+
+---
+
+# 13. 📈 Doctor Performance
+
+The Department Head can monitor operational performance.
+
+Possible metrics:
+
+* Appointments handled
+* Completed consultations
+* Cancelled appointments
+* Average appointment load
+* Patient feedback/rating
+* Availability utilization
+
+Example:
+
+```text id="k8w1uj"
+Doctor Performance
+
+Dr. Rahul
+Appointments: 42
+Completed: 38
+Rating: 4.6
+
+Dr. Kumar
+Appointments: 35
+Completed: 32
+Rating: 4.5
+
+Dr. Anil
+Appointments: 47
+Completed: 44
+Rating: 4.7
+```
+
+We can decide later whether ratings are part of the first implementation.
+
+---
+
+# 14. 👤 Patient Information
+
+This needs careful permission handling.
+
+Department Head **should not have access to all medical records**.
+
+They can see operational statistics such as:
+
+* Number of patients
+* Number of appointments
+* Department workload
+
+But:
+
+```text id="c7s7ca"
+Patient Medical Record
+       ↓
+Family + Authorized Doctor
+```
+
+not:
+
+```text id="6f1y0b"
+Patient Medical Record
+       ↓
+Department Head automatically ❌
+```
+
+This maintains the access-control model we've already established.
+
+---
+
+# 15. 📚 MediMind Knowledge
+
+Department Heads are also doctors/professionals, so they can participate in the knowledge system.
+
+They can:
+
+* Read doctor articles
+* Publish knowledge articles
+* Edit their own articles
+* View department-related knowledge
+* Share useful medical observations
+
+Example:
+
+```text id="p2u6bq"
+MediMind Knowledge
+
+"Early Signs of Bone Fracture"
+Dr. Rahul
+
+"Common Risk Indicators"
+Dr. Priya
+
+"Post-Fracture Follow-up Practices"
+Dr. Kumar
+```
+
+We can optionally give Department Heads the ability to **review articles from their department before publication** if we want a moderation workflow.
+
+For the first version, I'd keep it simple:
+
+> Doctors can publish their own articles; Department Heads can also publish/read.
+
+---
+
+
+Department Head receives:
+
+* New doctor account created
+* Doctor account status changes
+* Schedule conflicts
+* Appointment statistics
+* Department notifications
+* Hospital Admin announcements
+* System notifications
+
+---
+
+# 17. ⚙️ Department Head Settings
+
+### Account
+
+* Name
+* Email
+* Phone
+* Password
+
+### Department
+
+* Department information
+* Department details
+
+Some fields such as hospital/department assignment should be controlled by Hospital Admin.
+
+
+* Appointment notifications
+* Doctor updates
+* Department alerts
+
+### Security
+
+* Change password
+* Active sessions
+* Logout
+
+---
+
+# 18. 🧭 Final Department Head Sidebar
+
+```text id="6f9qgp"
+🏠 Dashboard
+
+👨‍⚕️ Doctors
+   ├── All Doctors
+   ├── Doctor Details
+   └── Create Doctor
+
+🕐 Schedules
+
+📅 Appointments
+
+📊 Workload
+
+📈 Department Analytics
+
+🤖 AI Analytics
+
+⭐ Doctor Performance
+
+📚 MediMind Knowledge
+
+
+⚙️ Settings
+```
+
+---
+
+# 19. 🔐 Department Head Permissions
+
+| Action                            | Department Head |
+| --------------------------------- | --------------: |
+| Login                             |               ✅ |
+| View own profile                  |               ✅ |
+| Create Doctor                     |               ✅ |
+| Edit Doctor                       |               ✅ |
+| Activate/Deactivate Doctor        |               ✅ |
+| Create Department Head            |               ❌ |
+| Create Hospital Admin             |               ❌ |
+| Manage another department         |               ❌ |
+| Manage another hospital           |               ❌ |
+| View department appointments      |               ✅ |
+| Manage department schedules       |               ✅ |
+| View doctor workload              |               ✅ |
+| View department analytics         |               ✅ |
+| View AI aggregate statistics      |               ✅ |
+| View all patient records          |               ❌ |
+| View unauthorized patient records |               ❌ |
+| View authorized patient records   |              ❌* |
+| Create knowledge article          |               ✅ |
+| Read doctor knowledge             |               ✅ |
+| Manage hospital                   |               ❌ |
+
+*The Department Head's administrative role does not automatically grant clinical record access. If we later want a Department Head to also practice medicine as a doctor, we'd model that explicitly rather than granting access implicitly.
+
+---
+
+# ⭐ 20. Complete Department Head Workflow
+
+```text id="z3z9bc"
+                  🧑‍⚕️ DEPARTMENT HEAD
+                          │
+                       Login
+                          ↓
+                    Dashboard
+                          │
+          ┌───────────────┼───────────────┐
+          ↓               ↓               ↓
+       Doctors        Schedules       Analytics
+          │               │               │
+          ↓               ↓               ↓
+   Create/Manage      Manage Slots     Workload
+      Doctors                           │
+          │                             ↓
+          └──────────────→ Performance
+                          │
+                          ↓
+                    AI Analytics
+```
+
+---
+
+# 🎯 Example: Orthopedics Department
+
+Our actual project data would look like:
+
+```text id="8c6i9r"
+🏥 MediMind Hospital
+        │
+        └── 🦴 Orthopedics
+                │
+                ├── 🧑‍⚕️ Dept Head
+                │
+                ├── 👨‍⚕️ Dr. Rahul
+                ├── 👨‍⚕️ Dr. Kumar
+                └── 👨‍⚕️ Dr. Anil
+                         │
+                         ↓
+                  Fracture Detection
+                         │
+                         ↓
+                    CNN / AI
+```
+
+The same structure exists for:
+
+```text
+🩺 Diabetology
+├── Dept Head
+├── Doctor 1
+├── Doctor 2
+└── Doctor 3
+       ↓
+Diabetes Risk Prediction
+```
+
+and
+
+```text
+❤️ Cardiology
+├── Dept Head
+├── Doctor 1
+├── Doctor 2
+└── Doctor 3
+       ↓
+Heart Disease Risk Prediction
+```
+
+So the **Department Head is primarily an organizational/management role**, while the **Doctor is the clinical role**.

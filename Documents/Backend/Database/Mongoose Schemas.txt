@@ -1,0 +1,1488 @@
+# 🧩 MediMind — Complete Mongoose Schema Design
+
+## Final database structure
+
+```text
+MongoDB Atlas
+│
+├── medimind_auth
+│   └── users
+│
+├── medimind_family
+│   ├── families
+│   └── family_members
+│
+├── medimind_hospital
+│   ├── hospitals
+│   ├── departments
+│   └── department_heads
+│
+├── medimind_doctor
+│   └── doctors
+│
+├── medimind_appointment
+│   └── appointments
+│
+├── medimind_records
+│   ├── medical_records
+│   ├── consultations
+│   ├── prescriptions
+│   └── record_access
+│
+├── medimind_ai
+│   └── predictions
+│
+└── medimind_knowledge
+    └── articles
+```
+
+---
+
+# 1. 🔐 Auth Service
+
+## `User.js`
+
+```js
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true
+    },
+
+    password_hash: {
+      type: String,
+      required: true
+    },
+
+    role: {
+      type: String,
+      required: true,
+      enum: [
+        "FAMILY",
+        "DOCTOR",
+        "DEPARTMENT_HEAD",
+        "HOSPITAL_ADMIN",
+        "CHAIRMAN"
+      ]
+    },
+
+    account_type: {
+      type: String,
+      required: true,
+      enum: [
+        "FAMILY_ACCOUNT",
+        "DOCTOR_ACCOUNT",
+        "DEPARTMENT_HEAD_ACCOUNT",
+        "HOSPITAL_ADMIN_ACCOUNT",
+        "CHAIRMAN_ACCOUNT"
+      ]
+    },
+
+    reference_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE", "DELETED"],
+      default: "ACTIVE"
+    },
+
+    last_login_at: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const User = mongoose.model("User", userSchema);
+
+export default User;
+```
+
+---
+
+# 2. 👨‍👩‍👧 Family Service
+
+## `Family.js`
+
+```js
+import mongoose from "mongoose";
+
+const familySchema = new mongoose.Schema(
+  {
+    family_name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    creator_user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true
+    },
+
+    mobile: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "DEACTIVATED", "DELETED"],
+      default: "ACTIVE"
+    },
+
+    deactivated_at: {
+      type: Date,
+      default: null
+    },
+
+    deleted_at: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Family = mongoose.model("Family", familySchema);
+
+export default Family;
+```
+
+---
+
+## `FamilyMember.js`
+
+```js
+import mongoose from "mongoose";
+
+const familyMemberSchema = new mongoose.Schema(
+  {
+    family_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    full_name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    profile_picture: {
+      type: String,
+      default: null
+    },
+
+    date_of_birth: {
+      type: Date,
+      required: true
+    },
+
+    gender: {
+      type: String,
+      enum: ["MALE", "FEMALE", "OTHER"],
+      required: true
+    },
+
+    blood_group: {
+      type: String,
+      enum: [
+        "A+",
+        "A-",
+        "B+",
+        "B-",
+        "AB+",
+        "AB-",
+        "O+",
+        "O-"
+      ],
+      default: null
+    },
+
+    phone: {
+      type: String,
+      default: null
+    },
+
+    email: {
+      type: String,
+      default: null,
+      lowercase: true,
+      trim: true
+    },
+
+    address: {
+      type: String,
+      default: null
+    },
+
+    emergency_contact: {
+      name: {
+        type: String,
+        default: null
+      },
+
+      relationship: {
+        type: String,
+        default: null
+      },
+
+      phone: {
+        type: String,
+        default: null
+      }
+    },
+
+    health_information: {
+      type: String,
+      default: null
+    },
+
+    medical_conditions: {
+      type: [String],
+      default: []
+    },
+
+    allergies: {
+      type: [String],
+      default: []
+    },
+
+    previous_treatments: {
+      type: [String],
+      default: []
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "REMOVED"],
+      default: "ACTIVE"
+    },
+
+    removed_at: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const FamilyMember = mongoose.model(
+  "FamilyMember",
+  familyMemberSchema
+);
+
+export default FamilyMember;
+```
+
+### Important relationship
+
+```text
+Family
+  │
+  ├── Member 1
+  ├── Member 2
+  ├── Member 3
+  └── Member N
+```
+
+`family_id` is the relationship.
+
+---
+
+# 3. 🏥 Hospital Service
+
+## `Hospital.js`
+
+```js
+import mongoose from "mongoose";
+
+const hospitalSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    address: {
+      street: {
+        type: String,
+        required: true
+      },
+
+      city: {
+        type: String,
+        required: true
+      },
+
+      state: {
+        type: String,
+        required: true
+      },
+
+      country: {
+        type: String,
+        required: true
+      },
+
+      pincode: {
+        type: String,
+        required: true
+      }
+    },
+
+    phone: {
+      type: String,
+      required: true
+    },
+
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE"
+    },
+
+    created_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Hospital = mongoose.model("Hospital", hospitalSchema);
+
+export default Hospital;
+```
+
+---
+
+## `Department.js`
+
+```js
+import mongoose from "mongoose";
+
+const departmentSchema = new mongoose.Schema(
+  {
+    hospital_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    description: {
+      type: String,
+      default: null
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE"
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Department = mongoose.model(
+  "Department",
+  departmentSchema
+);
+
+export default Department;
+```
+
+---
+
+## `DepartmentHead.js`
+
+```js
+import mongoose from "mongoose";
+
+const departmentHeadSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      unique: true
+    },
+
+    hospital_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    department_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE"
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const DepartmentHead = mongoose.model(
+  "DepartmentHead",
+  departmentHeadSchema
+);
+
+export default DepartmentHead;
+```
+
+---
+
+# 4. 👨‍⚕️ Doctor Service
+
+## `Doctor.js`
+
+```js
+import mongoose from "mongoose";
+
+const doctorSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+      index: true
+    },
+
+    hospital_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    department_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    full_name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    profile_picture: {
+      type: String,
+      default: null
+    },
+
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true
+    },
+
+    mobile: {
+      type: String,
+      required: true
+    },
+
+    specialization: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    qualifications: {
+      type: [String],
+      default: []
+    },
+
+    experience_years: {
+      type: Number,
+      min: 0,
+      default: 0
+    },
+
+    professional_description: {
+      type: String,
+      default: null
+    },
+
+    availability: [
+      {
+        day: {
+          type: String,
+          enum: [
+            "MONDAY",
+            "TUESDAY",
+            "WEDNESDAY",
+            "THURSDAY",
+            "FRIDAY",
+            "SATURDAY",
+            "SUNDAY"
+          ]
+        },
+
+        start_time: {
+          type: String
+        },
+
+        end_time: {
+          type: String
+        }
+      }
+    ],
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE"
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Doctor = mongoose.model("Doctor", doctorSchema);
+
+export default Doctor;
+```
+
+---
+
+# 5. 📅 Appointment Service
+
+## `Appointment.js`
+
+```js
+import mongoose from "mongoose";
+
+const appointmentSchema = new mongoose.Schema(
+  {
+    family_member_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    hospital_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    department_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    appointment_date: {
+      type: Date,
+      required: true,
+      index: true
+    },
+
+    start_time: {
+      type: String,
+      required: true
+    },
+
+    end_time: {
+      type: String,
+      required: true
+    },
+
+    reason: {
+      type: String,
+      default: null
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "BOOKED",
+        "CONFIRMED",
+        "COMPLETED",
+        "CANCELLED",
+        "RESCHEDULED"
+      ],
+      default: "BOOKED"
+    },
+
+    ai_prediction_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    cancelled_at: {
+      type: Date,
+      default: null
+    },
+
+    cancellation_reason: {
+      type: String,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Appointment = mongoose.model(
+  "Appointment",
+  appointmentSchema
+);
+
+export default Appointment;
+```
+
+### Core relationship
+
+```text
+Family Member
+      │
+      ▼
+Appointment
+      │
+      ├── Doctor
+      ├── Hospital
+      ├── Department
+      └── AI Prediction
+```
+
+---
+
+# 6. 🗂️ Medical Record Service
+
+## `MedicalRecord.js`
+
+```js
+import mongoose from "mongoose";
+
+const medicalRecordSchema = new mongoose.Schema(
+  {
+    family_member_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    record_type: {
+      type: String,
+      required: true,
+      enum: [
+        "REPORT",
+        "TEST",
+        "XRAY",
+        "SCAN",
+        "ECG",
+        "PRESCRIPTION_DOCUMENT",
+        "OTHER"
+      ]
+    },
+
+    file_name: {
+      type: String,
+      required: true
+    },
+
+    file_url: {
+      type: String,
+      required: true
+    },
+
+    description: {
+      type: String,
+      default: null
+    },
+
+    record_date: {
+      type: Date,
+      required: true
+    },
+
+    uploaded_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true
+    },
+
+    source: {
+      type: String,
+      enum: ["FAMILY", "DOCTOR"],
+      required: true
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "DELETED"],
+      default: "ACTIVE"
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const MedicalRecord = mongoose.model(
+  "MedicalRecord",
+  medicalRecordSchema
+);
+
+export default MedicalRecord;
+```
+
+---
+
+# 7. 📋 Consultation Schema
+
+## `Consultation.js`
+
+```js
+import mongoose from "mongoose";
+
+const consultationSchema = new mongoose.Schema(
+  {
+    family_member_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    appointment_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    symptoms: {
+      type: String,
+      default: null
+    },
+
+    observations: {
+      type: String,
+      default: null
+    },
+
+    clinical_assessment: {
+      type: String,
+      default: null
+    },
+
+    treatment_plan: {
+      type: String,
+      default: null
+    },
+
+    ai_prediction_ids: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: []
+    },
+
+    notes: {
+      type: String,
+      default: null
+    },
+
+    status: {
+      type: String,
+      enum: ["DRAFT", "FINAL", "AMENDED"],
+      default: "DRAFT"
+    },
+
+    finalized_at: {
+      type: Date,
+      default: null
+    },
+
+    amendment_of: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Consultation = mongoose.model(
+  "Consultation",
+  consultationSchema
+);
+
+export default Consultation;
+```
+
+### Consultation flow
+
+```text
+Appointment
+     ↓
+Consultation
+     ↓
+DRAFT
+     ↓
+FINAL
+```
+
+Correction:
+
+```text
+FINAL Consultation
+       ↓
+New AMENDED Consultation
+```
+
+---
+
+# 8. 💊 Prescription Schema
+
+## `Prescription.js`
+
+```js
+import mongoose from "mongoose";
+
+const prescriptionSchema = new mongoose.Schema(
+  {
+    family_member_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    consultation_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    medicines: [
+      {
+        name: {
+          type: String,
+          required: true
+        },
+
+        dosage: {
+          type: String,
+          required: true
+        },
+
+        frequency: {
+          type: String,
+          required: true
+        },
+
+        duration: {
+          type: String,
+          required: true
+        },
+
+        instructions: {
+          type: String,
+          default: null
+        }
+      }
+    ],
+
+    general_instructions: {
+      type: String,
+      default: null
+    },
+
+    status: {
+      type: String,
+      enum: ["DRAFT", "FINAL", "CORRECTED"],
+      default: "DRAFT"
+    },
+
+    finalized_at: {
+      type: Date,
+      default: null
+    },
+
+    correction_of: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Prescription = mongoose.model(
+  "Prescription",
+  prescriptionSchema
+);
+
+export default Prescription;
+```
+
+---
+
+
+# 9. 🔐 Record Access Schema
+
+## `RecordAccess.js`
+
+```js
+import mongoose from "mongoose";
+
+const recordAccessSchema = new mongoose.Schema(
+  {
+    family_member_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    granted_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true
+    },
+
+    granted_at: {
+      type: Date,
+      default: Date.now
+    },
+
+    revoked_at: {
+      type: Date,
+      default: null
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "REVOKED"],
+      default: "ACTIVE",
+      index: true
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const RecordAccess = mongoose.model(
+  "RecordAccess",
+  recordAccessSchema
+);
+
+export default RecordAccess;
+```
+
+### Access rule
+
+`ACTIVE` access gives the doctor complete medical-record access for the selected family member. No individual record-type permissions are stored.
+
+---
+# 10. 🤖 AI Prediction Service
+
+The AI service itself is Python/FastAPI, so we don't have to use Mongoose there.
+
+However, because we want prediction history in MongoDB, we'll maintain an equivalent MongoDB document structure.
+
+## `Prediction`
+
+```text id="o4z4sp"
+{
+  _id: ObjectId,
+
+  family_member_id: ObjectId,
+
+  appointment_id: ObjectId | null,
+
+  prediction_type: String,
+
+  input_type: String,
+
+  input_data: Mixed,
+
+  result: Mixed,
+
+  risk_level: String,
+
+  risk_score: Number,
+
+  confidence: Number,
+
+  model_name: String,
+
+  model_version: String,
+
+  explanation_reference: String | null,
+
+  created_at: Date
+}
+```
+
+### Prediction types
+
+```text id="zhh07h"
+FRACTURE_DETECTION
+DIABETES_RISK
+HEART_DISEASE_RISK
+GENERAL_HEALTH
+```
+
+### Input types
+
+```text id="0k8hgt"
+IMAGE
+HEALTH_PARAMETERS
+TEXT
+```
+
+### Example
+
+```json id="hysc3d"
+{
+  "family_member_id": "MEMBER_ID",
+  "appointment_id": "APPOINTMENT_ID",
+  "prediction_type": "DIABETES_RISK",
+  "input_type": "HEALTH_PARAMETERS",
+  "input_data": {
+    "age": 45,
+    "glucose": 145,
+    "bmi": 28.4
+  },
+  "result": {
+    "risk": "HIGH"
+  },
+  "risk_level": "HIGH",
+  "risk_score": 0.78,
+  "confidence": 0.91,
+  "model_name": "diabetes_dnn",
+  "model_version": "1.0"
+}
+```
+
+### Independent prediction
+
+```text id="f7s8h3"
+appointment_id = null
+```
+
+### Appointment prediction
+
+```text id="9lq3qv"
+appointment_id = actual appointment ID
+```
+
+---
+
+# 11. 📚 Knowledge Service
+
+## `Article.js`
+
+```js
+import mongoose from "mongoose";
+
+const articleSchema = new mongoose.Schema(
+  {
+    author_doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    department_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true
+    },
+
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    summary: {
+      type: String,
+      required: true
+    },
+
+    content: {
+      type: String,
+      required: true
+    },
+
+    category: {
+      type: String,
+      required: true
+    },
+
+    tags: {
+      type: [String],
+      default: []
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "DRAFT",
+        "SUBMITTED",
+        "UNDER_REVIEW",
+        "APPROVED",
+        "REJECTED",
+        "PUBLISHED"
+      ],
+      default: "DRAFT"
+    },
+
+    reviewed_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+
+    review_comment: {
+      type: String,
+      default: null
+    },
+
+    submitted_at: {
+      type: Date,
+      default: null
+    },
+
+    published_at: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at"
+    }
+  }
+);
+
+const Article = mongoose.model("Article", articleSchema);
+
+export default Article;
+```
+
+---
+
+# 11. 🔗 Relationships Between Services
+
+Because these are **microservices**, these IDs are references, but **not Mongoose `populate()` references across databases**.
+
+For example:
+
+```text id="2b6c81"
+Appointment Service
+      │
+      ├── family_member_id
+      ├── doctor_id
+      ├── hospital_id
+      ├── department_id
+      └── ai_prediction_id
+```
+
+Those IDs point conceptually to entities owned by other services.
+
+The service communicates through REST when it needs additional information.
+
+---
+
+# 12. Internal Relationships
+
+Within the same service, normal relationships can be used.
+
+For example:
+
+```text id="j8v2s0"
+Family Service
+
+Family
+  │
+  └── FamilyMember
+        family_id
+```
+
+And:
+
+```text id="q8c5m2"
+Medical Record Service
+
+Consultation
+      │
+      └── Prescription
+           consultation_id
+```
+
+---
+
+# 13. Complete Schema Map
+
+```text id="3n0j9x"
+AUTH SERVICE
+────────────────────────
+User
+ └── reference_id
+       ↓
+Role-specific profile
+
+
+FAMILY SERVICE
+────────────────────────
+Family
+ └── FamilyMember
+
+
+HOSPITAL SERVICE
+────────────────────────
+Hospital
+ └── Department
+       └── DepartmentHead
+
+
+DOCTOR SERVICE
+────────────────────────
+Doctor
+ ├── hospital_id
+ └── department_id
+
+
+APPOINTMENT SERVICE
+────────────────────────
+Appointment
+ ├── family_member_id
+ ├── doctor_id
+ ├── hospital_id
+ ├── department_id
+ └── ai_prediction_id
+
+
+MEDICAL RECORD SERVICE
+────────────────────────
+MedicalRecord
+ └── family_member_id
+
+Consultation
+ ├── family_member_id
+ ├── doctor_id
+ ├── appointment_id
+ └── ai_prediction_ids
+
+Prescription
+ ├── family_member_id
+ ├── doctor_id
+ └── consultation_id
+
+
+AI SERVICE
+────────────────────────
+Prediction
+ ├── family_member_id
+ └── appointment_id
+
+
+KNOWLEDGE SERVICE
+────────────────────────
+Article
+ ├── author_doctor_id
+ └── department_id
+```
+
+---
+
+# 15. ❌ Things We Deliberately Did Not Add
+
+To keep the architecture aligned with our decisions, there is **no**:
+
+```text
+❌ separate doctor_access collection
+❌ permission_checkboxes
+❌ notification collection/service
+❌ chat service
+❌ Redis
+❌ RabbitMQ
+❌ Kafka
+❌ GraphQL
+❌ cross-database Mongoose populate()
+```
+
+Those aren't part of our current core implementation.
+
+---
+
+# 15. One Small Architecture Detail to Keep in Mind
+
+There is one important distinction between **the database blueprint** and **the final implementation schema**.
+
+The structures above are our **locked design baseline**.
+
+When we actually implement each service, we can add technical details such as:
+
+* compound indexes
+* custom validators
+* unique constraints
+* middleware/hooks where genuinely useful
+* file validation
+* pagination indexes
+* query optimization
+
+without changing the overall business model.
+
+---
+
+# ✅ Complete Database Design
+
+We now have the full schema blueprint:
+
+```text
+                 MEDIMIND
+                    │
+     ┌──────────────┼──────────────┐
+     ↓              ↓              ↓
+    AUTH          FAMILY        HOSPITAL
+     │              │              │
+    User         Family        Departments
+                    │              │
+               Members        Department Heads
+                    │
+                    ↓
+              APPOINTMENT
+                    │
+             ┌──────┴──────┐
+             ↓             ↓
+            AI           DOCTOR
+             │             │
+             └──────┬──────┘
+                    ↓
+             MEDICAL RECORDS
+                    │
+             ┌──────┴──────┐
+             ↓             ↓
+       Consultation   Prescription
+
+                    +
+
+               KNOWLEDGE
+                    │
+              Doctor Article
+                    ↓
+             Dept Head Review
+                    ↓
+                 Publish
+```

@@ -1,0 +1,594 @@
+MEDIMIND — AI/ML MODEL SPECIFICATION
+========================================
+
+Document Purpose
+----------------
+This document defines the AI/ML layer of MediMind for the PDNC subject and the
+production-oriented AI Prediction Service.
+
+AI is a clinical decision-support feature. It provides AI-assisted predictions
+or assessments and must not be presented as an autonomous medical diagnosis.
+
+1. AI ARCHITECTURE
+------------------
+
+Frontend (React)
+    |
+    v
+API Gateway
+    |
+    v
+AI Prediction Service
+    |
+    +--> Fracture Detection Model
+    +--> Diabetes Risk Model
+    +--> Heart Disease Risk Model
+    +--> General Health Assessment
+    |
+    v
+Prediction Database
+medimind_ai.predictions
+
+AI Prediction Service:
+- Python
+- FastAPI
+- PyTorch
+- NumPy
+- Pandas
+- Scikit-learn
+- Matplotlib
+- NLP/text processing for General Health
+- Model versioning
+- Prediction history
+
+The frontend communicates only through the API Gateway.
+
+2. FOUR AI MODULES
+------------------
+
+A. FRACTURE DETECTION
+Input: IMAGE
+Purpose: AI-assisted identification of possible fracture patterns in an
+uploaded X-ray/image.
+
+B. DIABETES RISK PREDICTION
+Input: HEALTH_PARAMETERS
+Purpose: Estimate diabetes risk from structured health parameters.
+
+C. HEART DISEASE RISK PREDICTION
+Input: HEALTH_PARAMETERS
+Purpose: Estimate heart-disease risk from structured health parameters.
+
+D. GENERAL HEALTH ASSESSMENT
+Input: TEXT
+Purpose: Analyze free-text symptoms and return possible concerns, urgency
+indication, general guidance, and recommendation for medical evaluation.
+
+3. AI USAGE MODES
+-----------------
+
+Independent prediction:
+- Patient can use AI without an appointment.
+- appointment_id = null.
+
+Appointment-associated prediction:
+- Every appointment requires an AI prediction.
+- appointment_id contains the appointment ID.
+- The doctor can see the appointment's AI prediction before/during consultation.
+
+Workflow:
+
+Family
+  -> Select Patient
+  -> Select AI Module
+  -> Enter/Upload Data
+  -> AI Prediction
+  -> Explanation/Result
+  -> Prediction History
+
+For an appointment:
+
+Family
+  -> Book Appointment
+  -> Required AI Prediction
+  -> Prediction linked to Appointment
+  -> Doctor views prediction
+  -> Consultation
+  -> Prescription
+
+4. COMMON AI PREDICTION CONTRACT
+--------------------------------
+
+Stored prediction fields:
+
+{
+  family_member_id,
+  appointment_id,
+  prediction_type,
+  input_type,
+  input_data,
+  result,
+  risk_level,
+  risk_score,
+  confidence,
+  model_name,
+  model_version,
+  explanation_reference,
+  created_at
+}
+
+prediction_type:
+- FRACTURE_DETECTION
+- DIABETES_RISK
+- HEART_DISEASE_RISK
+- GENERAL_HEALTH
+
+input_type:
+- IMAGE
+- HEALTH_PARAMETERS
+- TEXT
+
+appointment_id:
+- null for independent AI use
+- actual appointment ID for appointment-associated AI
+
+5. FRACTURE DETECTION — CNN
+----------------------------
+
+Goal:
+Use a convolutional neural network to classify an X-ray/image for a possible
+fracture.
+
+Pipeline:
+
+Image Upload
+    ->
+File Validation
+    ->
+Resize / Normalize
+    ->
+CNN
+    ->
+Prediction
+    ->
+Confidence
+    ->
+Optional Grad-CAM
+    ->
+Result
+
+Suggested preprocessing:
+- Validate image type and size.
+- Convert to the expected image format.
+- Resize to the model input size.
+- Normalize pixel values.
+- Apply training-time augmentation only during training.
+
+Model:
+- PyTorch CNN.
+- Transfer learning may be used if the selected dataset/model benefits from it.
+- Final model choice must be documented with dataset and evaluation results.
+
+Output concept:
+
+{
+  "predictionType": "FRACTURE_DETECTION",
+  "possibleFracture": true,
+  "riskLevel": "HIGH",
+  "confidence": 0.94
+}
+
+Explainability:
+- Grad-CAM can highlight image regions contributing to the model output.
+- explanation_reference stores the generated explanation/heatmap reference.
+- Explainability is supportive, not proof of a clinical finding.
+
+Important:
+The UI should use language such as:
+"Possible fracture detected"
+or
+"AI-assisted fracture assessment"
+
+Avoid:
+"You definitely have a fracture."
+
+6. DIABETES RISK — DNN / TABULAR MODEL
+---------------------------------------
+
+Goal:
+Estimate diabetes risk from structured health parameters.
+
+Potential input fields include:
+- Age
+- Glucose
+- Blood pressure
+- BMI
+- Insulin
+- Other dataset-supported features
+
+The exact final feature set must be fixed to the selected dataset.
+
+Pipeline:
+
+Health Parameters
+    ->
+Validation
+    ->
+Missing-value handling
+    ->
+Feature preprocessing/scaling
+    ->
+DNN / selected tabular model
+    ->
+Risk score
+    ->
+Risk level
+    ->
+Confidence
+    ->
+Stored prediction
+
+Example output:
+
+{
+  "predictionType": "DIABETES_RISK",
+  "riskLevel": "MEDIUM",
+  "riskScore": 0.67,
+  "confidence": 0.88
+}
+
+Do not expose unsupported medical claims.
+
+7. HEART DISEASE RISK — DNN / TABULAR MODEL
+-------------------------------------------
+
+Goal:
+Estimate heart-disease risk from structured health parameters.
+
+Potential input fields include:
+- Age
+- Sex
+- Blood pressure
+- Cholesterol
+- Heart rate
+- Other dataset-supported features
+
+The exact final feature set must be fixed to the selected dataset.
+
+Pipeline:
+
+Health Parameters
+    ->
+Validation
+    ->
+Preprocessing/scaling
+    ->
+DNN / selected tabular model
+    ->
+Risk score
+    ->
+Risk level
+    ->
+Confidence
+    ->
+Stored prediction
+
+Example:
+
+{
+  "predictionType": "HEART_DISEASE_RISK",
+  "riskLevel": "HIGH",
+  "riskScore": 0.81,
+  "confidence": 0.91
+}
+
+8. GENERAL HEALTH ASSESSMENT — NLP/TEXT
+----------------------------------------
+
+Goal:
+Provide a general symptom assessment from free text.
+
+Example:
+"Having 103°F temperature, headache and body pain since yesterday."
+
+Pipeline:
+
+Free Text
+    ->
+Text cleaning / normalization
+    ->
+NLP / rule-supported assessment layer
+    ->
+Possible concerns
+    ->
+Urgency indication
+    ->
+General guidance
+    ->
+Medical evaluation recommendation
+    ->
+Store prediction
+
+Response concept:
+
+{
+  "predictionType": "GENERAL_HEALTH",
+  "possibleConcerns": [
+    "Fever-related illness",
+    "Possible infection"
+  ],
+  "urgency": "MEDICAL_EVALUATION_RECOMMENDED",
+  "guidance": "...",
+  "disclaimer": "AI-assisted assessment. This is not a medical diagnosis."
+}
+
+Required wording:
+- Possible concerns include...
+- Medical evaluation is recommended.
+- AI-assisted assessment.
+- This is not a medical diagnosis.
+
+Avoid definitive disease diagnosis from free text.
+
+9. DATASETS
+-----------
+
+The final dataset for each model must be explicitly recorded before training.
+
+For each dataset document:
+- Dataset name
+- Source
+- License/usage terms
+- Number of records/images
+- Features/classes
+- Target label
+- Train/validation/test split
+- Preprocessing
+- Class balance
+- Known limitations
+
+Recommended academic principle:
+Use a reproducible train/validation/test split and avoid data leakage.
+
+10. TRAINING PROCESS
+--------------------
+
+General workflow:
+
+Dataset
+  ->
+Data Cleaning
+  ->
+Exploratory Analysis
+  ->
+Preprocessing
+  ->
+Train / Validation / Test Split
+  ->
+Model Training
+  ->
+Validation
+  ->
+Hyperparameter Tuning
+  ->
+Final Test
+  ->
+Save Model
+  ->
+Version Model
+  ->
+Expose through FastAPI
+
+Training artifacts should be separated from production inference code.
+
+11. EVALUATION
+-------------
+
+For classification models, evaluate using appropriate metrics.
+
+Recommended:
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Confusion matrix
+- ROC-AUC where appropriate
+
+For medical risk models, do not rely only on accuracy.
+Recall, precision, F1 and class-specific behavior are important.
+
+For image classification:
+- Confusion matrix
+- Precision
+- Recall
+- F1
+- ROC-AUC where appropriate
+
+For General Health:
+- Define an evaluation set and assess whether the system produces appropriate
+  categories/urgency outputs.
+- Include safety/error analysis rather than treating free-text output as a
+  conventional disease classifier.
+
+12. MODEL VERSIONING
+--------------------
+
+Every stored prediction contains:
+- model_name
+- model_version
+
+Example:
+model_name = "fracture_cnn"
+model_version = "1.0.0"
+
+When a model changes:
+- Increase model version.
+- Keep previous prediction records.
+- Never overwrite historical prediction results as though they came from the
+  new model.
+
+13. AI EXPLAINABILITY
+---------------------
+
+Fracture:
+- Grad-CAM is the primary planned visual explanation.
+
+Diabetes / Heart:
+- Feature importance or model-appropriate explanation can be added later.
+
+General Health:
+- Return the symptoms/phrases that influenced the assessment only when this
+  can be done reliably and safely.
+
+All explanations are supportive and must not be represented as clinical proof.
+
+14. CONFIDENCE AND RISK
+-----------------------
+
+Keep confidence and risk_score conceptually separate.
+
+confidence:
+- Model confidence in its prediction/output.
+
+risk_score:
+- A numeric risk estimate where the model produces one.
+
+risk_level:
+- Human-readable category such as LOW, MEDIUM, HIGH.
+
+Thresholds must be documented from validation results rather than chosen
+arbitrarily.
+
+15. FASTAPI SERVICE
+-------------------
+
+The AI service exposes endpoints through the API Gateway:
+
+POST /api/ai/fracture
+POST /api/ai/diabetes
+POST /api/ai/heart-disease
+POST /api/ai/general-health
+
+GET /api/ai/member/:memberId
+GET /api/ai/:predictionId
+
+Internal service responsibilities:
+- Validate AI input.
+- Load the correct model.
+- Run inference.
+- Build standardized result.
+- Generate explanation where supported.
+- Save prediction metadata.
+- Return safe result to the caller.
+
+16. AI + DOCTOR WORKFLOW
+------------------------
+
+Patient
+  ->
+Medical Data
+  ->
+AI-assisted Prediction
+  ->
+Explainability
+  ->
+Doctor
+  ->
+Clinical Assessment
+  ->
+Final Decision
+
+AI never replaces the doctor.
+
+The doctor can review:
+- Patient information
+- Medical records
+- Current appointment AI prediction
+- Previous AI predictions
+- Previous consultations
+- Prescriptions
+
+17. PREDICTION HISTORY
+----------------------
+
+The Family UI provides:
+AI Predictions
+  |- Fracture Detection
+  |- Diabetes Risk
+  |- Heart Disease Risk
+  |- General Health
+  `- Prediction History
+
+History contains:
+- Prediction type
+- Date/time
+- Risk/result
+- Confidence where applicable
+- Appointment association where applicable
+- Model name/version
+- Explanation reference where available
+
+18. SECURITY AND PRIVACY
+------------------------
+
+- AI endpoints require authenticated access through the platform.
+- A family can run predictions only for its own family members.
+- A doctor can access a patient's AI information only when the doctor has
+  authorized access to that specific patient.
+- Do not expose one patient's prediction to another family.
+- Do not put medical information into JWT payloads.
+- Do not include private patient information in public knowledge articles
+  without proper authorization/anonymization.
+
+19. AI UI LANGUAGE
+------------------
+
+Preferred:
+- AI-assisted prediction
+- AI-assisted assessment
+- Possible concern
+- Risk level
+- Confidence
+- Medical evaluation recommended
+- Consult a qualified healthcare professional
+
+Avoid:
+- Guaranteed diagnosis
+- Certain disease declaration
+- "The AI doctor says..."
+- "100% accurate"
+
+20. PDNC DELIVERABLES
+---------------------
+
+The AI implementation should demonstrate:
+- Neural network fundamentals
+- CNN for image data
+- DNN/tabular classification
+- Data preprocessing
+- Training and validation
+- Model evaluation
+- Confusion matrix / relevant metrics
+- Model inference
+- Explainability
+- API serving through FastAPI
+- Model versioning
+- Integration with the MediMind microservice architecture
+
+21. FINAL AI IMPLEMENTATION PRINCIPLE
+--------------------------------------
+
+MediMind AI is a decision-support layer.
+
+It should:
+- analyze
+- estimate
+- explain where possible
+- record predictions
+- support doctors
+
+It should not:
+- replace doctors
+- claim certainty
+- expose private records
+- rewrite historical predictions
