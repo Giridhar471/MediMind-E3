@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react'
-import { Activity, ArrowUpRight, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, FileText, HeartPulse, LayoutDashboard, LockKeyhole, Menu, MoreHorizontal, Moon, Plus, Search, Settings, ShieldCheck, Sparkles, Stethoscope, Sun, Upload, UsersRound, X } from 'lucide-react'
+import { Activity, ArrowUpRight, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, FileText, HeartPulse, LayoutDashboard, LockKeyhole, Menu, MoreHorizontal, Moon, Plus, Search, Settings, ShieldCheck, Sparkles, Stethoscope, Sun, Trash2, Upload, UsersRound, X } from 'lucide-react'
 import './App.css'
 
 const members = [
@@ -9,7 +9,7 @@ const members = [
 ]
 
 const navItems = [
-  ['Dashboard', LayoutDashboard], ['Family members', UsersRound], ['Medical records', FileText], ['Upload record', Upload], ['AI predictions', Sparkles], ['Doctors', Stethoscope], ['Appointments', CalendarDays], ['Consultations', Activity], ['Prescriptions', HeartPulse], ['Doctor access', LockKeyhole], ['MediMind Knowledge', FileText],
+  ['Dashboard', LayoutDashboard], ['Family members', UsersRound], ['Medical records', FileText], ['Upload record', Upload], ['AI predictions', Sparkles], ['Doctors', Stethoscope], ['Appointments', CalendarDays], ['Consultations', Activity], ['Prescriptions', HeartPulse], ['MediMind Knowledge', FileText],
 ]
 
 const records = [
@@ -17,6 +17,34 @@ const records = [
   { type: 'X-Ray', date: '10 Sep 2026', source: 'Dr. Rahul · Orthopedics', icon: FileText, color: 'blue', status: 'Available' },
   { type: 'Consultation', date: '08 Sep 2026', source: 'Dr. Kumar · Cardiology', icon: Stethoscope, color: 'green', status: 'Finalized' },
 ]
+
+const presentationData = {
+  Doctors: [
+    { title: 'Dr. Rahul Mehta', detail: 'Orthopedics · MediMind Hospital', meta: 'Available today · 10:30 AM', tone: 'coral', initials: 'RM', action: 'Book appointment' },
+    { title: 'Dr. Ananya Rao', detail: 'Cardiology · Heart & Wellness Center', meta: 'Next slot · Tomorrow, 2:00 PM', tone: 'lilac', initials: 'AR', action: 'View profile' },
+    { title: 'Dr. Kumar Iyer', detail: 'General medicine · City Care Clinic', meta: 'Available Friday · 11:15 AM', tone: 'mint', initials: 'KI', action: 'View profile' },
+  ],
+  Appointments: [
+    { title: 'Orthopedics follow-up', detail: 'Dr. Rahul Mehta · Father', meta: '18 Sep 2026 · 10:30 AM', tone: 'coral', initials: '18', action: 'View details' },
+    { title: 'Annual health review', detail: 'Dr. Ananya Rao · Mother', meta: '22 Sep 2026 · 2:00 PM', tone: 'lilac', initials: '22', action: 'View details' },
+    { title: 'Routine check-up', detail: 'Dr. Kumar Iyer · Son', meta: '28 Sep 2026 · 11:15 AM', tone: 'mint', initials: '28', action: 'View details' },
+  ],
+  Consultations: [
+    { title: 'Orthopedics follow-up notes', detail: 'Dr. Rahul Mehta · Father', meta: 'Updated 15 Sep 2026 · Treatment plan ready', tone: 'coral', initials: 'RM', action: 'Open notes' },
+    { title: 'Cardiology consultation', detail: 'Dr. Ananya Rao · Mother', meta: 'Updated 12 Sep 2026 · Review recommended', tone: 'lilac', initials: 'AR', action: 'Open notes' },
+    { title: 'General medicine visit', detail: 'Dr. Kumar Iyer · Son', meta: 'Updated 08 Sep 2026 · No follow-up needed', tone: 'mint', initials: 'KI', action: 'Open notes' },
+  ],
+  Prescriptions: [
+    { title: 'Vitamin D3 supplement', detail: 'For Father · Once daily after breakfast', meta: 'Active until 30 Nov 2026', tone: 'coral', initials: 'Rx', action: 'View instructions' },
+    { title: 'Blood pressure monitoring', detail: 'For Mother · Follow prescribed dosage', meta: 'Active until 15 Oct 2026', tone: 'lilac', initials: 'Rx', action: 'View instructions' },
+    { title: 'Seasonal allergy relief', detail: 'For Son · As needed', meta: 'Active until 01 Oct 2026', tone: 'mint', initials: 'Rx', action: 'View instructions' },
+  ],
+  'MediMind Knowledge': [
+    { title: 'Understanding your blood test', detail: 'Doctor-authored guide · 6 min read', meta: 'Updated 14 Sep 2026', tone: 'coral', initials: '01', action: 'Read article' },
+    { title: 'Heart-healthy daily routines', detail: 'Wellness guide · 8 min read', meta: 'Updated 10 Sep 2026', tone: 'lilac', initials: '02', action: 'Read article' },
+    { title: 'Preparing for an appointment', detail: 'Family care guide · 4 min read', meta: 'Updated 05 Sep 2026', tone: 'mint', initials: '03', action: 'Read article' },
+  ],
+}
 
 function App() {
   const [page, setPage] = useState('Dashboard')
@@ -27,7 +55,7 @@ function App() {
   const [toast, setToast] = useState('')
   const [familyMembers, setFamilyMembers] = useState(members)
   const [showAddMember, setShowAddMember] = useState(false)
-  const [newMember, setNewMember] = useState({ name: '', relation: 'Family member' })
+  const [newMember, setNewMember] = useState({ name: '', relation: 'Family member', customRelation: '' })
 
   const member = familyMembers[memberIndex] ?? familyMembers[0]
 
@@ -50,12 +78,18 @@ function App() {
       return
     }
 
+    const relation = newMember.relation === 'Other' ? newMember.customRelation.trim() : newMember.relation
+    if (!relation) {
+      announce('Please enter a custom relation.')
+      return
+    }
+
     const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]?.toUpperCase() ?? '').join('') || 'MM'
     const tones = ['coral', 'lilac', 'mint']
 
     const nextMember = {
       name,
-      relation: newMember.relation,
+      relation,
       initials,
       tone: tones[(familyMembers.length) % tones.length],
       records: 0,
@@ -66,12 +100,27 @@ function App() {
     setFamilyMembers(updatedMembers)
     setMemberIndex(updatedMembers.length - 1)
     setShowAddMember(false)
-    setNewMember({ name: '', relation: 'Family member' })
+    setNewMember({ name: '', relation: 'Family member', customRelation: '' })
     announce(`${name} was added to your family account.`)
   }
 
+  const handleDeleteMember = (index) => {
+    if (familyMembers.length === 1) {
+      announce('At least one family member must remain in the account.')
+      return
+    }
+
+    const deletedMember = familyMembers[index]
+    if (!window.confirm(`Delete ${deletedMember.name} from this family account?`)) return
+
+    const updatedMembers = familyMembers.filter((_, memberIndexToRemove) => memberIndexToRemove !== index)
+    setFamilyMembers(updatedMembers)
+    setMemberIndex(currentIndex => index < currentIndex ? currentIndex - 1 : Math.min(currentIndex, updatedMembers.length - 1))
+    announce(`${deletedMember.name} was removed from your family account.`)
+  }
+
   return <div className={`app-shell ${dark ? 'dark-theme' : ''}`}>
-    <style>{`.upload-form{width:min(100%,720px);margin:0 auto}.upload-form .primary-button{width:100%;justify-content:center}.feature-panel:has(.upload-form){padding:32px 40px}.drop-zone{min-height:150px}.feature-panel:has(.upload-form) label{width:100%}.feature-view{display:flex;flex-direction:column;gap:20px}.feature-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.feature-heading>div{flex:1}.feature-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--soft);color:var(--teal)}.compact-button{margin-left:auto;white-space:nowrap}.add-member-form{margin-top:14px;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:0 10px 24px rgba(25,39,52,.04)}.form-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.form-header h3{margin:0;font-size:1.1rem}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.add-member-form label{display:flex;flex-direction:column;gap:8px;color:#5d646d;font-size:12px;font-weight:600}.add-member-form input,.add-member-form select{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:11px 12px;font:inherit;color:var(--ink)}.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:18px}.secondary-button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:600}.close-form{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink)}@media(max-width:720px){.feature-heading{flex-direction:column}.compact-button{width:100%}.form-grid{grid-template-columns:1fr}.upload-form{width:100%}.feature-panel:has(.upload-form){padding:20px 16px}}`}</style>
+    <style>{`.upload-form{width:min(100%,720px);margin:0 auto}.upload-form .primary-button{width:100%;justify-content:center}.feature-panel:has(.upload-form){padding:32px 40px}.drop-zone{min-height:150px}.feature-panel:has(.upload-form) label{width:100%}.feature-view{display:flex;flex-direction:column;gap:20px}.feature-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.feature-heading>div{flex:1}.feature-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--soft);color:var(--teal)}.compact-button{margin-left:auto;white-space:nowrap}.add-member-form{margin-top:14px;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:0 10px 24px rgba(25,39,52,.04)}.form-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.form-header h3{margin:0;font-size:1.1rem}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.add-member-form label{display:flex;flex-direction:column;gap:8px;color:#5d646d;font-size:12px;font-weight:600}.add-member-form input,.add-member-form select{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:11px 12px;font:inherit;color:var(--ink)}.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:18px}.secondary-button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:600}.close-form{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink)}.delete-member-button{display:grid;place-items:center;width:32px;height:32px;margin-left:0;border:1px solid #efcaca;border-radius:9px;background:transparent;color:#c45b5b}.delete-member-button:hover{background:#fff0f0;color:#a93f3f;transform:translateY(-1px)}.feature-card{flex-wrap:nowrap}.feature-card .text-button{margin-left:auto;align-self:center}.feature-card .delete-member-button{align-self:center}.recent-records-panel .section-heading h2{font-size:18px}.recent-records-panel .section-heading p{font-size:12px}.recent-records-panel .record-copy strong{font-size:13px}.recent-records-panel .record-copy span,.recent-records-panel .status-text{font-size:11px}@media(max-width:720px){.feature-heading{flex-direction:column}.compact-button{width:100%}.form-grid{grid-template-columns:1fr}.upload-form{width:100%}.feature-panel:has(.upload-form){padding:20px 16px}.feature-card{flex-wrap:wrap}.feature-card .text-button{margin-left:auto}}`}</style>
     <style>{`@keyframes medimind-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes medimind-card{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.page-transition{animation:medimind-enter .32s cubic-bezier(.22,1,.36,1)}.page-transition .member-card,.page-transition .dashboard-grid>*,.page-transition .lower-grid>*,.page-transition .feature-card,.page-transition .ai-module,.page-transition .feature-records .record-row{animation:medimind-card .36s cubic-bezier(.22,1,.36,1) both}.page-transition .member-card:nth-child(2),.page-transition .feature-card:nth-child(2),.page-transition .ai-module:nth-child(2),.page-transition .feature-records .record-row:nth-child(2){animation-delay:.05s}.page-transition .member-card:nth-child(3),.page-transition .feature-card:nth-child(3),.page-transition .ai-module:nth-child(3),.page-transition .feature-records .record-row:nth-child(3){animation-delay:.1s}.primary-button,.text-button,.plain-button,.upload-button,.icon-button,.nav-item,.member-card,.ai-module,.record-row,.filter{transition:transform .2s ease,background-color .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease}.primary-button:hover,.upload-button:hover{transform:translateY(-2px);box-shadow:0 8px 18px #156f7030}.primary-button:active,.upload-button:active,.text-button:active,.plain-button:active,.icon-button:active{transform:scale(.97)}.member-card:hover,.feature-card:hover,.ai-module:hover{transform:translateY(-3px);box-shadow:0 10px 22px #20352b12}.nav-item:hover{transform:translateX(3px)}.record-row:hover{background:#f3f8f6;padding-left:8px;padding-right:8px}.dark-theme .record-row:hover{background:#2a3942}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}`}</style>
 
     <aside className="sidebar">
@@ -165,7 +214,7 @@ function App() {
           {page === 'Dashboard' ? (
             <Dashboard member={member} memberIndex={memberIndex} setMemberIndex={setMemberIndex} navigate={navigate} announce={announce} familyMembers={familyMembers} />
           ) : (
-            <FeaturePage page={page} member={member} announce={announce} familyMembers={familyMembers} setMemberIndex={setMemberIndex} showAddMember={showAddMember} setShowAddMember={setShowAddMember} newMember={newMember} setNewMember={setNewMember} handleAddMember={handleAddMember} />
+            page === 'Member profile' ? <MemberProfilePage member={member} navigate={navigate} announce={announce} /> : <FeaturePage page={page} member={member} announce={announce} navigate={navigate} familyMembers={familyMembers} setMemberIndex={setMemberIndex} showAddMember={showAddMember} setShowAddMember={setShowAddMember} newMember={newMember} setNewMember={setNewMember} handleAddMember={handleAddMember} handleDeleteMember={handleDeleteMember} />
           )}
         </div>
       </div>
@@ -250,63 +299,52 @@ function Dashboard({ member, memberIndex, setMemberIndex, navigate, announce, fa
         </div>
       </div>
 
-      <div className="wellness-card">
-        <div className="card-topline">
-          <div>
-            <p className="card-kicker">HEALTH SCORE</p>
-            <h3>{member.name}</h3>
-          </div>
-          <span className="score-pill">78%</span>
+      <div className="insight-card">
+        <div className="insight-icon"><Sparkles size={18} /></div>
+        <div>
+          <p className="card-kicker">LATEST AI INSIGHT</p>
+          <h3>Heart health looks stable</h3>
+          <p className="insight-copy">Based on your latest health assessment from 10 Sep.</p>
+          <button className="text-button" onClick={() => navigate('AI predictions')}>View prediction <ArrowUpRight size={15} /></button>
         </div>
-
-        <div className="progress-wrap">
-          <div className="progress-bar">
-            <span style={{ width: '78%' }}></span>
-          </div>
-        </div>
-
-        <div className="mini-metrics">
-          <div><strong>6</strong><span>Care plans</span></div>
-          <div><strong>3</strong><span>Risk alerts</span></div>
-          <div><strong>5</strong><span>Labs due</span></div>
-        </div>
-      </div>
-
-      <div className="summary-card">
-        <p className="card-kicker">FAMILY SUMMARY</p>
-        <h3>Healthy trends this month</h3>
-        <ul>
-          <li>Heart routines improved by 12%</li>
-          <li>Sleep consistency is improving</li>
-          <li>Appointments are on track</li>
-        </ul>
+        <div className="insight-ring"><span>86</span><small>score</small></div>
       </div>
     </section>
 
     <section className="lower-grid">
-      <div className="feature-sheet">
-        <div className="sheet-header">
-          <h3>Recent activity</h3>
-          <button className="text-button" onClick={() => navigate('Medical records')}>See all <ArrowUpRight size={15} /></button>
+      <div className="records-panel">
+        <div className="section-heading">
+          <div>
+            <h2>{member.name}’s recent records</h2>
+            <p>Your latest health activity</p>
+          </div>
+          <button className="text-button" onClick={() => navigate('Medical records')}>View all <ArrowUpRight size={15} /></button>
         </div>
-        <div className="activity-list">
-          <div><span>Lab upload</span><strong>Blood test</strong></div>
-          <div><span>AI review</span><strong>Risk score updated</strong></div>
-          <div><span>Doctor note</span><strong>Follow-up added</strong></div>
-        </div>
+        <div className="record-list">{records.map(record => <RecordRow record={record} key={record.type} announce={announce} />)}</div>
+        <button className="upload-button" onClick={() => navigate('Upload record')}><Upload size={17} /> Upload a medical record</button>
       </div>
 
-      <div className="feature-sheet">
-        <div className="sheet-header">
-          <h3>Next check-ins</h3>
-          <button className="text-button" onClick={() => navigate('Appointments')}>Open <ArrowUpRight size={15} /></button>
+      <div className="activity-panel">
+        <div className="section-heading">
+          <div>
+            <h2>At a glance</h2>
+            <p>Across your family account</p>
+          </div>
+          <button className="icon-button" onClick={() => announce('Family account summary refreshed.')} aria-label="Refresh family account summary"><MoreHorizontal size={18} /></button>
         </div>
-        <div className="checkin-list">
-          <div><span>Orthopedics</span><strong>Thu, 10:30 AM</strong></div>
-          <div><span>General physician</span><strong>Fri, 1:15 PM</strong></div>
+
+        <div className="stat-grid">
+          <div className="stat"><span className="stat-icon coral-bg"><FileText size={17} /></span><strong>24</strong><span>Medical records</span></div>
+          <div className="stat"><span className="stat-icon lilac-bg"><Sparkles size={17} /></span><strong>6</strong><span>AI predictions</span></div>
+          <div className="stat"><span className="stat-icon mint-bg"><CalendarDays size={17} /></span><strong>3</strong><span>Appointments</span></div>
+          <div className="stat"><span className="stat-icon yellow-bg"><LockKeyhole size={17} /></span><strong>2</strong><span>Shared doctors</span></div>
         </div>
+
+        <div className="secure-banner"><ShieldCheck size={17} /><span>All family profiles are protected with secure access.</span></div>
       </div>
     </section>
+
+    <p className="disclaimer"><ShieldCheck size={14} /> MediMind supports better health decisions. It does not replace professional medical advice.</p>
   </>
 }
 
@@ -323,7 +361,61 @@ function RecordRow({ record, announce }) {
   </button>
 }
 
-function FeaturePage({ page, member, announce, familyMembers, setMemberIndex, showAddMember, setShowAddMember, newMember, setNewMember, handleAddMember }) {
+function MemberProfilePage({ member, navigate, announce }) {
+  return <section className="feature-view">
+    <div className="feature-heading">
+      <span className={`avatar avatar-${member.tone}`}>{member.initials}</span>
+      <div>
+        <p className="eyebrow">Family account</p>
+        <h1>{member.name}'s profile</h1>
+        <p>{member.relation} · Personal health overview and activity.</p>
+      </div>
+      <button className="secondary-button compact-button" onClick={() => navigate('Family members')}>
+        <ArrowUpRight size={16} /> Back to family members
+      </button>
+    </div>
+
+    <div className="dashboard-grid profile-summary-grid">
+      <div className="insight-card">
+        <div className="insight-icon"><HeartPulse size={18} /></div>
+        <div>
+          <p className="card-kicker">HEALTH OVERVIEW</p>
+          <h3>Health profile is ready</h3>
+          <p className="insight-copy">Review records, appointments, and AI-supported health updates for {member.name}.</p>
+          <button className="text-button" onClick={() => navigate('Medical records')}>View records <ArrowUpRight size={15} /></button>
+        </div>
+        <div className="insight-ring"><span>78</span><small>score</small></div>
+      </div>
+
+      <div className="activity-panel">
+        <div className="section-heading">
+          <div>
+            <h2>At a glance</h2>
+            <p>{member.name}'s account activity</p>
+          </div>
+        </div>
+        <div className="stat-grid">
+          <div className="stat"><span className="stat-icon coral-bg"><FileText size={17} /></span><strong>{member.records}</strong><span>Medical records</span></div>
+          <div className="stat"><span className="stat-icon lilac-bg"><Sparkles size={17} /></span><strong>{member.predictions}</strong><span>AI predictions</span></div>
+        </div>
+        <div className="secure-banner"><ShieldCheck size={17} /><span>This profile is protected with secure access.</span></div>
+      </div>
+    </div>
+
+    <div className="records-panel recent-records-panel">
+      <div className="section-heading">
+        <div>
+          <h2>Recent records</h2>
+          <p>Latest health activity for {member.name}</p>
+        </div>
+        <button className="text-button" onClick={() => navigate('Medical records')}>View all <ArrowUpRight size={15} /></button>
+      </div>
+      <div className="record-list">{records.map(record => <RecordRow record={record} announce={announce} key={record.type} />)}</div>
+    </div>
+  </section>
+}
+
+function FeaturePage({ page, member, announce, navigate, familyMembers, setMemberIndex, showAddMember, setShowAddMember, newMember, setNewMember, handleAddMember, handleDeleteMember }) {
   const title = page === 'Medical records' ? 'Unified medical records' : page
 
   const subtitles = {
@@ -335,7 +427,6 @@ function FeaturePage({ page, member, announce, familyMembers, setMemberIndex, sh
     Appointments: 'Book and manage care for a specific family member.',
     Consultations: 'Review doctor notes, treatment plans, and linked records.',
     Prescriptions: 'View finalized prescriptions and instructions.',
-    'Doctor access': 'Share one patient’s complete authorized history with a doctor.',
     'MediMind Knowledge': 'Read published doctor-authored healthcare information.',
   }
 
@@ -366,8 +457,17 @@ function FeaturePage({ page, member, announce, familyMembers, setMemberIndex, sh
                   <h3>{item.name}</h3>
                   <p>{item.relation} · {item.records} records · {item.predictions} predictions</p>
                 </div>
-                <button className="text-button" onClick={() => { setMemberIndex(index); announce(`Opening ${item.name}'s profile.`) }}>
+                <button className="text-button" onClick={() => { setMemberIndex(index); navigate('Member profile'); announce(`Opening ${item.name}'s profile.`) }}>
                   View profile <ArrowUpRight size={14} />
+                </button>
+                <button
+                  type="button"
+                  className="delete-member-button"
+                  onClick={() => handleDeleteMember(index)}
+                  aria-label={`Delete ${item.name}`}
+                  title={`Delete ${item.name}`}
+                >
+                  <Trash2 size={16} />
                 </button>
               </article>
             ))}
@@ -402,6 +502,15 @@ function FeaturePage({ page, member, announce, familyMembers, setMemberIndex, sh
                     <option>Parent</option>
                     <option>Other</option>
                   </select>
+                  {newMember.relation === 'Other' && (
+                    <input
+                      value={newMember.customRelation}
+                      onChange={(event) => setNewMember(current => ({ ...current, customRelation: event.target.value }))}
+                      placeholder="Enter custom relation"
+                      aria-label="Custom relation"
+                      required
+                    />
+                  )}
                 </label>
               </div>
 
@@ -432,12 +541,7 @@ function FeaturePage({ page, member, announce, familyMembers, setMemberIndex, sh
 
       {page === 'Upload record' && <UploadForm announce={announce} />}
       {page === 'AI predictions' && <AIModules announce={announce} />}
-      {page === 'Doctors' && <EmptyFeature page={page} announce={announce} />}
-      {page === 'Appointments' && <EmptyFeature page={page} announce={announce} />}
-      {page === 'Consultations' && <EmptyFeature page={page} announce={announce} />}
-      {page === 'Prescriptions' && <EmptyFeature page={page} announce={announce} />}
-      {page === 'Doctor access' && <EmptyFeature page={page} announce={announce} />}
-      {page === 'MediMind Knowledge' && <EmptyFeature page={page} announce={announce} />}
+      {presentationData[page] && <PresentationFeature page={page} announce={announce} />}
     </div>
   </section>
 }
@@ -496,6 +600,24 @@ function AIModules({ announce }) {
       <ShieldCheck size={17} /> AI-assisted results support clinical decisions and are not a medical diagnosis.
     </div>
   </>
+}
+
+function PresentationFeature({ page, announce }) {
+  return <div className="feature-list">
+    {presentationData[page].map((item, index) => (
+      <article className="feature-card" key={`${page}-${item.title}`}>
+        <div className={`avatar avatar-${item.tone}`}>{item.initials}</div>
+        <div>
+          <h3>{item.title}</h3>
+          <p>{item.detail}</p>
+          <span className="feature-meta">{item.meta}</span>
+        </div>
+        <button className="text-button" onClick={() => announce(`${item.action}: ${item.title}.`)}>
+          {item.action} <ArrowUpRight size={14} />
+        </button>
+      </article>
+    ))}
+  </div>
 }
 
 function EmptyFeature({ page, announce }) {
