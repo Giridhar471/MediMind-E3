@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react'
-import { Activity, ArrowUpRight, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, FileText, HeartPulse, LayoutDashboard, LockKeyhole, Menu, MoreHorizontal, Moon, Plus, Search, Settings, ShieldCheck, Sparkles, Stethoscope, Sun, Trash2, Upload, UsersRound, X } from 'lucide-react'
+import { Activity, ArrowUpRight, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, Download, FileText, HeartPulse, LayoutDashboard, LockKeyhole, Menu, MoreHorizontal, Moon, Plus, Search, Settings, ShieldCheck, Sparkles, Stethoscope, Sun, Trash2, Upload, UsersRound, X } from 'lucide-react'
 import './App.css'
 
 const members = [
@@ -9,7 +9,7 @@ const members = [
 ]
 
 const navItems = [
-  ['Dashboard', LayoutDashboard], ['Family members', UsersRound], ['Medical records', FileText], ['Upload record', Upload], ['AI predictions', Sparkles], ['Doctors', Stethoscope], ['Appointments', CalendarDays], ['Consultations', Activity], ['Prescriptions', HeartPulse], ['MediMind Knowledge', FileText],
+  ['Dashboard', LayoutDashboard], ['Family members', UsersRound], ['Medical records', FileText], ['Upload record', Upload], ['AI predictions', Sparkles], ['Doctors', Stethoscope], ['Appointments', CalendarDays], ['Consultations', Activity], ['Prescriptions', HeartPulse],
 ]
 
 const records = [
@@ -39,21 +39,21 @@ const presentationData = {
     { title: 'Blood pressure monitoring', detail: 'For Mother · Follow prescribed dosage', meta: 'Active until 15 Oct 2026', tone: 'lilac', initials: 'Rx', action: 'View instructions' },
     { title: 'Seasonal allergy relief', detail: 'For Son · As needed', meta: 'Active until 01 Oct 2026', tone: 'mint', initials: 'Rx', action: 'View instructions' },
   ],
-  'MediMind Knowledge': [
-    { title: 'Understanding your blood test', detail: 'Doctor-authored guide · 6 min read', meta: 'Updated 14 Sep 2026', tone: 'coral', initials: '01', action: 'Read article' },
-    { title: 'Heart-healthy daily routines', detail: 'Wellness guide · 8 min read', meta: 'Updated 10 Sep 2026', tone: 'lilac', initials: '02', action: 'Read article' },
-    { title: 'Preparing for an appointment', detail: 'Family care guide · 4 min read', meta: 'Updated 05 Sep 2026', tone: 'mint', initials: '03', action: 'Read article' },
-  ],
 }
 
 function App() {
   const [page, setPage] = useState('Dashboard')
+  const [selectedDoctor, setSelectedDoctor] = useState(null)
   const [memberIndex, setMemberIndex] = useState(0)
   const [dark, setDark] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [noticeOpen, setNoticeOpen] = useState(false)
   const [toast, setToast] = useState('')
+  const [detailModal, setDetailModal] = useState(null)
+  const [appointmentAssessment, setAppointmentAssessment] = useState(null)
   const [familyMembers, setFamilyMembers] = useState(members)
+  const [bookedSlots, setBookedSlots] = useState({ 'Dr. Rahul Mehta|2026-09-18': ['10:30 AM'] })
+  const [bookedAppointments, setBookedAppointments] = useState([])
   const [showAddMember, setShowAddMember] = useState(false)
   const [newMember, setNewMember] = useState({ name: '', relation: 'Family member', customRelation: '' })
 
@@ -64,9 +64,32 @@ function App() {
     window.setTimeout(() => setToast(''), 2600)
   }
 
+  const openFeatureModal = (item, feature) => setDetailModal({ item, feature })
+
   const navigate = (nextPage) => {
     setPage(nextPage)
     setProfileOpen(false)
+  }
+
+  const handleBookAppointment = (booking) => {
+    const bookingKey = `${booking.doctor}|${booking.date}`
+    const slotsForDay = bookedSlots[bookingKey] ?? []
+    if (slotsForDay.includes(booking.slot)) {
+      announce(`${booking.slot} is already booked with ${booking.doctor}. Please choose another slot.`)
+      return false
+    }
+
+    setBookedSlots(current => ({ ...current, [bookingKey]: [...(current[bookingKey] ?? []), booking.slot] }))
+    const formattedDate = new Date(`${booking.date}T00:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    setBookedAppointments(current => [...current, {
+      title: booking.type,
+      detail: `${booking.doctor} · ${booking.patient}`,
+      meta: `${formattedDate} · ${booking.slot} · ${booking.mode}`,
+      tone: 'mint',
+      initials: formattedDate.slice(0, 2),
+      action: 'View details',
+    }])
+    return true
   }
 
   const handleAddMember = (event) => {
@@ -120,8 +143,14 @@ function App() {
   }
 
   return <div className={`app-shell ${dark ? 'dark-theme' : ''}`}>
-    <style>{`.upload-form{width:min(100%,720px);margin:0 auto}.upload-form .primary-button{width:100%;justify-content:center}.feature-panel:has(.upload-form){padding:32px 40px}.drop-zone{min-height:150px}.feature-panel:has(.upload-form) label{width:100%}.feature-view{display:flex;flex-direction:column;gap:20px}.feature-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.feature-heading>div{flex:1}.feature-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--soft);color:var(--teal)}.compact-button{margin-left:auto;white-space:nowrap}.add-member-form{margin-top:14px;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:0 10px 24px rgba(25,39,52,.04)}.form-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.form-header h3{margin:0;font-size:1.1rem}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.add-member-form label{display:flex;flex-direction:column;gap:8px;color:#5d646d;font-size:12px;font-weight:600}.add-member-form input,.add-member-form select{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:11px 12px;font:inherit;color:var(--ink)}.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:18px}.secondary-button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:600}.close-form{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink)}.delete-member-button{display:grid;place-items:center;width:32px;height:32px;margin-left:0;border:1px solid #efcaca;border-radius:9px;background:transparent;color:#c45b5b}.delete-member-button:hover{background:#fff0f0;color:#a93f3f;transform:translateY(-1px)}.feature-card{flex-wrap:nowrap}.feature-card .text-button{margin-left:auto;align-self:center}.feature-card .delete-member-button{align-self:center}.recent-records-panel .section-heading h2{font-size:18px}.recent-records-panel .section-heading p{font-size:12px}.recent-records-panel .record-copy strong{font-size:13px}.recent-records-panel .record-copy span,.recent-records-panel .status-text{font-size:11px}@media(max-width:720px){.feature-heading{flex-direction:column}.compact-button{width:100%}.form-grid{grid-template-columns:1fr}.upload-form{width:100%}.feature-panel:has(.upload-form){padding:20px 16px}.feature-card{flex-wrap:wrap}.feature-card .text-button{margin-left:auto}}`}</style>
+    <style>{`.upload-form{width:min(100%,720px);margin:0 auto}.upload-form .primary-button{width:100%;justify-content:center}.feature-panel:has(.upload-form){padding:32px 40px}.drop-zone{min-height:150px}.feature-panel:has(.upload-form) label{width:100%}.feature-view{display:flex;flex-direction:column;gap:20px}.feature-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.feature-heading>div{flex:1}.feature-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--soft);color:var(--teal)}.compact-button{margin-left:auto;white-space:nowrap}.add-member-form{margin-top:14px;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:0 10px 24px rgba(25,39,52,.04)}.form-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.form-header h3{margin:0;font-size:1.1rem}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.add-member-form label{display:flex;flex-direction:column;gap:8px;color:#5d646d;font-size:12px;font-weight:600}.add-member-form input,.add-member-form select{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:11px 12px;font:inherit;color:var(--ink)}.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:18px}.secondary-button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:600}.close-form{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink)}.delete-member-button{display:grid;place-items:center;width:32px;height:32px;margin-left:0;border:1px solid #efcaca;border-radius:9px;background:transparent;color:#c45b5b}.delete-member-button:hover{background:#fff0f0;color:#a93f3f;transform:translateY(-1px)}.feature-card{flex-wrap:nowrap}.feature-card .text-button{margin-left:auto;align-self:center}.feature-card .delete-member-button{align-self:center}.feature-actions{display:flex;align-items:center;gap:16px;margin-left:auto;white-space:nowrap}.recent-records-panel .section-heading h2{font-size:18px}.recent-records-panel .section-heading p{font-size:12px}.recent-records-panel .record-copy strong{font-size:13px}.recent-records-panel .record-copy span,.recent-records-panel .status-text{font-size:11px}@media(max-width:720px){.feature-heading{flex-direction:column}.compact-button{width:100%}.form-grid{grid-template-columns:1fr}.upload-form{width:100%}.feature-panel:has(.upload-form){padding:20px 16px}.feature-card{flex-wrap:wrap}.feature-card .text-button{margin-left:auto}.feature-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}`}</style>
     <style>{`@keyframes medimind-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes medimind-card{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.page-transition{animation:medimind-enter .32s cubic-bezier(.22,1,.36,1)}.page-transition .member-card,.page-transition .dashboard-grid>*,.page-transition .lower-grid>*,.page-transition .feature-card,.page-transition .ai-module,.page-transition .feature-records .record-row{animation:medimind-card .36s cubic-bezier(.22,1,.36,1) both}.page-transition .member-card:nth-child(2),.page-transition .feature-card:nth-child(2),.page-transition .ai-module:nth-child(2),.page-transition .feature-records .record-row:nth-child(2){animation-delay:.05s}.page-transition .member-card:nth-child(3),.page-transition .feature-card:nth-child(3),.page-transition .ai-module:nth-child(3),.page-transition .feature-records .record-row:nth-child(3){animation-delay:.1s}.primary-button,.text-button,.plain-button,.upload-button,.icon-button,.nav-item,.member-card,.ai-module,.record-row,.filter{transition:transform .2s ease,background-color .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease}.primary-button:hover,.upload-button:hover{transform:translateY(-2px);box-shadow:0 8px 18px #156f7030}.primary-button:active,.upload-button:active,.text-button:active,.plain-button:active,.icon-button:active{transform:scale(.97)}.member-card:hover,.feature-card:hover,.ai-module:hover{transform:translateY(-3px);box-shadow:0 10px 22px #20352b12}.nav-item:hover{transform:translateX(3px)}.record-row:hover{background:#f3f8f6;padding-left:8px;padding-right:8px}.dark-theme .record-row:hover{background:#2a3942}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}`}</style>
+
+    <style>{`.booking-form{max-width:900px;margin:0 auto;padding:28px 32px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.booking-form-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:24px}.booking-form-header h2{margin:0 0 5px;font:700 18px 'Plus Jakarta Sans'}.booking-form-header p{margin:0;color:#9aa3ad;font-size:12px}.booking-status{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:8px;background:var(--soft);color:var(--teal);font-size:11px;font-weight:700;white-space:nowrap}.booking-form .form-grid{gap:18px}.booking-form label{display:flex;flex-direction:column;gap:8px;color:#5d646d;font-size:12px;font-weight:600}.booking-form input,.booking-form select,.booking-form textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:12px;color:var(--ink);font:inherit}.booking-form textarea{min-height:110px;resize:vertical}.booking-form select option:disabled{color:#9da6ae}.field-hint{font-size:10px;font-weight:400;color:#8b989f}.booking-reason{margin-top:18px}.booking-summary{display:flex;align-items:center;gap:8px;margin-top:20px;padding:12px 14px;border-radius:9px;background:var(--soft);color:#557b73;font-size:11px}.booking-summary svg{flex:0 0 auto}.booking-form .form-actions{margin-top:24px}.booking-form button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}.assessment-result{margin-bottom:22px;padding:14px 16px;border:1px solid var(--soft-line);border-radius:10px;background:var(--soft);color:#557b73}.assessment-result.high{border-color:#efcaca;background:#fff3f1;color:#a34e45}.assessment-result>div{display:flex;align-items:center;gap:7px;font-size:12px}.assessment-result p{margin:8px 0 0;font-size:12px;line-height:1.5}.assessment-result small{display:block;margin-top:7px;font-size:10px}.assessment-upload{margin-top:18px;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--soft-line);border-radius:10px;padding:20px;background:var(--soft)}.assessment-upload input{margin-top:8px}.modal-backdrop{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(22,35,42,.38);backdrop-filter:blur(3px)}.detail-modal{width:min(100%,520px);padding:26px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 24px 70px rgba(22,35,42,.24)}.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.modal-header h2{margin:4px 0 0;font:700 20px 'Plus Jakarta Sans'}.modal-icon{display:grid;place-items:center;width:44px;height:44px;margin:22px 0 14px;border-radius:12px;background:var(--soft);color:var(--teal)}.detail-modal h3{margin:0 0 7px;font:700 16px 'Plus Jakarta Sans'}.modal-detail{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.modal-meta{display:flex;align-items:center;gap:7px;margin-top:16px;padding:11px 12px;border-radius:9px;background:var(--bg);color:var(--ink);font-size:12px}.modal-section{margin-top:18px;padding-top:17px;border-top:1px solid var(--line)}.modal-section strong{font-size:12px}.modal-section p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}@media(max-width:720px){.booking-form{padding:20px 16px}.booking-form-header{flex-direction:column}.booking-status{align-self:flex-start}.booking-form .form-grid{grid-template-columns:1fr}.detail-modal{padding:20px}.modal-actions{flex-wrap:wrap}.modal-actions button{flex:1}}`}</style>
+
+    <style>{`.compact-feature-icon{width:36px;height:36px;border-radius:10px}.settings-panel{display:flex;flex-direction:column;gap:0}.settings-section{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 0;border-bottom:1px solid var(--line)}.settings-section:first-child{padding-top:0}.settings-section:last-child{border-bottom:0;padding-bottom:0}.settings-section h2{margin:0 0 5px;font:700 15px 'Plus Jakarta Sans'}.settings-section p{margin:0;color:var(--muted);font-size:12px}.settings-section button{white-space:nowrap}@media(max-width:720px){.settings-section{align-items:flex-start;flex-direction:column}.settings-section button{width:100%}}`}</style>
+
+    <style>{`.sidebar{position:fixed;inset:0 auto 0 0;height:100vh;overflow-y:auto;z-index:10}.main-content{margin-left:250px;min-height:100vh}@media(max-width:1050px) and (min-width:721px){.sidebar{width:218px}.main-content{margin-left:218px}}@media(max-width:720px){.sidebar{display:none}.main-content{margin-left:0}}`}</style>
 
     <aside className="sidebar">
       <div className="brand">
@@ -150,12 +179,12 @@ function App() {
       </nav>
 
       <div className="sidebar-bottom">
-        <button className="nav-item">
+        <button className={`nav-item ${page === 'Help center' ? 'active' : ''}`} onClick={() => navigate('Help center')}>
           <CircleHelp size={18} />
           <span>Help center</span>
         </button>
 
-        <button className="nav-item" onClick={() => announce('Settings are available for account, security, and preferences.')}>
+        <button className={`nav-item ${page === 'Settings' ? 'active' : ''}`} onClick={() => navigate('Settings')}>
           <Settings size={18} />
           <span>Settings</span>
         </button>
@@ -214,7 +243,7 @@ function App() {
           {page === 'Dashboard' ? (
             <Dashboard member={member} memberIndex={memberIndex} setMemberIndex={setMemberIndex} navigate={navigate} announce={announce} familyMembers={familyMembers} />
           ) : (
-            page === 'Member profile' ? <MemberProfilePage member={member} navigate={navigate} announce={announce} /> : <FeaturePage page={page} member={member} announce={announce} navigate={navigate} familyMembers={familyMembers} setMemberIndex={setMemberIndex} showAddMember={showAddMember} setShowAddMember={setShowAddMember} newMember={newMember} setNewMember={setNewMember} handleAddMember={handleAddMember} handleDeleteMember={handleDeleteMember} />
+            page === 'Member profile' ? <MemberProfilePage member={member} navigate={navigate} announce={announce} /> : page === 'Doctor profile' ? <DoctorProfilePage doctor={selectedDoctor} navigate={navigate} announce={announce} /> : page === 'Appointment AI assessment' ? <AppointmentAssessmentPage member={member} doctor={selectedDoctor} setAssessment={setAppointmentAssessment} navigate={navigate} announce={announce} /> : page === 'Book appointment' ? <BookAppointmentPage member={member} assessment={appointmentAssessment} bookedSlots={bookedSlots} onBookAppointment={handleBookAppointment} navigate={navigate} announce={announce} /> : page === 'Help center' ? <HelpCenterPage announce={announce} /> : page === 'Settings' ? <SettingsPage dark={dark} setDark={setDark} announce={announce} /> : <FeaturePage page={page} member={member} announce={announce} navigate={navigate} openFeatureModal={openFeatureModal} bookedAppointments={bookedAppointments} setSelectedDoctor={setSelectedDoctor} familyMembers={familyMembers} setMemberIndex={setMemberIndex} showAddMember={showAddMember} setShowAddMember={setShowAddMember} newMember={newMember} setNewMember={setNewMember} handleAddMember={handleAddMember} handleDeleteMember={handleDeleteMember} />
           )}
         </div>
       </div>
@@ -236,6 +265,7 @@ function App() {
       </div>
     )}
 
+    {detailModal && <FeatureDetailModal detail={detailModal} onClose={() => setDetailModal(null)} announce={announce} />}
     {toast && <div className="toast" role="status"><ShieldCheck size={16} /> {toast}</div>}
   </div>
 }
@@ -415,7 +445,7 @@ function MemberProfilePage({ member, navigate, announce }) {
   </section>
 }
 
-function FeaturePage({ page, member, announce, navigate, familyMembers, setMemberIndex, showAddMember, setShowAddMember, newMember, setNewMember, handleAddMember, handleDeleteMember }) {
+function FeaturePage({ page, member, announce, navigate, openFeatureModal, bookedAppointments, setSelectedDoctor, familyMembers, setMemberIndex, showAddMember, setShowAddMember, newMember, setNewMember, handleAddMember, handleDeleteMember }) {
   const title = page === 'Medical records' ? 'Unified medical records' : page
 
   const subtitles = {
@@ -442,6 +472,12 @@ function FeaturePage({ page, member, announce, navigate, familyMembers, setMembe
       {page === 'Family members' && (
         <button className="primary-button compact-button" onClick={() => setShowAddMember(true)}>
           <Plus size={16} /> Add member
+        </button>
+      )}
+
+      {page === 'Appointments' && (
+        <button className="primary-button compact-button" onClick={() => navigate('Appointment AI assessment')}>
+          <CalendarDays size={16} /> Book appointment
         </button>
       )}
     </div>
@@ -541,7 +577,7 @@ function FeaturePage({ page, member, announce, navigate, familyMembers, setMembe
 
       {page === 'Upload record' && <UploadForm announce={announce} />}
       {page === 'AI predictions' && <AIModules announce={announce} />}
-      {presentationData[page] && <PresentationFeature page={page} announce={announce} />}
+      {presentationData[page] && <PresentationFeature page={page} announce={announce} navigate={navigate} openFeatureModal={openFeatureModal} bookedAppointments={bookedAppointments} setSelectedDoctor={setSelectedDoctor} />}
     </div>
   </section>
 }
@@ -602,9 +638,11 @@ function AIModules({ announce }) {
   </>
 }
 
-function PresentationFeature({ page, announce }) {
+function PresentationFeature({ page, announce, navigate, openFeatureModal, bookedAppointments = [], setSelectedDoctor }) {
+  const featureItems = page === 'Appointments' ? [...presentationData[page], ...bookedAppointments] : presentationData[page]
+
   return <div className="feature-list">
-    {presentationData[page].map((item, index) => (
+    {featureItems.map((item, index) => (
       <article className="feature-card" key={`${page}-${item.title}`}>
         <div className={`avatar avatar-${item.tone}`}>{item.initials}</div>
         <div>
@@ -612,12 +650,374 @@ function PresentationFeature({ page, announce }) {
           <p>{item.detail}</p>
           <span className="feature-meta">{item.meta}</span>
         </div>
-        <button className="text-button" onClick={() => announce(`${item.action}: ${item.title}.`)}>
+        {page === 'Doctors' ? <div className="feature-actions">
+          <button className="text-button" onClick={() => navigate('Appointment AI assessment')}>
+            Book appointment <CalendarDays size={14} />
+          </button>
+          <button className="text-button" onClick={() => { setSelectedDoctor(item); navigate('Doctor profile') }}>
+            View profile <ArrowUpRight size={14} />
+          </button>
+        </div> : <button className="text-button" onClick={() => ['Appointments', 'Consultations', 'Prescriptions'].includes(page) ? openFeatureModal(item, page) : announce(`${item.action}: ${item.title}.`)}>
           {item.action} <ArrowUpRight size={14} />
-        </button>
+        </button>}
       </article>
     ))}
   </div>
+}
+
+function DoctorProfilePage({ doctor, navigate, announce }) {
+  if (!doctor) {
+    navigate('Doctors')
+    return null
+  }
+
+  return <section className="feature-view">
+    <div className="feature-heading">
+      <span className={`avatar avatar-${doctor.tone}`}>{doctor.initials}</span>
+      <div>
+        <p className="eyebrow">Doctor profile</p>
+        <h1>{doctor.title}</h1>
+        <p>{doctor.detail}</p>
+      </div>
+      <button className="secondary-button compact-button" onClick={() => navigate('Doctors')}>
+        <ArrowUpRight size={16} /> Back to doctors
+      </button>
+    </div>
+
+    <div className="dashboard-grid profile-summary-grid">
+      <div className="insight-card">
+        <div className="insight-icon"><Stethoscope size={18} /></div>
+        <div>
+          <p className="card-kicker">SPECIALIST OVERVIEW</p>
+          <h3>{doctor.detail.split(' · ')[0]}</h3>
+          <p className="insight-copy">Trusted care for your family account with appointment availability this week.</p>
+          <button className="primary-button" onClick={() => navigate('Appointment AI assessment')}><CalendarDays size={16} /> Book appointment</button>
+        </div>
+      </div>
+
+      <div className="activity-panel">
+        <div className="section-heading">
+          <div>
+            <h2>Availability</h2>
+            <p>Current appointment information</p>
+          </div>
+        </div>
+        <div className="secure-banner"><CalendarDays size={17} /><span>{doctor.meta}</span></div>
+        <button className="text-button" onClick={() => announce('Doctor profile details are ready for your presentation.')}>View clinic details <ArrowUpRight size={14} /></button>
+      </div>
+    </div>
+  </section>
+}
+
+function AppointmentAssessmentPage({ member, doctor, setAssessment, navigate, announce }) {
+  const [symptoms, setSymptoms] = useState('')
+  const [fileName, setFileName] = useState('')
+
+  const analyzeSymptoms = (event) => {
+    event.preventDefault()
+    if (!symptoms.trim() && !fileName) {
+      announce('Add symptoms or upload a report before running the AI assessment.')
+      return
+    }
+
+    const criticalTerms = /chest pain|difficulty breathing|shortness of breath|severe bleeding|unconscious|stroke|severe pain|high fever/i
+    const highPriority = criticalTerms.test(symptoms) || /critical|urgent|abnormal/i.test(fileName)
+    const assessment = {
+      severity: highPriority ? 'High priority' : 'Routine priority',
+      summary: highPriority
+        ? 'The reported symptoms may need prompt clinical review. We recommend choosing the earliest available appointment slot.'
+        : 'The reported information appears suitable for a routine consultation. You can choose any available appointment slot.',
+      reason: symptoms.trim() || `Review uploaded file: ${fileName}`,
+      fileName,
+      doctor: doctor?.title ?? 'Dr. Rahul Mehta',
+      urgency: highPriority ? 'high' : 'routine',
+    }
+    setAssessment(assessment)
+    announce(`${assessment.severity} assessment complete.`)
+    navigate('Book appointment')
+  }
+
+  return <section className="feature-view">
+    <div className="feature-heading">
+      <span className="feature-icon"><Sparkles size={20} /></span>
+      <div>
+        <p className="eyebrow">AI-assisted intake</p>
+        <h1>Check symptoms before booking</h1>
+        <p>Share symptoms or a report so MediMind can recommend appointment urgency.</p>
+      </div>
+      <button className="secondary-button compact-button" onClick={() => navigate('Appointments')}><ArrowUpRight size={16} /> Back to appointments</button>
+    </div>
+
+    <form className="booking-form" onSubmit={analyzeSymptoms}>
+      <div className="booking-form-header">
+        <div><h2>AI symptom assessment</h2><p>This is decision support, not a medical diagnosis.</p></div>
+        <span className="booking-status"><ShieldCheck size={15} /> Private and secure</span>
+      </div>
+
+      <label className="booking-reason">
+        <span>What symptoms or concerns does {member.name} have?</span>
+        <textarea value={symptoms} onChange={(event) => setSymptoms(event.target.value)} placeholder="For example: chest discomfort for two days, or routine follow-up after a blood test" />
+      </label>
+
+      <label className="drop-zone assessment-upload">
+        <Upload size={24} />
+        <strong>{fileName || 'Upload a report or prescription'}</strong>
+        <span>PDF or image files are supported</span>
+        <input type="file" accept=".pdf,image/*" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? '')} />
+      </label>
+
+      <div className="booking-summary"><Sparkles size={17} /><span>The AI summary will be added to Appointment details and used to recommend the earliest slot when needed.</span></div>
+      <div className="form-actions"><button type="button" className="secondary-button" onClick={() => navigate('Appointments')}>Cancel</button><button type="submit" className="primary-button"><Sparkles size={16} /> Analyze and continue</button></div>
+    </form>
+  </section>
+}
+
+function BookAppointmentPage({ member, assessment, bookedSlots, onBookAppointment, navigate, announce }) {
+  const slotOptions = ['10:30 AM', '11:15 AM', '2:00 PM', '4:30 PM']
+
+  const [booking, setBooking] = useState({
+    patient: member.name,
+    doctor: assessment?.doctor ?? 'Dr. Rahul Mehta',
+    date: assessment?.urgency === 'high' ? '2026-09-17' : '2026-09-18',
+    slot: assessment?.urgency === 'high' ? '10:30 AM' : '11:15 AM',
+    reason: assessment?.reason ?? '',
+    type: 'Follow-up consultation',
+    mode: 'In-person',
+  })
+
+  const getBookedSlots = (doctor, date) => bookedSlots[`${doctor}|${date}`] ?? []
+  const getAvailableSlots = (doctor, date) => slotOptions.filter(slot => !getBookedSlots(doctor, date).includes(slot))
+
+  const updateBooking = (field, value) => setBooking(current => ({ ...current, [field]: value }))
+
+  const updateSchedule = (field, value) => {
+    const nextDoctor = field === 'doctor' ? value : booking.doctor
+    const nextDate = field === 'date' ? value : booking.date
+    const availableSlots = getAvailableSlots(nextDoctor, nextDate)
+    setBooking(current => ({ ...current, [field]: value, slot: availableSlots.includes(current.slot) ? current.slot : (availableSlots[0] ?? '') }))
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (!booking.reason.trim()) {
+      announce('Please add a reason for the appointment.')
+      return
+    }
+
+    if (!booking.slot) {
+      announce('There are no available slots for this doctor on the selected date.')
+      return
+    }
+
+    if (!onBookAppointment(booking)) return
+
+    announce(`Appointment booked with ${booking.doctor} for ${booking.patient} on ${booking.date} at ${booking.slot}.`)
+    navigate('Appointments')
+  }
+
+  return <section className="feature-view">
+    <div className="feature-heading">
+      <span className="feature-icon"><CalendarDays size={20} /></span>
+      <div>
+        <p className="eyebrow">Appointments</p>
+        <h1>Book a new appointment</h1>
+        <p>Choose a patient, care provider, available slot, and visit details.</p>
+      </div>
+      <button className="secondary-button compact-button" onClick={() => navigate('Appointments')}>
+        <ArrowUpRight size={16} /> Back to appointments
+      </button>
+    </div>
+
+    <form className="booking-form" onSubmit={handleSubmit}>
+      <div className="booking-form-header">
+        <div>
+          <h2>Appointment details</h2>
+          <p>All fields help the care team prepare for the visit.</p>
+        </div>
+        <span className="booking-status"><CalendarDays size={15} /> Slots available</span>
+      </div>
+
+      {assessment && <div className={`assessment-result ${assessment.urgency}`}>
+        <div><Sparkles size={17} /><strong>AI summary · {assessment.severity}</strong></div>
+        <p>{assessment.summary}</p>
+        {assessment.fileName && <small>Attached report: {assessment.fileName}</small>}
+      </div>}
+
+      <div className="form-grid">
+        <label>
+          <span>Patient profile</span>
+          <select value={booking.patient} onChange={(event) => updateBooking('patient', event.target.value)}>
+            <option>Father</option>
+            <option>Mother</option>
+            <option>Son</option>
+            <option>{member.name}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Assigned doctor</span>
+          <select value={booking.doctor} onChange={(event) => updateSchedule('doctor', event.target.value)}>
+            <option value="Dr. Rahul Mehta">Dr. Rahul Mehta · Orthopedics</option>
+            <option value="Dr. Ananya Rao">Dr. Ananya Rao · Cardiology</option>
+            <option value="Dr. Kumar Iyer">Dr. Kumar Iyer · General medicine</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Appointment date</span>
+          <input type="date" value={booking.date} min="2026-09-17" onChange={(event) => updateSchedule('date', event.target.value)} />
+        </label>
+
+        <label>
+          <span>Available time slot</span>
+          <select value={booking.slot} onChange={(event) => updateBooking('slot', event.target.value)}>
+            {slotOptions.map(slot => <option key={slot} value={slot} disabled={getBookedSlots(booking.doctor, booking.date).includes(slot)}>{slot}{getBookedSlots(booking.doctor, booking.date).includes(slot) ? ' (Booked)' : ''}</option>)}
+          </select>
+          <small className="field-hint">Booked slots are disabled automatically for this doctor and date.</small>
+        </label>
+
+        <label>
+          <span>Appointment type</span>
+          <select value={booking.type} onChange={(event) => updateBooking('type', event.target.value)}>
+            <option>Follow-up consultation</option>
+            <option>First consultation</option>
+            <option>Routine check-up</option>
+            <option>Diagnostic review</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Consultation mode</span>
+          <select value={booking.mode} onChange={(event) => updateBooking('mode', event.target.value)}>
+            <option>In-person</option>
+            <option>Video consultation</option>
+            <option>Phone consultation</option>
+          </select>
+        </label>
+      </div>
+
+      <label className="booking-reason">
+          <span>Why does the patient need this appointment?</span>
+        <textarea value={booking.reason} onChange={(event) => updateBooking('reason', event.target.value)} placeholder="Describe symptoms, follow-up needs, or what you want to discuss" required />
+      </label>
+
+      <div className="booking-summary">
+        <ShieldCheck size={17} />
+        <span>{booking.slot ? `Selected slot: ${booking.date} at ${booking.slot} with ${booking.doctor} · ${booking.mode}` : 'No slots are available for this doctor on the selected date.'}</span>
+      </div>
+
+      <div className="form-actions">
+        <button type="button" className="secondary-button" onClick={() => navigate('Appointments')}>Cancel</button>
+        <button type="submit" className="primary-button" disabled={!booking.slot}><CalendarDays size={16} /> Confirm appointment</button>
+      </div>
+    </form>
+  </section>
+}
+
+function FeatureDetailModal({ detail, onClose, announce }) {
+  const { item, feature } = detail
+  const titles = {
+    Appointments: 'Appointment details',
+    Consultations: 'Consultation notes',
+    Prescriptions: 'Prescription instructions',
+  }
+
+  const downloadPrescription = () => {
+    const content = `MediMind prescription\n\n${item.title}\n${item.detail}\n${item.meta}\n\nInstructions: Follow the care plan provided by your doctor. Contact the clinic if symptoms change.`
+    const file = new Blob([content], { type: 'text/plain' })
+    const url = URL.createObjectURL(file)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-prescription.txt`
+    link.click()
+    URL.revokeObjectURL(url)
+    announce('Prescription downloaded.')
+  }
+
+  return <div className="modal-backdrop" role="presentation" onClick={onClose}>
+    <section className="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title" onClick={(event) => event.stopPropagation()}>
+      <div className="modal-header">
+        <div>
+          <p className="eyebrow">{feature}</p>
+          <h2 id="detail-modal-title">{titles[feature]}</h2>
+        </div>
+        <button className="close-form" onClick={onClose} aria-label="Close details"><X size={17} /></button>
+      </div>
+
+      <div className="modal-icon"><FileText size={20} /></div>
+      <h3>{item.title}</h3>
+      <p className="modal-detail">{item.detail}</p>
+      <div className="modal-meta"><CalendarDays size={15} /> {item.meta}</div>
+
+      {feature === 'Appointments' && <div className="modal-section"><strong>What to bring</strong><p>Bring recent reports, current prescriptions, and any questions for the care team.</p></div>}
+      {feature === 'Consultations' && <div className="modal-section"><strong>Doctor notes</strong><p>The consultation has been reviewed and the treatment plan is available for this family profile.</p></div>}
+      {feature === 'Prescriptions' && <div className="modal-section"><strong>Instructions</strong><p>Follow the prescribed schedule and contact the clinic if you experience any unexpected symptoms.</p></div>}
+
+      <div className="modal-actions">
+        {feature === 'Prescriptions' && <button className="primary-button" onClick={downloadPrescription}><Download size={16} /> Download prescription</button>}
+        <button className="secondary-button" onClick={onClose}>Close</button>
+      </div>
+    </section>
+  </div>
+}
+
+function HelpCenterPage({ announce }) {
+  const helpItems = [
+    ['How do I add a family member?', 'Open Family members, choose Add member, and enter their profile details.'],
+    ['How are records protected?', 'MediMind keeps family health information private with account-level secure access.'],
+    ['How do I book an appointment?', 'Choose Appointments or a doctor, select an available slot, and confirm the visit details.'],
+  ]
+
+  return <section className="feature-view">
+    <div className="feature-heading">
+      <span className="feature-icon"><CircleHelp size={20} /></span>
+      <div>
+        <p className="eyebrow">Support</p>
+        <h1>Help center</h1>
+        <p>Find quick answers and contact the MediMind support team.</p>
+      </div>
+    </div>
+
+    <div className="feature-panel">
+      <div className="feature-list">
+        {helpItems.map(([question, answer]) => <article className="feature-card" key={question}>
+          <div className="feature-icon compact-feature-icon"><CircleHelp size={18} /></div>
+          <div><h3>{question}</h3><p>{answer}</p></div>
+          <button className="text-button" onClick={() => announce(`Opening help article: ${question}.`)}>Read answer <ArrowUpRight size={14} /></button>
+        </article>)}
+      </div>
+
+      <div className="secure-banner"><ShieldCheck size={17} /><span>Need more help? Our support team is ready to assist.</span><button className="text-button" onClick={() => announce('Support request form opened.')}>Contact support <ArrowUpRight size={14} /></button></div>
+    </div>
+  </section>
+}
+
+function SettingsPage({ dark, setDark, announce }) {
+  return <section className="feature-view">
+    <div className="feature-heading">
+      <span className="feature-icon"><Settings size={20} /></span>
+      <div>
+        <p className="eyebrow">Account preferences</p>
+        <h1>Settings</h1>
+        <p>Manage appearance, notifications, and family account preferences.</p>
+      </div>
+    </div>
+
+    <div className="feature-panel settings-panel">
+      <div className="settings-section">
+        <div><h2>Appearance</h2><p>Choose how MediMind looks on this device.</p></div>
+        <button className="secondary-button" onClick={() => setDark(!dark)}>{dark ? <Sun size={16} /> : <Moon size={16} />} {dark ? 'Switch to light mode' : 'Switch to dark mode'}</button>
+      </div>
+      <div className="settings-section">
+        <div><h2>Notifications</h2><p>Appointment reminders and family health updates are enabled.</p></div>
+        <button className="primary-button" onClick={() => announce('Notification preferences saved.')}>Manage notifications</button>
+      </div>
+      <div className="settings-section">
+        <div><h2>Privacy and security</h2><p>Your family profiles are protected with secure access.</p></div>
+        <button className="secondary-button" onClick={() => announce('Privacy settings opened.')}><ShieldCheck size={16} /> Review privacy</button>
+      </div>
+    </div>
+  </section>
 }
 
 function EmptyFeature({ page, announce }) {
