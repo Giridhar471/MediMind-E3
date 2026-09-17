@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react'
-import { Activity, ArrowUpRight, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, Download, FileText, HeartPulse, LayoutDashboard, LockKeyhole, Menu, MoreHorizontal, Moon, Plus, Search, Settings, ShieldCheck, Sparkles, Stethoscope, Sun, Trash2, Upload, UsersRound, X } from 'lucide-react'
+import { Activity, ArrowUpRight, CalendarDays, ChevronDown, ChevronRight, CircleHelp, Download, FileText, HeartPulse, LayoutDashboard, LockKeyhole, Menu, MoreHorizontal, Moon, Plus, Search, Settings, ShieldCheck, Sparkles, Stethoscope, Sun, Trash2, Upload, UsersRound, X } from 'lucide-react'
 import './App.css'
 
 const members = [
@@ -47,7 +47,6 @@ function App() {
   const [memberIndex, setMemberIndex] = useState(0)
   const [dark, setDark] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
-  const [noticeOpen, setNoticeOpen] = useState(false)
   const [toast, setToast] = useState('')
   const [detailModal, setDetailModal] = useState(null)
   const [appointmentAssessment, setAppointmentAssessment] = useState(null)
@@ -215,21 +214,6 @@ function App() {
           <button className="icon-button theme-button" onClick={() => setDark(!dark)} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-
-          <div className="notification-wrap">
-            <button className="icon-button" onClick={() => setNoticeOpen(!noticeOpen)} aria-label="Notifications">
-              <Bell size={19} />
-              <span className="notification-dot" />
-            </button>
-
-            {noticeOpen && (
-              <div className="notification-popover">
-                <strong>Notifications</strong>
-                <p>Your appointment with Dr. Rahul is tomorrow at 10:30 AM.</p>
-                <small>Appointment reminder</small>
-              </div>
-            )}
-          </div>
 
           <button className="profile-button" onClick={() => setProfileOpen(!profileOpen)}>
             <div className="avatar avatar-coral small">RK</div>
@@ -628,6 +612,13 @@ function AIModules({ announce }) {
         <span className="ai-icon mint-bg"><HeartPulse size={18} /></span>
         <h3>Heart disease risk</h3>
         <p>Enter health parameters and review risk score.</p>
+        <ArrowUpRight size={16} />
+      </button>
+
+      <button className="ai-module" onClick={() => announce('General health risk model opened.')}>
+        <span className="ai-icon yellow-bg"><ShieldCheck size={18} /></span>
+        <h3>General health risk</h3>
+        <p>Combine family history, lifestyle, symptoms, and recent records into one overall risk estimate.</p>
         <ArrowUpRight size={16} />
       </button>
     </div>
